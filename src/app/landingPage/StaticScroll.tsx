@@ -63,7 +63,7 @@ const Notifications: React.FC = () => {
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-6 bg-[#fced99] rounded-2xl mt-8 p-4">
         <NotesCard title="Telegram Bot Perks">
-          <ul type='bullet'>
+          <ul >
             <li>Instant push notifications</li>
             <li>Custom event reminders</li>
             <li>Interactive commands like /start, /remindme</li>
