@@ -28,10 +28,10 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 
-interface NavProps {
-  user: boolean;
-  setUser: (value: boolean) => void;
-}
+// interface NavProps {
+//   user: boolean;
+//   setUser: (value: boolean) => void;
+// }
 
 const pages = [
   { name: "Home", href: "/", icon: Home },
@@ -44,6 +44,7 @@ export function Nav() {
   const pathname = usePathname();
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
+  const [user,setUser]=useState(false)
 
   const handlePageChange = (page: string) => {
     if (page === "All Reminders") {
