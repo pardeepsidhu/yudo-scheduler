@@ -60,7 +60,7 @@ export const testCalendarEventProps: CalendarEventProps = {
 
 const maxEvents = 2;
 
-function EventCard({ date }: { date?: CalendarEvent; hides: boolean }) {
+function EventCard({ date }: { date: CalendarEvent; hides: boolean }) {
   return (
     <div
       className={cn(
@@ -79,7 +79,7 @@ function EventCard({ date }: { date?: CalendarEvent; hides: boolean }) {
 
 export default function CalendarEvent({
   dates = testCalendarEventProps.dates,
-}: CalendarEventProps) {
+} : CalendarEventProps) {
   const extraCount = dates.length - maxEvents;
   return (
     <div
