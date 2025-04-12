@@ -10,8 +10,8 @@ const AuthPage = () => {
   const [tab, setTab] = useState("login");
   const [otp, setOtp] = useState(["", "", "", ""]);
 
-  const handleOtpChange = (index:number, value) => {
-    if (!isNaN(value) && value.length <= 1) {
+  const handleOtpChange = (index:number, value:string) => {
+    if (!isNaN(parseInt(value)) && value.length <= 1) {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
@@ -139,7 +139,7 @@ const AuthPage = () => {
             </Tabs>
 
             <div className="text-sm text-center text-zinc-500 ">
-              By continuing, you agree to YUDO's <a href="#" className="text-indigo-600 hover:underline">Terms of Service</a> & <a href="#" className="text-indigo-600 hover:underline">Privacy Policy</a>.
+              By continuing, you agree to YUDO&apos;s <a href="#" className="text-indigo-600 hover:underline">Terms of Service</a> & <a href="#" className="text-indigo-600 hover:underline">Privacy Policy</a>.
             </div>
           </div>
         </div>

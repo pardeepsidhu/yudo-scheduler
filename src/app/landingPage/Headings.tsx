@@ -7,6 +7,7 @@ import { CheckIcon, ChevronRightIcon } from 'lucide-react';
 import { RetroGrid } from '@/components/magicui/retro-grid';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { HeroSection } from './HeroSection';
+import Image from 'next/image';
 
 const ProfessionalScheduler = () => {
   // State to track which elements have been scrolled into view
@@ -196,10 +197,12 @@ const ProfessionalScheduler = () => {
             <div className="order-1 lg:order-2 flex justify-center">
               <div className="relative scroll-animate slide-in-right">
                 <div className="absolute inset-0 bg-indigo-100 rounded-full blur-3xl opacity-30"></div>
-                <img 
-                  src="https://media.istockphoto.com/id/1464853466/photo/place-of-work.jpg?s=612x612&w=0&k=20&c=Jn0W-oZdBjtm80gWhWzropUeWoODxYrxbWIkniAbhGc=" 
+                <Image
+                  src="/landingPage/ScheduleDemp.jpg" 
                   alt="Yudo Scheduler Dashboard" 
                   className="relative z-10 rounded-xl shadow-xl max-w-full h-auto"
+                  width={1000}
+                  height={1000}
                 />
               </div>
             </div>
@@ -220,7 +223,7 @@ const ProfessionalScheduler = () => {
                   Achieve More With <AuroraText>Less Effort</AuroraText>
                 </h2>
                 <p className="text-indigo-100 text-lg leading-relaxed scroll-animate fade-in delay-200">
-                  Yudo Scheduler doesn't just organize your tasks—it transforms your approach to time management. With intelligent prioritization, automated reminders, and deep analytics, you'll make better decisions about your time and resources.
+                  Yudo Scheduler doesn&apos;t just organize your tasks—it transforms your approach to time management. With intelligent prioritization, automated reminders, and deep analytics, you&apos;ll make better decisions about your time and resources.
                 </p>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
@@ -238,11 +241,13 @@ const ProfessionalScheduler = () => {
 
               <div className="w-full lg:w-1/2 flex justify-center relative z-10">
                 <div className="scroll-animate scale-in delay-300">
-                  <img
-                    src="https://img.freepik.com/free-photo/close-up-young-colleagues-having-meeting_23-2149060289.jpg?semt=ais_country_boost&w=740" 
+                  <Image
+                    src="/landingPage/WhyYudo.png" 
                     alt="Professional using Yudo Scheduler"
                     className="w-full max-w-lg rounded-xl shadow-lg object-cover hover:scale-105 transition-transform duration-500"
-                  />
+                    width={1000}
+                    height={1000}
+                 />
                 </div>
               </div>
             </div>

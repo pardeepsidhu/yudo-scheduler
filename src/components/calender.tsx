@@ -1,6 +1,14 @@
 import { useState } from "react";
 
 export default function CalendarEvent() {
+  interface dateType {
+    title:string,
+    time:string,
+    color:string,
+    bgcolor:string,
+    barColor:string,
+    dateColor:string
+  }
   const [dates] = useState([
     {
       title: "Updates",
@@ -48,11 +56,11 @@ export default function CalendarEvent() {
   const extraCount = dates.length - maxEvents;
 
   // Helper function to combine class names
-  const cn = (...classes) => {
+  const cn = (...classes:string[]) => {
     return classes.filter(Boolean).join(" ");
   };
 
-  function EventCard({ date }) {
+  function EventCard({ date }:{date:dateType}) {
     return (
       <div
         className={cn(

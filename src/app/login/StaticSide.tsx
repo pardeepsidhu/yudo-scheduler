@@ -1,7 +1,5 @@
-// "use server"
 import { AuroraText } from '@/components/magicui/aurora-text';
 import { AvatarCircles } from '@/components/magicui/avatar-circles'
-import SplitText from '@/components/splitText';
 import { Card, CardContent } from '@/components/ui/card'
 import { Bell, Calendar, CheckCircle, Clock, KeyRound } from 'lucide-react'
 import React from 'react'
@@ -89,7 +87,7 @@ export default function StaticSide() {
       <AvatarCircles numPeople={999} avatarUrls={avatars} />
       
       </div>
-      <p className="text-sm text-gray-600"> <SplitText className='text-sm' text='users organizing their life' ></SplitText> </p>
+      <p className="text-sm text-gray-600">  users organizing their life</p>
     </div>
   </div>
   )
