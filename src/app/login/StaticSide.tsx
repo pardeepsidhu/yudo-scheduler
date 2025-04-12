@@ -1,3 +1,4 @@
+// "use server"
 import { AuroraText } from '@/components/magicui/aurora-text';
 import { AvatarCircles } from '@/components/magicui/avatar-circles'
 import SplitText from '@/components/splitText';

@@ -1,22 +1,9 @@
-import { cn } from "@/lib/utils";
+import { useState } from "react";
 
-interface CalendarEvent {
-  title: string;
-  time: string;
-  color: string;
-  bgcolor: string;
-  barColor: string;
-  dateColor: string;
-}
-
-interface CalendarEventProps {
-  dates: CalendarEvent[];
-}
-
-export const testCalendarEventProps: CalendarEventProps = {
-  dates: [
+export default function CalendarEvent() {
+  const [dates] = useState([
     {
-      title: "Backlog Updates",
+      title: "Updates",
       time: "10:30 - 10:45",
       color: "text-purple-900",
       bgcolor: "bg-purple-200",
@@ -55,36 +42,37 @@ export const testCalendarEventProps: CalendarEventProps = {
       barColor: "bg-red-700",
       dateColor: "text-red-600",
     },
-  ],
-};
+  ]);
 
-const maxEvents = 2;
-
-function EventCard({ date }: { date: CalendarEvent; hides: boolean }) {
-  return (
-    <div
-      className={cn(
-        "relative flex h-10 w-full items-center gap-2 overflow-hidden rounded-md pl-1 transition-all",
-        date.bgcolor,
-      )}
-    >
-      <div className={cn("h-8 w-1 rounded-sm", date.barColor)}></div>
-      <div className="flex-col items-center justify-center">
-        <h4 className={cn("text-sm font-bold", date.color)}>{date.title}</h4>
-        <p className={cn("whitespace-pre text-xs", date.dateColor)}>{date.time}</p>
-      </div>
-    </div>
-  );
-}
-
-export default function CalendarEvent({
-  dates = testCalendarEventProps.dates,
-} : CalendarEventProps) {
+  const maxEvents = 2;
   const extraCount = dates.length - maxEvents;
+
+  // Helper function to combine class names
+  const cn = (...classes) => {
+    return classes.filter(Boolean).join(" ");
+  };
+
+  function EventCard({ date }) {
+    return (
+      <div
+        className={cn(
+          "relative flex h-10 w-full items-center gap-2 overflow-hidden rounded-md pl-1 transition-all",
+          date.bgcolor
+        )}
+      >
+        <div className={cn("h-8 w-1 rounded-sm", date.barColor)}></div>
+        <div className="flex-col items-center justify-center">
+          <h4 className={cn("text-sm font-bold", date.color)}>{date.title}</h4>
+          <p className={cn("whitespace-pre text-xs", date.dateColor)}>{date.time}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
-        "group relative flex size-52 flex-col overflow-hidden rounded-3xl border-2 bg-white p-4",
+        "group relative flex border-none w-52 h-52 flex-col overflow-hidden rounded-3xl border-2 bg-white p-4"
       )}
     >
       <div className="flex gap-1">
@@ -95,16 +83,16 @@ export default function CalendarEvent({
       </div>
       <div className="my-2 flex flex-1 flex-col gap-2">
         {dates.slice(0, maxEvents).map((date, index) => (
-          <EventCard hides key={index} date={date} />
+          <EventCard key={index} date={date} />
         ))}
       </div>
       {extraCount ? (
         <>
           <div className="flex h-8 w-full items-center justify-between rounded-md border-2 border-slate-200 bg-slate-50 p-1">
             <p className="text-xs font-bold text-neutral-800">
-              +{dates.length - maxEvents} event{extraCount > 1 && "s"}
+              +{extraCount} event{extraCount > 1 && "s"}
             </p>
-            <p className="text-[10px] text-gray-500">16:15 - 20:00</p>
+            <p className="text-xs text-gray-500">16:15 - 20:00</p>
           </div>
           {dates.slice(maxEvents, maxEvents + 3).map((date, index) => (
             <div
@@ -113,7 +101,7 @@ export default function CalendarEvent({
                 paddingInline: `${(index + 1) * 6}px`,
               }}
             >
-              <div className="mt-[1px] h-[2px] w-full rounded-full bg-gray-100" />
+              <div className="mt-1 h-px w-full rounded-full bg-gray-100" />
             </div>
           ))}
         </>
