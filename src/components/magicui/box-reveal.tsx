@@ -1,10 +1,11 @@
 "use client";
 
+import React from "react";
 import { motion, useAnimation, useInView } from "motion/react";
 import { useEffect, useRef } from "react";
 
 interface BoxRevealProps {
-  children: JSX.Element;
+  children: React.ReactNode;
   width?: "fit-content" | "100%";
   boxColor?: string;
   duration?: number;
@@ -14,11 +15,10 @@ export const BoxReveal = ({
   children,
   width = "fit-content",
   boxColor = "#5046e6",
-  duration,
+  duration = 0.5,
 }: BoxRevealProps) => {
   const mainControls = useAnimation();
   const slideControls = useAnimation();
-
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true });
 
@@ -41,11 +41,10 @@ export const BoxReveal = ({
         }}
         initial="hidden"
         animate={mainControls}
-        transition={{ duration: duration ? duration : 0.5, delay: 0.25 }}
+        transition={{ duration, delay: 0.25 }}
       >
         {children}
       </motion.div>
-
       <motion.div
         variants={{
           hidden: { left: 0 },
@@ -53,7 +52,7 @@ export const BoxReveal = ({
         }}
         initial="hidden"
         animate={slideControls}
-        transition={{ duration: duration ? duration : 0.5, ease: "easeIn" }}
+        transition={{ duration, ease: "easeIn" }}
         style={{
           position: "absolute",
           top: 4,
