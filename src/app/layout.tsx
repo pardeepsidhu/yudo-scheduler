@@ -13,7 +13,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">
+      <body cz-shortcut-listen="true" className="antialiased">
         {children}
       </body>
     </html>

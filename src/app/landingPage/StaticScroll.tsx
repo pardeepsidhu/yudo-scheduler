@@ -151,7 +151,7 @@ const Notifications = () => {
       <div ref={whyMattersRef} className="py-24 bg-gradient-to-b from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <div className="rounded-3xl border bg-white shadow-xl overflow-hidden">
-            <div className="flex flex-col md:flex-row items-center justify-between">
+            <div className="flex flex-col p-4 md:flex-row items-center justify-between">
               <div className="w-full md:w-1/2 p-8 md:p-16 space-y-6">
                 <span className="inline-block font-semibold py-1 px-4 rounded-full bg-[#5046e6] text-white tracking-wide text-sm">
                   WHY NOTIFICATIONS MATTER
