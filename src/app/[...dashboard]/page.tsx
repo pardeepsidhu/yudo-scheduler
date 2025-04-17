@@ -3,6 +3,7 @@ import Sidebar from '@/components/SideBar';
 import React, { useState } from 'react';
 import ProfessionalCalendar from './dashboard';
 import RemindersPage from './reminder';
+import TaskDashboard from './task';
 
 export default function Page() {
   const [activeItem, setActiveItem] = useState("dashboard");
@@ -11,7 +12,7 @@ export default function Page() {
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar - fixed */}
-      <div className="flex-shrink-0">
+      <div className="flex-shrink-0 ">
         <Sidebar 
           activeItem={activeItem} 
           setActiveItem={setActiveItem} 
@@ -19,9 +20,10 @@ export default function Page() {
       </div>
       
       {/* Main content - scrollable */}
-      <div className="flex-grow overflow-y-auto">
+      <div className="flex-grow overflow-y-auto p-2" style={{ overflow: "auto" }} id="scrollableDiv" >
         {activeItem === "dashboard" && <ProfessionalCalendar />}
         {activeItem === "reminders" && <RemindersPage />}
+        {activeItem === "tasks" && <TaskDashboard />}
       </div>
     </div>
   );

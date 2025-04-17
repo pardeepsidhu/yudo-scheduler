@@ -1,218 +1,277 @@
-"use client";
-
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+// components/Navbar.tsx
+'use client'
+import { useState, useEffect, ReactNode } from 'react';
+import Link from 'next/link';
 import { 
-  Home, 
-  Info,
-  Menu,
-  LogOut,
-  Calendar,
-  PlusCircle
-} from "lucide-react";
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { useState } from "react";
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle
+} from '@/components/ui/navigation-menu';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Menu, ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils'; // Make sure you have this utility function
 
-// interface NavProps {
-//   user: boolean;
-//   setUser: (value: boolean) => void;
-// }
+// Dashboard submenu items type
+interface DashboardItem {
+  title: string;
+  href: string;
+  description: string;
+  icon?: ReactNode;
+}
 
-const pages = [
-  { name: "Home", href: "/", icon: Home },
-  { name: "All Reminders", href: "/allreminder", icon: Calendar },
-  { name: "Add Reminder", href: "/inbox", icon: PlusCircle },
-  { name: "About", href: "/about", icon: Info },
+// Dashboard items data
+const dashboardItems: DashboardItem[] = [
+  {
+    title: 'Overview',
+    href: '/dashboard',
+    description: 'View a summary of all your activities and statistics.',
+  },
+  {
+    title: 'Schedule',
+    href: '/dashboard/schedule',
+    description: 'Manage your appointments and upcoming events.',
+  },
+  {
+    title: 'Tasks',
+    href: '/dashboard/tasks',
+    description: 'Track your to-do items and ongoing projects.',
+  },
+  {
+    title: 'Notifications',
+    href: '/dashboard/notifications',
+    description: 'View all your important alerts and updates.',
+  },
+  {
+    title: 'Analytics',
+    href: '/dashboard/analytics',
+    description: 'Access detailed insights and performance metrics.',
+  },
+  {
+    title: 'Reminders',
+    href: '/dashboard/reminders',
+    description: 'Set up and manage your reminders and alerts.',
+  },
+  {
+    title: 'Settings',
+    href: '/dashboard/settings',
+    description: 'Configure your dashboard preferences.',
+  },
 ];
 
-export function Nav() {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [openDialog, setOpenDialog] = useState(false);
-  const [user,setUser]=useState(false)
+// Type for navigation items
+interface NavItem {
+  title: string;
+  href: string;
+  isDropdown?: boolean;
+  dropdownItems?: DashboardItem[];
+}
 
-  const handlePageChange = (page: string) => {
-    if (page === "All Reminders") {
-      router.push("/allreminder");
-    } else if (page === "Home") {
-      router.push("/");
-    } else if (page === "Add Reminder") {
-      router.push("/inbox");
-    } else if (page === "About") {
-      router.push("/about");
-    } else if (page === "Logout") {
-      if (user) {
-        setOpenDialog(true);
-      } else {
-        router.push("/login");
-      }
-    }
-  };
+// Navigation items
+const navItems: NavItem[] = [
+  { title: 'Home', href: '/' },
+  { title: 'About', href: '/about' },
+  { title: 'Report', href: '/report' },
+  { 
+    title: 'Dashboard', 
+    href: '/dashboard',
+    isDropdown: true,
+    dropdownItems: dashboardItems
+  },
+  { title: 'Contact', href: '/contact' },
+];
 
-  const handleLogout = () => {
-    localStorage.clear();
-    setUser(false);
-    router.push("/");
-    setOpenDialog(false);
-  };
+// Props interface for ListItem component
+interface ListItemProps {
+  className?: string;
+  title: string;
+  href: string;
+  children?: React.ReactNode;
+}
 
+// Component for dropdown list items
+const ListItem = ({ className, title, children, href }: ListItemProps) => {
   return (
-    <>
-      <nav className="fixed top-0 left-0 right-0 bg-[#133354] shadow-lg z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            {/* Logo */}
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-2 group">
-                <div className="bg-[#F5F7FA]/10 backdrop-blur-sm p-2 rounded-lg transition-all duration-300 group-hover:shadow-lg group-hover:bg-[#F5F7FA]/20 flex items-center space-x-2 max-w-[200px] sm:max-w-none">
-                  <div className="relative w-8 h-8 overflow-hidden rounded-lg shrink-0">
-                    <Image
-                      src="/logo.png"
-                      alt="Yudo-Reminder Logo"
-                      fill
-                      className="object-cover"
-                      priority
-                    />
-                  </div>
-                  <span className="text-xl sm:text-2xl font-bold text-[#F5F7FA] tracking-tight truncate">Yudo-Reminder</span>
-                </div>
-              </Link>
-            </div>
+    <li>
+      <NavigationMenuLink asChild>
+        <Link
+          href={href}
+          className={cn(
+            "block select-none space-y-1 rounded-lg p-3 leading-none no-underline outline-none transition-colors hover:bg-slate-100 hover:text-blue-600 focus:bg-slate-100 focus:text-blue-600",
+            className
+          )}
+        >
+          <div className="text-sm font-medium leading-none">{title}</div>
+          <p className="line-clamp-2 text-sm leading-snug text-slate-500">
+            {children}
+          </p>
+        </Link>
+      </NavigationMenuLink>
+    </li>
+  );
+};
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-1">
-              {pages.map((page) => {
-                const Icon = page.icon;
-                const isActive = pathname === page.href;
-                
-                return (
-                  <Button
-                    key={page.name}
-                    variant="ghost"
-                    onClick={() => handlePageChange(page.name)}
-                    className={cn(
-                      "group flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300",
-                      "hover:shadow-lg hover:-translate-y-0.5 hover:bg-[#F5F7FA]/10",
-                      isActive
-                        ? "bg-[#F5F7FA]/20 text-[#F5F7FA] shadow-md"
-                        : "text-[#F5F7FA]/90 hover:text-[#F5F7FA]"
+const Navbar: React.FC = () => {
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
+  
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  return (
+    <header 
+      className={cn(
+        "sticky top-0 z-50 w-full transition-all duration-300 backdrop-blur-sm",
+        isScrolled 
+          ? "bg-white/95 shadow-md" 
+          : "bg-transparent"
+      )}
+    >
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16 md:h-20">
+          {/* Logo */}
+          <Link href="/" className="flex items-center space-x-2">
+            <span className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
+              YourLogo
+            </span>
+          </Link>
+          
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-1">
+            <NavigationMenu>
+              <NavigationMenuList>
+                {navItems.map((item) => (
+                  <NavigationMenuItem key={item.title}>
+                    {item.isDropdown ? (
+                      <>
+                        <NavigationMenuTrigger className="text-sm font-medium">
+                          {item.title}
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                            {item.dropdownItems?.map((dropdownItem) => (
+                              <ListItem
+                                key={dropdownItem.title}
+                                title={dropdownItem.title}
+                                href={dropdownItem.href}
+                              >
+                                {dropdownItem.description}
+                              </ListItem>
+                            ))}
+                          </ul>
+                        </NavigationMenuContent>
+                      </>
+                    ) : (
+                      <Link href={item.href} legacyBehavior passHref>
+                        <NavigationMenuLink className={cn(
+                          navigationMenuTriggerStyle(),
+                          "text-sm font-medium"
+                        )}>
+                          {item.title}
+                        </NavigationMenuLink>
+                      </Link>
                     )}
-                  >
-                    <Icon className={cn(
-                      "h-5 w-5 transition-all duration-300",
-                      isActive 
-                        ? "text-[#F5F7FA]" 
-                        : "text-[#F5F7FA]/80 group-hover:text-[#F5F7FA] group-hover:scale-110"
-                    )} />
-                    <span className="relative">
-                      {page.name}
-                      <span className={cn(
-                        "absolute -bottom-1 left-0 w-0 h-0.5 bg-[#27C5FA] transition-all duration-300",
-                        isActive ? "w-full" : "group-hover:w-full"
-                      )} />
-                    </span>
-                  </Button>
-                );
-              })}
-              <Button
-                variant="ghost"
-                onClick={() => handlePageChange("Logout")}
-                className="text-[#F5F7FA]/90 hover:text-[#F5F7FA] hover:bg-[#F5F7FA]/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
+            
+            <div className="flex items-center space-x-3 ml-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700 transition-colors"
               >
-                <LogOut className="h-5 w-5 mr-2" />
-                {user ? "Logout" : "Login"}
+                Login
+              </Button>
+              <Button 
+                size="sm"
+                className="bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              >
+                Sign Up
               </Button>
             </div>
-
-            {/* Mobile Menu */}
-            <div className="flex items-center">
-              <Sheet>
-                <SheetTrigger asChild>
-                  <Button variant="ghost" size="icon" className="md:hidden text-[#F5F7FA] hover:bg-[#F5F7FA]/10">
-                    <Menu className="h-5 w-5" />
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-[300px] bg-[#133354] border-none">
-                  <div className="flex flex-col space-y-4 mt-4">
-                    {pages.map((page) => {
-                      const Icon = page.icon;
-                      const isActive = pathname === page.href;
-                      return (
-                        <Button
-                          key={page.name}
-                          variant="ghost"
-                          onClick={() => handlePageChange(page.name)}
-                          className={cn(
-                            "flex items-center space-x-2 px-4 py-2 rounded-lg text-sm font-medium w-full justify-start",
-                            "text-[#F5F7FA]/90 hover:text-[#F5F7FA] hover:bg-[#F5F7FA]/10 transition-all duration-300",
-                            isActive
-                              ? "bg-[#F5F7FA]/20 text-[#F5F7FA]"
-                              : "hover:shadow-md"
-                          )}
+          </nav>
+          
+          {/* Mobile Menu Trigger */}
+          <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="md:hidden">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full max-w-xs p-0">
+              <div className="p-6">
+                <Link href="/" className="flex items-center space-x-2 mb-8">
+                  <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-700 bg-clip-text text-transparent">
+                    YourLogo
+                  </span>
+                </Link>
+                <nav className="flex flex-col gap-1">
+                  {navItems.map((item) => (
+                    <div key={item.title} className="py-1">
+                      {item.isDropdown ? (
+                        <details className="group">
+                          <summary className="flex cursor-pointer items-center justify-between rounded-md py-2 px-3 font-medium hover:bg-slate-100 hover:text-blue-600 transition-colors">
+                            {item.title}
+                            <ChevronDown className="h-4 w-4 transition-transform group-open:rotate-180" />
+                          </summary>
+                          <div className="ml-4 mt-1 space-y-1">
+                            {item.dropdownItems?.map((dropdownItem) => (
+                              <Link
+                                key={dropdownItem.title}
+                                href={dropdownItem.href}
+                                className="block rounded-md py-2 px-3 text-sm hover:bg-slate-100 hover:text-blue-600 transition-colors"
+                                onClick={() => setIsMobileMenuOpen(false)}
+                              >
+                                {dropdownItem.title}
+                              </Link>
+                            ))}
+                          </div>
+                        </details>
+                      ) : (
+                        <Link 
+                          href={item.href}
+                          className="block rounded-md py-2 px-3 font-medium hover:bg-slate-100 hover:text-blue-600 transition-colors"
+                          onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <Icon className="h-5 w-5" />
-                          <span>{page.name}</span>
-                        </Button>
-                      );
-                    })}
-                    <Button
-                      variant="ghost"
-                      onClick={() => handlePageChange("Logout")}
-                      className="text-[#F5F7FA]/90 hover:text-[#F5F7FA] hover:bg-[#F5F7FA]/10 w-full justify-start transition-all duration-300"
-                    >
-                      <LogOut className="h-5 w-5 mr-2" />
-                      {user ? "Logout" : "Login"}
-                    </Button>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-          </div>
+                          {item.title}
+                        </Link>
+                      )}
+                    </div>
+                  ))}
+                </nav>
+                
+                <div className="pt-6 mt-6 border-t border-slate-200 space-y-3">
+                  <Button 
+                    variant="outline" 
+                    className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 hover:text-blue-700"
+                  >
+                    Login
+                  </Button>
+                  <Button className="w-full bg-blue-600 text-white hover:bg-blue-700">
+                    Sign Up
+                  </Button>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
-      </nav>
-
-      {/* Logout Dialog */}
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="bg-[#F5F7FA] border-[#D4D8E0]">
-          <DialogHeader>
-            <DialogTitle className="text-[#2D373D]">Confirm Logout</DialogTitle>
-            <DialogDescription className="text-[#888CA7]">
-              Are you sure you want to logout?
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setOpenDialog(false)}
-              className="border-[#D4D8E0] text-[#2D373D] hover:bg-[#D4D8E0]"
-            >
-              Cancel
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleLogout}
-              className="bg-[#133354] hover:bg-[#133354]/90"
-            >
-              Logout
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+      </div>
+    </header>
   );
-}
+};
+
+export default Navbar;

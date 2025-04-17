@@ -75,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   setActiveItem
 }) => {
   // Use state with proper typing
-  const [collapsed, setCollapsed] = useState<boolean>(false);
+  const [collapsed, setCollapsed] = useState<boolean>(true);
  
 
   // Handle logout with proper fallback

@@ -211,7 +211,7 @@ export default function ProfessionalCalendar() {
   const today = new Date();
   
   return (
-    <div className="flex flex-col  bg-white  border border-gray-200 shadow-lg overflow-hidden">
+    <div className="flex flex-col   bg-white  border border-gray-200 shadow-lg overflow-hidden">
       {/* Calendar Header */}
       <div className="bg-gradient-to-r from-blue-700 to-indigo-800 text-white p-4 md:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

@@ -84,7 +84,7 @@ const Notifications = () => {
 
         <div className="grid gap-12 md:grid-cols-2 items-stretch">
           {/* Email Notifications */}
-          <BoxReveal boxColor="#5046e6" duration={0.5}>
+          <BoxReveal boxColor="#5046e6"  duration={0.5}>
             <InteractiveGrid className="p-8 bg-white rounded-3xl shadow-xl flex flex-col justify-between h-full hover:shadow-2xl transition-all duration-300">
               <div className="space-y-6">
                 <div className="flex items-center space-x-4">
@@ -105,10 +105,10 @@ const Notifications = () => {
                   
                     src="/landingPage/EmailAlert.jpeg"
                     alt="Email notification preview"
-                    className="object-cover w-full h-full rounded-2xl"
+                    className="object-cover h-[207px] rounded-2xl"
                     // style={{width:"100%",height:'100%'}}
-                    width={1000}
-                    height={1000}
+                    width={275}
+                    height={275}
                   />
               
               </div>
@@ -136,9 +136,9 @@ const Notifications = () => {
                   <Image
                     src="/landingPage/TelegramAlert.jpeg"
                     alt="Telegram bot preview"
-                    className="object-cover w-full h-full rounded-2xl"
-                    width={1000}
-                    height={1000}
+                    className="object-cover h-[207px]  rounded-2xl"
+                    width={275}
+                    height={275}
                   />
                 {/* </div> */}
               </div>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Navbar from "./Nav";
 
 export const metadata: Metadata = {
   title: "Yudo-Gram",
@@ -14,6 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body cz-shortcut-listen="true" className="antialiased">
+        {/* <Navbar /> */}
         {children}
       </body>
     </html>
