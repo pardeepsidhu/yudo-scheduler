@@ -76,7 +76,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   // Use state with proper typing
   const [collapsed, setCollapsed] = useState<boolean>(true);
- 
+
 
   // Handle logout with proper fallback
   const handleLogout = () => {
@@ -89,13 +89,13 @@ const Sidebar: React.FC<SidebarProps> = ({
 
   const menuItems: MenuItem[] = [
     { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { id: "schedule", label: "Schedule", icon: Calendar },
+    { id: "timesheet", label: "Timesheet", icon: Calendar },
     { id: "tasks", label: "Tasks", icon: CheckSquare },
     { id: "reminders", label: "Reminders", icon: Clock },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "analytics", label: "Analytics", icon: PieChart },
-    { id: "team", label: "Team", icon: Users },
-    { id: "settings", label: "Settings", icon: Settings },
+    { id: "profile", label: "Profile", icon: Users },
+
   ];
 
   return (

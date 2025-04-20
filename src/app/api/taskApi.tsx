@@ -95,6 +95,7 @@ export async function fetchTasks(options?: {
 
 export async function fetchTaskById(id: string): Promise<TaskData> {
   const token = getAuthToken();
+
   if (!token) {
     throw new Error('Authentication token not found');
   }
@@ -197,7 +198,7 @@ export const getTaskById = async (taskId: string) => {
  */
 export const updateTask = async (taskId: string, updatedTask: Partial<Task>) => {
   const token = getAuthToken();
-  console.log('fuction run')
+
   if (!token) {
     return { 
       error: "Authentication token not found",
@@ -238,3 +239,54 @@ export const updateTask = async (taskId: string, updatedTask: Partial<Task>) => 
     };
   }
 };
+
+
+
+
+
+export const getTaskByTimeFrames = async (timeframe, startDate, endDate) => {
+  const token = getAuthToken();
+  if (!token) {
+    return {
+      error: "Authentication token not found",
+      success: false
+    };
+  }
+
+  try {
+    // Format dates as YYYY-MM-DD for API
+    const formattedStartDate = startDate instanceof Date ? 
+      startDate.toISOString().split('T')[0] : 
+      new Date(startDate).toISOString().split('T')[0];
+    
+    const formattedEndDate = endDate instanceof Date ? 
+      endDate.toISOString().split('T')[0] : 
+      new Date(endDate).toISOString().split('T')[0];
+    
+    const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/task/timeframe/${timeframe}?startDate=${formattedStartDate}&endDate=${formattedEndDate}`;
+    
+    const response = await fetch(endpoint, {
+      headers: {
+        "auth-token": token,
+        "Content-Type": "application/json"
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (data.error) {
+      return {
+        error: data.error,
+        success: false
+      };
+    }
+    
+    return data;
+  } catch (error) {
+    return {
+      error: "Error occurred while fetching tasks by time frame!",
+      success: false
+    };
+  }
+};
+

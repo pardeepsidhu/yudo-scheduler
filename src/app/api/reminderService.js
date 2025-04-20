@@ -10,17 +10,20 @@
  * @param {string} status - Filter by status ('all', 'pending', or 'sent')
  * @returns {Promise<Object>} - Response containing emails array and total count
  */
-export const getAllReminders = async (token, page = 1, pageSize = 10, status = 'all') => {
+export const getAllReminders = async (token, page, pageSize, status = 'all') => {
     // console.log("this isd "+process.env)
     try {
+      let endpoint;
       // Calculate skip value for pagination
+      if(page && pageSize){
       const skip = (page - 1) * pageSize;
-      console.log(skip+" "+pageSize)
-      
-      // Build the API endpoint with query parameters
-      let endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/email/getall?limit=${pageSize}&skip=${skip}`;
-      // console.log(token)
+      endpoint  = `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/email/getall?limit=${pageSize}&skip=${skip}`;
+      }
+     else{
+      endpoint  = `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/email/getall`;
+     }
       let t = JSON.parse(token)
+
       // Add status filter if not 'all'
       if (status === 'pending' || status === 'sent') {
         endpoint += `&status=${status}`;
@@ -31,9 +34,8 @@ export const getAllReminders = async (token, page = 1, pageSize = 10, status = '
           "auth-token": t.token
         }
       });
-      
       const data = await response.json();
-      
+  
       if (data.error) {
         return { error: data.error };
       }
@@ -43,6 +45,7 @@ export const getAllReminders = async (token, page = 1, pageSize = 10, status = '
         total: data.total || 0
       };
     } catch (error) {
+      console.log(error)
       return { error: "Failed to fetch reminders. Please try again." };
     }
   };

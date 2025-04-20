@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect } from "react"
 import InfiniteScroll from "react-infinite-scroll-component"
 import {
   Card,
@@ -34,6 +34,7 @@ import {
   CheckCircle2,
   Lightbulb,
   Columns,
+  Loader,
 } from "lucide-react"
 import { format } from "date-fns"
 import { generateAIContent } from "../api/reminderService"
@@ -229,7 +230,7 @@ export default function RemindersComponent() {
       {/* Header with title and new reminder button */}
       <div className="py-6 mb-2 px-4  rounded-2xl rounded-b-none border-1 flex sticky z-20 top-0 bg-white flex-col sm:flex-row justify-between items-center">
         <div className="flex items-center gap-2 mb-4 sm:mb-0">
-          <Bell className="h-6 w-6 text-primary" />
+          <Bell className="h-6 w-6 text-blue-500" />
           <h1 className="text-2xl font-bold text-gray-900">My Reminders</h1>
           {!initialLoading && reminders.length > 0 && (
             <Badge variant="secondary" className="ml-2">
@@ -285,7 +286,7 @@ export default function RemindersComponent() {
         <CardContent>
           {initialLoading ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <Loader className="h-8 w-8 animate-spin text-primary" />
               <p className="mt-4 text-sm text-muted-foreground">Loading reminders...</p>
             </div>
           ) : reminders.length > 0 ? (
@@ -295,9 +296,10 @@ export default function RemindersComponent() {
               next={fetchReminders}
               hasMore={hasMore}
               loader={
-                <div className="py-4 flex justify-center">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                </div>
+                <div className="flex flex-col items-center">
+                <Loader size={32} className="animate-spin text-blue-600 mb-2" />
+                <p className="text-gray-600">Loading Reminders...</p>
+              </div>
               }
               endMessage={
                 <p className="text-center text-sm text-muted-foreground py-4">

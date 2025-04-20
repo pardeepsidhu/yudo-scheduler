@@ -82,7 +82,7 @@ export function CreateTaskDialog({
       status: taskToEdit?.status || 'pending',
       priority: taskToEdit?.priority || 'normal',
       estimatedHours: 0,
-      estimatedMinutes: 30,
+      estimatedMinutes: 0,
     },
   });
 

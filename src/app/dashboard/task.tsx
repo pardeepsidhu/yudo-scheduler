@@ -13,7 +13,8 @@ import {
   AlertCircle,
   Info,
   Trash2,
-  Loader2
+  Loader2,
+  Loader
 } from 'lucide-react';
 
 import {
@@ -280,6 +281,14 @@ export default function TaskDashboard() {
               </CardContent>
             </Card>
           ))
+          // <div className="h-[40vh] bg-gray-50 flex items-center justify-center">
+        // <div className="flex flex-col items-center">
+        //   <div className="rounded-full bg-blue-50 p-4 mb-3">
+        //     <Loader size={32} className="animate-spin text-blue-600" />
+        //   </div>
+        //   <p className="text-gray-600 font-medium">Loading dashboard...</p>
+        // </div>
+      // </div>
         ) : filteredTasks.length > 0 ? (
           filteredTasks.map((task) => (
             <Card key={task._id} onClick={()=>handleViewTask(task)} className="shadow-md transition-all duration-200 hover:shadow-lg hover:translate-y-[-2px] cursor-pointer bg-white border border-gray-200">
@@ -361,15 +370,32 @@ export default function TaskDashboard() {
           className="flex justify-center p-4 mt-4"
         >
           {loading && tasks.length > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
-              <span className="text-sm text-gray-500">Loading more tasks...</span>
-            </div>
+            <div className="flex flex-col items-center">
+              
+            <Loader size={32} className="animate-spin text-blue-600 mb-2" />
+            <p className="text-gray-600">Loading More Tasks...</p>
+          </div>
           )}
+          
         </div>
       )}
-
+{!hasMore && !loading &&
+ <div 
+          ref={ref}
+          className="flex justify-center p-4 mt-4"
+        >
+          {loading && tasks.length > 0 && (
+            <div className="flex flex-col items-center">
+              
+            <Loader size={32} className="animate-spin text-blue-600 mb-2" />
+            <p className="text-gray-600">Loading More Tasks...</p>
+          </div>
+          )}
+          
+        </div>
+          }
      
+   
       {/* Create Task Dialog */}
     
       <CreateTaskDialog open={isCreateDialogOpen}  onOpenChange={setIsCreateDialogOpen} />
