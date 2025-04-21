@@ -35,6 +35,26 @@ export const HeroSection: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+
+<div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
+        {/* Abstract Shapes */}
+        <div className="absolute inset-0 w-full h-full">
+          <svg className="absolute top-0 left-0 w-full h-full opacity-10 dark:opacity-20 overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice">
+            <circle cx="75" cy="25" r="8" fill="rgba(99, 102, 241, 0.2)" className="animate-pulse-slow"></circle>
+            <circle cx="25" cy="75" r="6" fill="rgba(139, 92, 246, 0.2)" className="animate-pulse-slow delay-1000"></circle>
+            <circle cx="85" cy="85" r="4" fill="rgba(217, 70, 239, 0.2)" className="animate-pulse-slow delay-2000"></circle>
+            <path d="M15,15 Q40,5 50,30 T90,40" fill="none" stroke="rgba(99, 102, 241, 0.3)" strokeWidth="0.4" className="animate-draw"></path>
+            <path d="M10,50 Q20,60 40,50 T60,60 T90,50" fill="none" stroke="rgba(139, 92, 246, 0.3)" strokeWidth="0.4" className="animate-draw delay-1000"></path>
+          </svg>
+        </div>
+        
+        {/* Blurred Gradient Orbs - Positioned to avoid overflow */}
+        <div className="absolute top-1/4 left-[5%] w-48 h-48 rounded-full bg-blue-600/20 dark:bg-blue-600/10 blur-3xl animate-blob"></div>
+        <div className="absolute bottom-1/4 right-[5%] w-56 h-56 rounded-full bg-purple-600/20 dark:bg-purple-600/10 blur-3xl animate-blob delay-2000"></div>
+        <div className="absolute top-2/3 left-1/3 w-40 h-40 rounded-full bg-pink-600/20 dark:bg-pink-600/10 blur-3xl animate-blob delay-4000"></div>
+      </div>
+
+
       <div className="text-center space-y-6">
         <h1 className="text-gray-900 text-4xl sm:text-6xl font-bold leading-tight tracking-tight scroll-animate">
           Streamline Your <AuroraText>Schedule</AuroraText>
@@ -88,6 +108,8 @@ export const HeroSection: React.FC = () => {
           </div>
         ))}
       </div>
+
+      
     </div>
   )
 }

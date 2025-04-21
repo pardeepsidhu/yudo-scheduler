@@ -1,0 +1,100 @@
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+    
+    .animate-float {
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    @keyframes blob {
+      0%, 100% {
+        transform: translate(0, 0) scale(1);
+      }
+      25% {
+        transform: translate(10px, -10px) scale(1.1);
+      }
+      50% {
+        transform: translate(-10px, 5px) scale(0.9);
+      }
+      75% {
+        transform: translate(5px, 10px) scale(1.05);
+      }
+    }
+    
+    .animate-blob {
+      animation: blob 15s ease-in-out infinite;
+    }
+    
+    .delay-2000 {
+      animation-delay: 2s;
+    }
+    
+    .delay-4000 {
+      animation-delay: 4s;
+    }
+    
+    @keyframes pulse-slow {
+      0%, 100% {
+        opacity: 0.3;
+      }
+      50% {
+        opacity: 0.8;
+      }
+    }
+    
+    .animate-pulse-slow {
+      animation: pulse-slow 8s ease-in-out infinite;
+    }
+    
+    @keyframes draw {
+      0% {
+        stroke-dashoffset: 1000;
+      }
+      100% {
+        stroke-dashoffset: 0;
+      }
+    }
+    
+    .animate-draw {
+      stroke-dasharray: 1000;
+      stroke-dashoffset: 1000;
+      animation: draw 15s linear infinite alternate;
+    }
+    
+    @keyframes glitch-1 {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+    }
+    
+    @keyframes glitch-2 {
+      0%, 100% { transform: translate(0); }
+      20% { transform: translate(2px, -2px); }
+      40% { transform: translate(2px, 2px); }
+      60% { transform: translate(-2px, -2px); }
+      80% { transform: translate(-2px, 2px); }
+    }
+    
+    .animate-glitch-1 {
+      animation: glitch-1 5s infinite linear alternate-reverse;
+    }
+    
+    .animate-glitch-2 {
+      animation: glitch-2 5s infinite linear alternate-reverse;
+    }
+    
+    .shadow-text {
+      text-shadow: 0 5px 15px rgba(79, 70, 229, 0.4);
+    }
+    
+    .delay-1000 {
+      animation-delay: 1s;
+    }

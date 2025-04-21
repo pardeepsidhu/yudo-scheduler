@@ -1,6 +1,6 @@
 'use client'
 import React, { useState } from "react";
-import { Calendar, LayoutDashboard, Clock, Bell, Settings, Users, ChevronRight, ChevronLeft, LogOut, PieChart, CheckSquare } from "lucide-react";
+import { Calendar, LayoutDashboard, Clock, Bell, Settings, Users, ChevronRight, ChevronLeft, LogOut, PieChart, CheckSquare, PanelLeftOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -101,17 +101,19 @@ const Sidebar: React.FC<SidebarProps> = ({
   return (
     <div 
       className={cn(
-        "h-screen bg-white border-r border-teal-100 flex flex-col transition-all duration-300 shadow-sm",
-        collapsed ? "w-20" : "w-64"
+        "absolute z-200 md:static h-screen   flex flex-col transition-all duration-300 ",
+        collapsed ? "w-20 border-none md:border-r  md:bg-white md:border-teal-100 md:shadow-sm" : "w-64 bg-white border-teal-100 border-r shadow-sm" ,
+
+
       )}
     >
       {/* Logo and Collapse Button */}
       <div className={cn(
         "flex items-center border-b border-teal-100",
-        collapsed ? "justify-center" : "justify-between p-4"
+        collapsed ? "justify-center p-2 pr-0" : "justify-between p-4"
       )}>
         {!collapsed ? (
-          <div className="flex items-center">
+          <div className="flex items-center  ">
             <div className="h-8 w-8 bg-gradient-to-br from-teal-400 to-emerald-400 rounded-md flex items-center justify-center shadow-sm">
               <Calendar className="h-5 w-5 text-white" />
             </div>
@@ -120,7 +122,7 @@ const Sidebar: React.FC<SidebarProps> = ({
             </span>
           </div>
         ) : (
-          <div className="h-8 w-8 bg-gradient-to-br from-teal-400 to-emerald-400 rounded-md flex items-center justify-center shadow-sm">
+          <div className="hidden md:static h-8 w-8 bg-gradient-to-br from-teal-400 to-emerald-400 rounded-md flex items-center justify-center shadow-sm ">
             <Calendar className="h-5 w-5 text-white" />
           </div>
         )}
@@ -129,19 +131,20 @@ const Sidebar: React.FC<SidebarProps> = ({
           size="icon" 
           onClick={() => setCollapsed(!collapsed)}
           className={cn(
-            "text-gray-500 hover:text-teal-600 hover:bg-teal-50",
+            "text-gray-500 bg-teal-50",
             collapsed ? "ml-0" : ""
           )}
           aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          {collapsed ? <PanelLeftOpen size={30} /> : <ChevronLeft size={30} />}
         </Button>
       </div>
 
       {/* User Profile */}
       <div className={cn(
         "flex items-center border-b border-teal-100 p-4",
-        collapsed ? "justify-center" : ""
+        collapsed ? "justify-center" : "",
+        collapsed ? "hidden md:flex":""
       )}>
         <Avatar className="h-9 w-9 border-2 border-teal-100">
           <AvatarImage src={userImage} alt={userName} />
@@ -158,7 +161,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Navigation Menu */}
-      <div className="flex-1 overflow-y-auto p-3">
+      <div className={`flex-1 overflow-y-auto p-3  ${collapsed ? "hidden md:flex":""}`}>
         <nav className="space-y-1">
           {menuItems.map((item) => (
             <SidebarItem
@@ -174,7 +177,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Logout Button */}
-      <div className="p-3 border-t border-teal-100">
+      <div className={`p-3 border-t border-teal-100 ${collapsed ? "hidden md:flex":""}`}>
         <TooltipProvider delayDuration={0}>
           <Tooltip>
             <TooltipTrigger asChild>
