@@ -178,6 +178,23 @@ export function TaskDialog({
     setIsLoading(false)
   };
 
+
+  function formatEstimatedTime(isoTimeString) {
+    // Parse the ISO string to a Date object
+    const date = new Date(isoTimeString);
+    
+    // Get total milliseconds (time since epoch)
+    const milliseconds = date.getTime();
+    
+    // Convert to hours and minutes
+    const hours = Math.floor(milliseconds / (1000 * 60 * 60));
+    const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+    
+    // Format the string
+    return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+  }
+
+
   // Handle timer stop
   const handleStopTimer = async () => {
     if (!task) return;
@@ -298,7 +315,7 @@ export function TaskDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto p-4">
         <DialogHeader>
           <div className="flex justify-between items-center">
             <DialogTitle>{editMode ? 'Edit Task' : 'Task Details'}</DialogTitle>
@@ -321,8 +338,8 @@ export function TaskDialog({
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs defaultValue="details">
-          <TabsList className="grid grid-cols-2">
+        <Tabs defaultValue="details ">
+          <TabsList className="grid grid-cols-2  mx-auto sm:mx-0">
             <TabsTrigger value="details">Details</TabsTrigger>
             <TabsTrigger value="time">Time Tracking</TabsTrigger>
           </TabsList>
@@ -413,17 +430,51 @@ export function TaskDialog({
             <div className="pt-2">
               <Label className="text-sm text-muted-foreground mb-1 block">Estimated Completion</Label>
               {editMode ? (
-                <Input 
-                  type="datetime-local" 
-                  value={editedTask.estimatedTime ? new Date(editedTask.estimatedTime).toISOString().slice(0, 16) : ''}
-                  onChange={(e) => handleInputChange('estimatedTime', e.target.value ? new Date(e.target.value) : undefined)}
-                  className="w-full"
-                />
+             <div className="flex gap-2">
+             <Input
+               type="number"
+               min="0"
+               placeholder="Hours"
+               value={editedTask.estimatedTime ? 
+                 Math.floor(editedTask.estimatedTime / (1000 * 60 * 60)) : 
+                 ''}
+               onChange={(e) => {
+                 const hours = parseInt(e.target.value) || 0;
+                 const minutes = editedTask.estimatedTime ? 
+                   Math.floor((editedTask.estimatedTime % (1000 * 60 * 60)) / (1000 * 60)) : 
+                   0;
+                 const totalMilliseconds = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
+                 handleInputChange('estimatedTime', totalMilliseconds);
+               }}
+               className="w-1/2"
+             />
+             <span className="self-center">hours</span>
+             
+             <Input
+               type="number"
+               min="0"
+               max="59"
+               placeholder="Minutes"
+               value={editedTask.estimatedTime ? 
+                 Math.floor((editedTask.estimatedTime % (1000 * 60 * 60)) / (1000 * 60)) : 
+                 ''}
+               onChange={(e) => {
+                 const minutes = parseInt(e.target.value) || 0;
+                 const hours = editedTask.estimatedTime ? 
+                   Math.floor(editedTask.estimatedTime / (1000 * 60 * 60)) : 
+                   0;
+                 const totalMilliseconds = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
+                 handleInputChange('estimatedTime', totalMilliseconds);
+               }}
+               className="w-1/2"
+             />
+             <span className="self-center">minutes</span>
+           </div>
               ) : (
                 <div className="flex items-center gap-2 text-sm">
                   <Calendar className="w-4 h-4 text-muted-foreground" />
                   {task.estimatedTime ? (
-                    format(new Date(task.estimatedTime), 'PPp')
+                    formatEstimatedTime(task.estimatedTime)
                   ) : (
                     <span className="text-muted-foreground">No estimated time set</span>
                   )}
@@ -432,15 +483,15 @@ export function TaskDialog({
             </div>
           </TabsContent>
           
-          <TabsContent value="time" className="space-y-4 pt-4">
+          <TabsContent value="time" className="space-y-2 sm:space-y-4 pt-1 sm:pt-4 ">
             <Card>
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-1 sm:pb-2">
                 <CardTitle className="text-lg">Time Tracking</CardTitle>
                 <CardDescription>
                   Total time: {formatTime(calculateTotalTime(task.time))}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pb-2">
+              <CardContent className="pb-2 px-2 sm:px-6">
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-2">
                     <Clock className="w-5 h-5 text-muted-foreground" />
@@ -482,7 +533,7 @@ export function TaskDialog({
                [...task.time].reverse().map((entry, index) => (
                         <div 
                           key={index} 
-                          className={`border rounded-md p-3 ${!entry.ended ? 'border-primary bg-primary/5' : ''}`}
+                          className={`border rounded-md p-2 ${!entry.ended ? 'border-primary bg-primary/5' : ''}`}
                         >
                           <div className="flex justify-between items-center">
                             <div className="flex items-center gap-2">

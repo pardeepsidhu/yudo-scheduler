@@ -90,32 +90,37 @@ export function CreateTaskDialog({
     setIsSubmitting(true);
     try {
       // Format data for API
-      const estimated = new Date(0); // Epoch
-estimated.setUTCHours(data.estimatedHours);
-estimated.setUTCMinutes(data.estimatedMinutes);
-      const formattedData = {
+      let formattedData = {
         title: data.title,
         description: data.description,
         status: data.status,
         priority: data.priority,
-        estimatedTime: estimated,
       };
-
+      
+      // Only add estimatedTime if hours or minutes are not 0
+      if (data.estimatedHours > 0 || data.estimatedMinutes > 0) {
+        const estimated = new Date(0); // Epoch
+        estimated.setUTCHours(data.estimatedHours);
+        estimated.setUTCMinutes(data.estimatedMinutes);
+        formattedData.estimatedTime = estimated;
+      }
+      
       if (isEditMode && taskToEdit?._id) {
         // Handle edit
-        await createTask(formattedData); 
+        await createTask(formattedData);
       } else {
         // Handle create
-       let response = await createTask(formattedData);
-       console.log(response)
+        let response = await createTask(formattedData);
+        console.log(response);
       }
-
-    //   toast({
-    //     title: isEditMode ? "Task updated" : "Task created",
-    //     description: isEditMode 
-    //       ? "Your task has been successfully updated." 
-    //       : "Your task has been successfully created.",
-    //   });
+    
+      //   toast({
+      //     title: isEditMode ? "Task updated" : "Task created",
+      //     description: isEditMode 
+      //       ? "Your task has been successfully updated."
+      //       : "Your task has been successfully created.",
+      //   });
+      
       form.reset();
       onOpenChange(false);
       if (onTaskCreated) onTaskCreated();

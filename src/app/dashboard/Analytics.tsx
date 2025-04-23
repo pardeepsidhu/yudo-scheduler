@@ -1,506 +1,696 @@
-import React, { useState, useEffect } from 'react';
-import { fetchTasks } from '../api/taskApi';
-import { Loader, BarChart as BarChartIcon, PieChart as PieChartIcon, LineChart as LineChartIcon, Calendar } from 'lucide-react';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, AreaChart, Area
+import { useState, useEffect } from 'react';
+import {
+  BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  AreaChart, Area,
+  Label
 } from 'recharts';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import ReminderAnalytics from './ReminderAnalytics';
+import { Calendar, ChevronLeft, ChevronRight, Download, RefreshCw, Loader2 } from 'lucide-react';
+import { getTaskByTimeFrames } from '../api/taskApi';
 
-
-// Define interfaces - these would normally be imported from @/interface
-interface Task {
-  _id: string;
-  title: string;
-  description: string;
-  status: 'pending' | 'to do' | 'in progress' | 'done';
-  estimatedTime?: Date;
-  time: Array<{ stated: Date; ended: string }>;
-  priority: 'high' | 'normal' | 'low';
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface TasksResponse {
-  tasks: Task[];
-  total: number;
-}
-
-interface TimeFrame {
-  value: string;
-  label: string;
-}
-
-const timeFrames: TimeFrame[] = [
-  { value: 'day', label: 'Today' },
-  { value: 'week', label: 'This Week' },
-  { value: 'month', label: 'This Month' },
-  { value: 'year', label: 'This Year' }
-];
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-const STATUS_COLORS = {
-  'pending': '#FFBB28',
-  'to do': '#0088FE',
-  'in progress': '#00C49F',
-  'done': '#FF8042'
-};
-
-const PRIORITY_COLORS = {
-  'high': '#ef4444',
-  'normal': '#3b82f6',
-  'low': '#22c55e'
-};
-
-export default function AnalyticsDashboard() {
-  const [loading, setLoading] = useState(true);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [selectedTimeFrame, setSelectedTimeFrame] = useState<string>('week');
-  const [taskStats, setTaskStats] = useState({
-    total: 0,
-    completed: 0,
-    inProgress: 0,
-    pending: 0,
-    toDo: 0
+// Note: This component assumes getTaskByTimeFrames API function is available from your application context
+const TimesheetAnalytics = () => {
+  // State management from your provided code
+  const [timeframe, setTimeframe] = useState('week');
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [startDate, setStartDate] = useState(getStartOfWeek(new Date()));
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [tasksData, setTasksData] = useState({
+    tasks: [],
+    stats: { total: 0, pending: 0, todo: 0, inProgress: 0, done: 0 }
+  });
+  const [dailyTasks, setDailyTasks] = useState({});
+  const [dailyTotals, setDailyTotals] = useState({});
+  const [totalTime, setTotalTime] = useState(0);
+  const [chartData, setChartData] = useState({
+    daily: [],
+    hoursByCategory: [],
+    priorityDistribution: []
   });
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const response: TasksResponse = await fetchTasks();
-        setTasks(response.tasks);
+  // Utility functions from your provided code
+  function getStartOfWeek(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust to get Monday
+    return new Date(d.setDate(diff));
+  }
+
+  function getStartOfMonth(date) {
+    return new Date(date.getFullYear(), date.getMonth(), 1);
+  }
+
+  function formatDate(date) {
+    const day = date.getDate();
+    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    return `${day} ${month}`;
+  }
+
+  function formatTime(date) {
+    return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatDuration(minutes) {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours}h ${mins < 10 ? '0' : ''}${mins}m`;
+  }
+
+  function calculateTimeDifference(start, end) {
+    if (!start || !end) return 0;
+    const startTime = new Date(start).getTime();
+    const endTime = new Date(end).getTime();
+    return Math.round((endTime - startTime) / (1000 * 60));
+  }
+
+  function getDayName(date) {
+    return date.toLocaleDateString('en-US', { weekday: 'short' });
+  }
+
+  // Calculate date periods when navigating or changing timeframe
+  const calculateDatePeriod = (baseDate, periodType) => {
+    const date = new Date(baseDate);
+    let startDate, endDate;
+    
+    if (periodType === 'week') {
+      // Calculate start of week (Monday)
+      const day = date.getDay();
+      startDate = new Date(date);
+      const diff = startDate.getDate() - day + (day === 0 ? -6 : 1);
+      startDate.setDate(diff);
+      
+      // End date is Sunday
+      endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + 6);
+    } else if (periodType === 'month') {
+      // Start of month
+      startDate = new Date(date.getFullYear(), date.getMonth(), 1);
+      
+      // End of month
+      endDate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    }
+    
+    return { startDate, endDate };
+  };
+
+  // Process task data and create chart data
+  const processTaskData = (tasks, activeTimeframe) => {
+    if (!tasks || !Array.isArray(tasks) || tasks.length === 0) {
+      setDailyTasks({});
+      setDailyTotals({});
+      setTotalTime(0);
+      setChartData({
+        daily: [],
+        hoursByCategory: [],
+        priorityDistribution: []
+      });
+      return;
+    }
+    
+    const dailyTasksMap = {};
+    const dailyTotalsMap = {};
+    let totalMinutes = 0;
+    
+    // Create date range based on timeframe
+    const daysInRange = activeTimeframe === 'week' ? 7 : 
+      new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+    
+    const periodStart = activeTimeframe === 'week' ? 
+      getStartOfWeek(currentDate) : 
+      getStartOfMonth(currentDate);
+      
+    // Initialize all days in range
+    for (let i = 0; i < daysInRange; i++) {
+      const day = new Date(periodStart);
+      day.setDate(day.getDate() + i);
+      const dateKey = day.toISOString().split('T')[0];
+      dailyTasksMap[dateKey] = [];
+      dailyTotalsMap[dateKey] = 0;
+    }
+    
+    // Organize tasks by day
+    tasks.forEach(task => {
+      if (!task.time || !Array.isArray(task.time)) return;
+      
+      task.time.forEach(timeEntry => {
+        if (!timeEntry.stated || !timeEntry.ended) return;
         
-        // Calculate stats
-        const total = response.tasks.length;
-        const completed = response.tasks.filter(task => task.status === 'done').length;
-        const inProgress = response.tasks.filter(task => task.status === 'in progress').length;
-        const pending = response.tasks.filter(task => task.status === 'pending').length;
-        const toDo = response.tasks.filter(task => task.status === 'to do').length;
+        const startDate = new Date(timeEntry.stated);
+        const dateKey = startDate.toISOString().split('T')[0];
         
-        setTaskStats({
-          total,
-          completed,
-          inProgress,
-          pending,
-          toDo
+        // Only include if date is in our range
+        if (dailyTasksMap[dateKey] !== undefined) {
+          const minutes = calculateTimeDifference(timeEntry.stated, timeEntry.ended);
+          
+          dailyTasksMap[dateKey].push({
+            ...task,
+            timeEntry: {
+              started: timeEntry.stated,
+              ended: timeEntry.ended,
+              minutes: minutes
+            }
+          });
+          
+          dailyTotalsMap[dateKey] += minutes;
+          totalMinutes += minutes;
+        }
+      });
+    });
+    
+    setDailyTasks(dailyTasksMap);
+    setDailyTotals(dailyTotalsMap);
+    setTotalTime(totalMinutes);
+
+    // Generate chart data
+    prepareDailyChartData(dailyTasksMap, dailyTotalsMap);
+    prepareTaskDistributionData(tasks);
+  };
+
+  // Prepare daily chart data
+  const prepareDailyChartData = (dailyTasksMap, dailyTotalsMap) => {
+    const dailyData = Object.keys(dailyTotalsMap).map(dateKey => {
+      const date = new Date(dateKey);
+      return {
+        date: dateKey,
+        day: getDayName(date),
+        hours: Math.round((dailyTotalsMap[dateKey] / 60) * 10) / 10,
+        tasks: dailyTasksMap[dateKey].length
+      };
+    }).sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    setChartData(prevData => ({
+      ...prevData,
+      daily: dailyData
+    }));
+  };
+
+  // Prepare task distribution data
+  const prepareTaskDistributionData = (tasks) => {
+    // Calculate tasks by category
+    const categories = {};
+    const priorities = { High: 0, Medium: 0, Low: 0 };
+
+    tasks.forEach(task => {
+      // Calculate total time for each task
+      let taskMinutes = 0;
+      if (task.time && Array.isArray(task.time)) {
+        task.time.forEach(timeEntry => {
+          if (timeEntry.stated && timeEntry.ended) {
+            taskMinutes += calculateTimeDifference(timeEntry.stated, timeEntry.ended);
+          }
         });
-      } catch (error) {
-        console.error('Failed to load tasks:', error);
-      } finally {
-        setLoading(false);
       }
-    };
 
-    loadData();
-  }, [selectedTimeFrame]);
-
-  // Prepare data for charts
-  const statusData = [
-    { name: 'Done', value: taskStats.completed },
-    { name: 'In Progress', value: taskStats.inProgress },
-    { name: 'To Do', value: taskStats.toDo },
-    { name: 'Pending', value: taskStats.pending }
-  ];
-
-  const priorityData = [
-    { name: 'High', value: tasks.filter(task => task.priority === 'high').length },
-    { name: 'Normal', value: tasks.filter(task => task.priority === 'normal').length },
-    { name: 'Low', value: tasks.filter(task => task.priority === 'low').length }
-  ];
-
-  // Generate trend data based on timestamps
-  const getTrendData = () => {
-    const now = new Date();
-    let startDate: Date;
-    
-    switch (selectedTimeFrame) {
-      case 'day':
-        startDate = new Date(now);
-        startDate.setHours(0, 0, 0, 0);
-        break;
-      case 'week':
-        startDate = new Date(now);
-        startDate.setDate(now.getDate() - 7);
-        break;
-      case 'month':
-        startDate = new Date(now);
-        startDate.setMonth(now.getMonth() - 1);
-        break;
-      case 'year':
-        startDate = new Date(now);
-        startDate.setFullYear(now.getFullYear() - 1);
-        break;
-      default:
-        startDate = new Date(now);
-        startDate.setDate(now.getDate() - 7);
-    }
-
-    const filteredTasks = tasks.filter(task => new Date(task.createdAt) >= startDate);
-    
-    const dataMap = new Map();
-    
-    if (selectedTimeFrame === 'day') {
-      // Hourly intervals for day view
-      for (let i = 0; i < 24; i++) {
-        const hour = i < 10 ? `0${i}:00` : `${i}:00`;
-        dataMap.set(hour, { name: hour, tasks: 0 });
+      // Group by category
+      const category = task.priority || 'Uncategorized';
+      if (!categories[category]) {
+        categories[category] = 0;
       }
-      
-      filteredTasks.forEach(task => {
-        const hour = new Date(task.createdAt).getHours();
-        const hourStr = hour < 10 ? `0${hour}:00` : `${hour}:00`;
-        if (dataMap.has(hourStr)) {
-          const data = dataMap.get(hourStr);
-          data.tasks += 1;
-          dataMap.set(hourStr, data);
-        }
-      });
-    } else if (selectedTimeFrame === 'week') {
-      // Daily intervals for week view
-      const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      days.forEach(day => dataMap.set(day, { name: day, tasks: 0 }));
-      
-      filteredTasks.forEach(task => {
-        const day = days[new Date(task.createdAt).getDay()];
-        if (dataMap.has(day)) {
-          const data = dataMap.get(day);
-          data.tasks += 1;
-          dataMap.set(day, data);
-        }
-      });
-    } else if (selectedTimeFrame === 'month') {
-      // Weekly intervals for month view
-      for (let i = 1; i <= 4; i++) {
-        dataMap.set(`Week ${i}`, { name: `Week ${i}`, tasks: 0 });
+      categories[category] += taskMinutes;
+
+      // Group by priority
+      const priority = task.priority || 'Medium';
+      if (priorities[priority] !== undefined) {
+        priorities[priority]++;
       }
-      
-      filteredTasks.forEach(task => {
-        const date = new Date(task.createdAt);
-        const dayOfMonth = date.getDate();
-        let weekOfMonth;
-        
-        if (dayOfMonth <= 7) weekOfMonth = 1;
-        else if (dayOfMonth <= 14) weekOfMonth = 2;
-        else if (dayOfMonth <= 21) weekOfMonth = 3;
-        else weekOfMonth = 4;
-        
-        const key = `Week ${weekOfMonth}`;
-        if (dataMap.has(key)) {
-          const data = dataMap.get(key);
-          data.tasks += 1;
-          dataMap.set(key, data);
-        }
-      });
-    } else {
-      // Monthly intervals for year view
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      months.forEach(month => dataMap.set(month, { name: month, tasks: 0 }));
-      
-      filteredTasks.forEach(task => {
-        const month = months[new Date(task.createdAt).getMonth()];
-        if (dataMap.has(month)) {
-          const data = dataMap.get(month);
-          data.tasks += 1;
-          dataMap.set(month, data);
-        }
-      });
-    }
-    
-    return Array.from(dataMap.values());
+    });
+
+    // Convert to array format for charts
+    const hoursByCategory = Object.keys(categories).map(key => ({
+      name: key,
+      value: Math.round((categories[key] / 60) * 10) / 10
+    }));
+
+    const priorityDistribution = Object.keys(priorities).map(key => ({
+      name: key,
+      value: priorities[key]
+    }));
+
+    setChartData(prevData => ({
+      ...prevData,
+      hoursByCategory,
+      priorityDistribution
+    }));
   };
-
-  const trendData = getTrendData();
-
-  // Custom tooltip component for charts
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-4 rounded-md shadow-lg border border-gray-200">
-          <p className="font-semibold text-gray-700">{`${label}`}</p>
-          {payload.map((entry: any, index: number) => (
-            <p key={index} style={{ color: entry.color }} className="text-sm">
-              {`${entry.name}: ${entry.value}`}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  return (
-    <div className="w-full p-4 bg-gray-50 min-h-screen">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Analytics Dashboard</h1>
-        <p className="text-gray-500 mt-1">Monitor your tasks and reminders performance</p>
-      </div>
-
   
-     
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-700">Task Performance Metrics</h2>
-            <Select value={selectedTimeFrame} onValueChange={setSelectedTimeFrame}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Select timeframe" />
-              </SelectTrigger>
-              <SelectContent>
-                {timeFrames.map((timeFrame) => (
-                  <SelectItem key={timeFrame.value} value={timeFrame.value}>
-                    {timeFrame.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+  // Fetch tasks with explicit date range
+  const fetchTasksByTimeframe = async () => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Calculate proper date range based on current date and timeframe
+      const { startDate: start, endDate: end } = calculateDatePeriod(currentDate, timeframe);
+      
+      // Update visible date range in UI
+      setStartDate(start);
+      
+      // Fetch data with explicit date range
+      
+      const data = await getTaskByTimeFrames(timeframe, start, end);
+   
+      
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      setTasksData(data);
+      processTaskData(data.tasks, timeframe);
+    } catch (err) {
+      console.error(`Error fetching ${timeframe} tasks:`, err);
+      setError(`Failed to load timesheet data. Please try again.`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <Loader className="h-12 w-12 text-blue-500 animate-spin" />
-            </div>
+  // Navigate to previous period
+  const goToPrevious = () => {
+    let newDate;
+    if (timeframe === 'week') {
+      newDate = new Date(currentDate);
+      newDate.setDate(newDate.getDate() - 7);
+    } else {
+      newDate = new Date(currentDate);
+      newDate.setMonth(newDate.getMonth() - 1);
+    }
+    setCurrentDate(newDate);
+  };
+
+  // Navigate to next period
+  const goToNext = () => {
+    let newDate;
+    if (timeframe === 'week') {
+      newDate = new Date(currentDate);
+      newDate.setDate(newDate.getDate() + 7);
+    } else {
+      newDate = new Date(currentDate);
+      newDate.setMonth(newDate.getMonth() + 1);
+    }
+    setCurrentDate(newDate);
+  };
+
+  // Handle timeframe change
+  const handleTimeframeChange = (newTimeframe) => {
+    setTimeframe(newTimeframe);
+  };
+    
+  // Export timesheet data to CSV
+  const exportToCSV = () => {
+    const headers = [
+      'Date', 'Task Title', 'Description', 'Start Time', 'End Time', 'Duration', 'Status', 'Priority'
+    ];
+    
+    let csvContent = headers.join(',') + '\n';
+    
+    Object.entries(dailyTasks).forEach(([dateStr, dayTasks]) => {
+      dayTasks.forEach(task => {
+        const startTime = new Date(task.timeEntry.started);
+        const endTime = new Date(task.timeEntry.ended);
+        
+        const row = [
+          dateStr,
+          `"${task.title.replace(/"/g, '""')}"`,
+          `"${(task.description || '').replace(/"/g, '""')}"`,
+          formatTime(startTime),
+          formatTime(endTime),
+          formatDuration(task.timeEntry.minutes),
+          task.status,
+          task.priority
+        ];
+        
+        csvContent += row.join(',') + '\n';
+      });
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `timesheet-${timeframe}-${formatDate(startDate)}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  // Get period range string for display
+  const getPeriodRangeString = () => {
+    if (!startDate) return '';
+    
+    if (timeframe === 'week') {
+      const endDate = new Date(startDate);
+      endDate.setDate(endDate.getDate() + 6);
+      return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+    } else {
+      return startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }
+  };
+
+  // Reload data
+  const handleRefresh = () => {
+    fetchTasksByTimeframe();
+  };
+
+  // Chart colors
+  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+  const STATUS_COLORS = {
+    'todo': '#3b82f6',
+    'inProgress': '#f97316',
+    'done': '#22c55e',
+    'pending': '#a855f7'
+  };
+
+  // Fetch data when timeframe/date changes
+  useEffect(() => {
+    fetchTasksByTimeframe();
+  }, [timeframe, currentDate]);
+
+  console.log(chartData)
+  return (
+    <div className="bg-gray-50 min-h-screen">
+      <div className="container mx-auto px-1 sm:px-4 py-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between px-6 py-5 bg-white border-b border-gray-200 mb-6">
+      <div className="flex items-center">
+        <div className="mr-4 p-2 bg-blue-50 rounded-lg">
+          <Calendar className="w-6 h-6 text-blue-600" />
+        </div>
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Timesheet Analytics</h1>
+          <p className="text-sm text-gray-500 mt-1">{getPeriodRangeString()}</p>
+        </div>
+      </div>
+      
+      <div className="flex items-center space-x-3 mt-4 md:mt-0">
+        <button
+          onClick={handleRefresh}
+          className="flex items-center justify-center px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors"
+          aria-label="Refresh data"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="w-5 h-5 text-gray-700 animate-spin" />
           ) : (
             <>
-              {/* Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-medium text-gray-600">Total Tasks</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-gray-800">{taskStats.total}</div>
-                    <p className="text-sm text-gray-500">
-                     100%
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-medium text-gray-600">Completed</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-green-600">{taskStats.completed}</div>
-                    <p className="text-sm text-gray-500">
-                      {taskStats.total > 0
-                        ? `${Math.round((taskStats.completed / taskStats.total) * 100)}%`
-                        : '0%'}
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-medium text-gray-600">In Progress</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-blue-600">{taskStats.inProgress}</div>
-                    <p className="text-sm text-gray-500">
-                      {taskStats.total > 0
-                        ? `${Math.round((taskStats.inProgress / taskStats.total) * 100)}%`
-                        : '0%'}
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-lg font-medium text-gray-600">Pending</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-yellow-500">{taskStats.pending + taskStats.toDo}</div>
-                    <p className="text-sm text-gray-500">
-                      {taskStats.total > 0
-                        ? `${Math.round(((taskStats.pending + taskStats.toDo) / taskStats.total) * 100)}%`
-                        : '0%'}
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Charts Row 1 */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                {/* Task Status Distribution */}
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <PieChartIcon className="mr-2 h-5 w-5 text-gray-600" />
-                      Task Status Distribution
-                    </CardTitle>
-                    <CardDescription>Breakdown of tasks by current status</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-2">
-                    <div className="h-80">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={statusData}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            outerRadius={120}
-                            fill="#8884d8"
-                            dataKey="value"
-                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                          >
-                            {statusData.map((entry, index) => (
-                              <Cell 
-                                key={`cell-${index}`} 
-                                fill={COLORS[index % COLORS.length]} 
-                                stroke="#fff"
-                                strokeWidth={2}
-                              />
-                            ))}
-                          </Pie>
-                          <Tooltip content={<CustomTooltip />} />
-                          <Legend verticalAlign="bottom" height={36} />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Task Creation Trend */}
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <LineChartIcon className="mr-2 h-5 w-5 text-gray-600" />
-                      Task Creation Trend
-                    </CardTitle>
-                    <CardDescription>Number of tasks created over time</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-2">
-                    <div className="h-80">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart
-                          data={trendData}
-                          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                          <XAxis dataKey="name" stroke="#888" />
-                          <YAxis stroke="#888" />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Area 
-                            type="monotone" 
-                            dataKey="tasks" 
-                            name="Tasks Created"
-                            stroke="#3b82f6" 
-                            fill="#93c5fd" 
-                            strokeWidth={2}
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Charts Row 2 */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Tasks by Priority */}
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <BarChartIcon className="mr-2 h-5 w-5 text-gray-600" />
-                      Tasks by Priority
-                    </CardTitle>
-                    <CardDescription>Distribution of tasks across priority levels</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-2">
-                    <div className="h-80">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={priorityData}
-                          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                          <XAxis dataKey="name" stroke="#888" />
-                          <YAxis stroke="#888" />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Bar 
-                            dataKey="value" 
-                            name="Tasks" 
-                            radius={[4, 4, 0, 0]}
-                          >
-                            {priorityData.map((entry, index) => (
-                              <Cell 
-                                key={`cell-${index}`} 
-                                fill={
-                                  entry.name === 'High' 
-                                    ? PRIORITY_COLORS.high 
-                                    : entry.name === 'Normal' 
-                                      ? PRIORITY_COLORS.normal 
-                                      : PRIORITY_COLORS.low
-                                } 
-                              />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Status Comparison */}
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <CardTitle className="flex items-center">
-                      <BarChartIcon className="mr-2 h-5 w-5 text-gray-600" />
-                      Status Breakdown by Priority
-                    </CardTitle>
-                    <CardDescription>How different priority tasks progress through statuses</CardDescription>
-                  </CardHeader>
-                  <CardContent className="pt-2">
-                    <div className="h-80">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart
-                          data={[
-                            {
-                              name: 'High',
-                              pending: tasks.filter(t => t.priority === 'high' && t.status === 'pending').length,
-                              todo: tasks.filter(t => t.priority === 'high' && t.status === 'to do').length,
-                              inProgress: tasks.filter(t => t.priority === 'high' && t.status === 'in progress').length,
-                              done: tasks.filter(t => t.priority === 'high' && t.status === 'done').length,
-                            },
-                            {
-                              name: 'Normal',
-                              pending: tasks.filter(t => t.priority === 'normal' && t.status === 'pending').length,
-                              todo: tasks.filter(t => t.priority === 'normal' && t.status === 'to do').length,
-                              inProgress: tasks.filter(t => t.priority === 'normal' && t.status === 'in progress').length,
-                              done: tasks.filter(t => t.priority === 'normal' && t.status === 'done').length,
-                            },
-                            {
-                              name: 'Low',
-                              pending: tasks.filter(t => t.priority === 'low' && t.status === 'pending').length,
-                              todo: tasks.filter(t => t.priority === 'low' && t.status === 'to do').length,
-                              inProgress: tasks.filter(t => t.priority === 'low' && t.status === 'in progress').length,
-                              done: tasks.filter(t => t.priority === 'low' && t.status === 'done').length,
-                            }
-                          ]}
-                          margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                          <XAxis dataKey="name" stroke="#888" />
-                          <YAxis stroke="#888" />
-                          <Tooltip content={<CustomTooltip />} />
-                          <Legend />
-                          <Bar dataKey="pending" name="Pending" fill={STATUS_COLORS.pending} radius={[4, 0, 0, 0]} />
-                          <Bar dataKey="todo" name="To Do" fill={STATUS_COLORS['to do']} />
-                          <Bar dataKey="inProgress" name="In Progress" fill={STATUS_COLORS['in progress']} />
-                          <Bar dataKey="done" name="Done" fill={STATUS_COLORS.done} radius={[0, 4, 4, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <RefreshCw className="w-5 h-5 text-gray-700 mr-2" />
+              <span className="text-sm font-medium text-gray-700">Refresh</span>
             </>
           )}
-
-
-   
-         <ReminderAnalytics />
-
-     
+        </button>
+        <button
+          onClick={exportToCSV}
+          className="flex items-center justify-center px-3 py-2 rounded-md bg-blue-600 hover:bg-blue-700 transition-colors"
+          aria-label="Export to CSV"
+        >
+          <Download className="w-5 h-5 text-white mr-2" />
+          <span className="text-sm font-medium text-white">Export</span>
+        </button>
+      </div>
+    </div>
+        
+        {/* Period Navigation */}
+        <div className="bg-white rounded-lg shadow-sm mb-8 p-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between">
+            <div className="flex items-center space-x-2 mb-4 sm:mb-0">
+              <button
+                onClick={goToPrevious}
+                className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+                aria-label="Previous period"
+              >
+                <ChevronLeft className="w-5 h-5 text-gray-600" />
+              </button>
+              
+              <span className="flex items-center space-x-1 px-3 py-1 rounded-md bg-gray-100">
+                <Calendar className="w-4 h-4 text-gray-600" />
+                <span className="text-sm font-medium">{getPeriodRangeString()}</span>
+              </span>
+              
+              <button
+                onClick={goToNext}
+                className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+                aria-label="Next period"
+              >
+                <ChevronRight className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+            
+            <div className="flex items-center space-x-2 bg-gray-100 rounded-md p-1">
+              <button
+                onClick={() => handleTimeframeChange('week')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  timeframe === 'week' ? 'bg-white shadow-sm font-medium' : 'text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Week
+              </button>
+              <button
+                onClick={() => handleTimeframeChange('month')}
+                className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                  timeframe === 'month' ? 'bg-white shadow-sm font-medium' : 'text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                Month
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        {error && (
+          <div className="bg-red-50 text-red-800 p-4 rounded-lg mb-8">
+            {error}
+          </div>
+        )}
+        
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="w-10 h-10 text-blue-500 animate-spin" />
+          </div>
+        ) : (
+          <>
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-sm text-gray-500 font-medium mb-1">Total Hours</h3>
+                <p className="text-3xl font-bold text-gray-900">{Math.round((totalTime / 60) * 10) / 10}</p>
+                <p className="text-sm text-gray-500 mt-1">{formatDuration(totalTime)}</p>
+              </div>
+              
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-sm text-gray-500 font-medium mb-1">Tasks Completed</h3>
+                <p className="text-3xl font-bold text-green-600">{tasksData.stats.done}</p>
+                <p className="text-sm text-gray-500 mt-1">of {tasksData.stats.total} tasks</p>
+              </div>
+              
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-sm text-gray-500 font-medium mb-1">In Progress</h3>
+                <p className="text-3xl font-bold text-orange-500">{tasksData.stats.inProgress}</p>
+                <p className="text-sm text-gray-500 mt-1">{Math.round((tasksData.stats.inProgress / Math.max(tasksData.stats.total, 1)) * 100)}% of total</p>
+              </div>
+              
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-sm text-gray-500 font-medium mb-1">Pending/Todo</h3>
+                <p className="text-3xl font-bold text-blue-500">{tasksData.stats.pending + tasksData.stats.todo}</p>
+                <p className="text-sm text-gray-500 mt-1">{Math.round(((tasksData.stats.pending + tasksData.stats.todo) / Math.max(tasksData.stats.total, 1)) * 100)}% of total</p>
+              </div>
+            </div>
+            
+            {/* Charts - First Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-1 sm:gap-8 mb-2 sm:mb-8">
+              {/* Daily Hours */}
+              <div className="bg-white rounded-lg shadow-sm p-6 col-span-1 lg:col-span-2">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Hours Logged by Day</h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={chartData.daily}
+                      margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="day" tick={{ fontSize: 12 }} />
+                      <YAxis 
+                        tick={{ fontSize: 12 }}
+                        label={{ value: 'Hours', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' }, fontSize: 12 }}
+                      />
+                      <Tooltip 
+                        formatter={(value) => [`${value} hours`, 'Time Logged']}
+                        labelFormatter={(label) => `${label}`}
+                      />
+                      <Bar dataKey="hours" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+              
+              {/* Task Status Distribution */}
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Task Status</h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={[
+                          { name: 'To Do', value: tasksData.stats.todo || 0 },
+                          { name: 'In Progress', value: tasksData.stats.inProgress || 0 },
+                          { name: 'Done', value: tasksData.stats.done || 0 },
+                          { name: 'Pending', value: tasksData.stats.pending || 0 }
+                        ]}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      >
+                        <Cell key="todo" fill={STATUS_COLORS.todo} />
+                        <Cell key="inProgress" fill={STATUS_COLORS.inProgress} />
+                        <Cell key="done" fill={STATUS_COLORS.done} />
+                        <Cell key="pending" fill={STATUS_COLORS.pending} />
+                      </Pie>
+                      <Tooltip formatter={(value) => [`${value} tasks`, 'Count']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            </div>
+            
+            {/* Charts - Second Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 sm:gap-8 mb-2 sm:mb-8">
+              {/* Daily Activity */}
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Task Completion Trend</h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart 
+                      data={chartData.daily}
+                      margin={{ top: 10, right: 10, left: 0, bottom: 20 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                      <XAxis dataKey="day" tick={{ fontSize: 12 }} />
+                      <YAxis 
+                        tick={{ fontSize: 12 }}
+                        yAxisId="left"
+                        label={{ value: 'Tasks', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle' }, fontSize: 12 }}
+                      />
+                      <Tooltip formatter={(value, name) => [value, name === 'tasks' ? 'Tasks' : 'Hours']} />
+                      <Legend />
+                      <Line 
+                        yAxisId="left"
+                        type="monotone" 
+                        dataKey="tasks" 
+                        stroke="#8884d8" 
+                        activeDot={{ r: 8 }}
+                        name="Tasks Completed"
+                        strokeWidth={2}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+              
+              {/* Hours By Category (if category data available) */}
+              <div className="w-full h-96 p-4 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">Time Spent</h2>
+      <div className="w-full h-64">
+        <ResponsiveContainer width="100%" height="100%">
+        <PieChart width={300} height={300}>
+        <Pie
+          data={chartData.hoursByCategory}
+          cx="50%"
+          cy="40%"
+          innerRadius={30}
+          outerRadius={80}
+          paddingAngle={5}
+          dataKey="value"
+          nameKey="name"
+        >
+          {chartData.hoursByCategory.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+          ))}
+        </Pie>
+        <Tooltip />
+        <Legend />
+      </PieChart>
+        </ResponsiveContainer>
+      </div>
+  
+    </div>
+            </div>
+            
+            {/* Top Tasks Table */}
+            <div className="bg-white rounded-lg shadow-sm p-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Tasks</h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Task</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Time</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {tasksData.tasks.slice(0, 5).map((task, index) => {
+                      const timeEntry = task.time && task.time.length > 0 ? task.time[task.time.length - 1] : null;
+                      const startTime = timeEntry?.stated ? new Date(timeEntry.stated) : null;
+                      const endTime = timeEntry?.ended ? new Date(timeEntry.ended) : null;
+                      const duration = timeEntry ? calculateTimeDifference(timeEntry.stated, timeEntry.ended) : 0;
+                      
+                      return (
+                        <tr key={`task-${index}`}>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">{task.title || 'Untitled Task'}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-500">
+                              {startTime ? startTime.toLocaleDateString() : 'N/A'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-500">
+                              {startTime ? formatTime(startTime) : 'N/A'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-500">{formatDuration(duration)}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                              ${task.status === 'done' ? 'bg-green-100 text-green-800' : ''}
+                              ${task.status === 'inProgress' ? 'bg-orange-100 text-orange-800' : ''}
+                              ${task.status === 'todo' ? 'bg-blue-100 text-blue-800' : ''}
+                              ${task.status === 'pending' ? 'bg-purple-100 text-purple-800' : ''}
+                              ${!task.status ? 'bg-gray-100 text-gray-800' : ''}
+                            `}>
+                              {task.status || 'No Status'}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    
+                    {tasksData.tasks.length === 0 && (
+                      <tr>
+                        <td colSpan={5} className="px-6 py-4 text-center text-sm text-gray-500">
+                          No tasks found for this period.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
-}
+};
+
+export default TimesheetAnalytics;

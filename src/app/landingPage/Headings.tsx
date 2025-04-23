@@ -8,6 +8,10 @@ import { RetroGrid } from '@/components/magicui/retro-grid';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { HeroSection } from './HeroSection';
 import Image from 'next/image';
+import { BackgroundBeams } from '@/components/ui/background-beams';
+
+
+
 
 const ProfessionalScheduler = () => {
   // State to track which elements have been scrolled into view
@@ -132,12 +136,19 @@ const ProfessionalScheduler = () => {
      <HeroSection/>
 
       {/* Main Features Section */}
-      <div className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+      <div className="py-20  ">
+      <div className={`bg-[url('https://img.freepik.com/free-vector/geometric-pattern-background-vector-white_53876-126684.jpg')] w-full h-full bg-center z-0 absolute opacity-30`} />
+      
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
+ 
+        <div className="grid lg:grid-cols-2 gap-12 items-center ">
+         
             <div className="order-2 lg:order-1">
+    
               <div className="scroll-animate slide-in-left">
+            
                 <BoxReveal boxColor="#4f46e5" duration={0.5}>
+            
                   <span className="inline-block text-sm font-bold py-1 px-4 rounded-full bg-indigo-100 text-indigo-700 mb-4">
                     PRODUCTIVITY REIMAGINED
                   </span>
@@ -146,6 +157,7 @@ const ProfessionalScheduler = () => {
               
               <div className="scroll-animate slide-in-left delay-100">
                 <BoxReveal boxColor="#4f46e5" duration={0.5}>
+                
                   <h2 className="text-3xl sm:text-5xl font-bold text-gray-900 mb-6">
                     Yudo Scheduler<span className="text-indigo-600">.</span>
                   </h2>
@@ -208,6 +220,7 @@ const ProfessionalScheduler = () => {
             </div>
           </div>
         </div>
+       
       </div>
 
       {/* Benefits Section with Animated Counter */}
@@ -254,6 +267,7 @@ const ProfessionalScheduler = () => {
             <RetroGrid className="opacity-10" />
           </div>
         </div>
+    
       </div>
 
       {/* Testimonials with Scroll Animation */}

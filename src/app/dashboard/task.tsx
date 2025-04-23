@@ -188,12 +188,27 @@ export default function TaskDashboard() {
     }
   };
 
+  function formatEstimatedTime(isoTimeString) {
+    // Parse the ISO string to a Date object
+    const date = new Date(isoTimeString);
+    
+    // Get total milliseconds (time since epoch)
+    const milliseconds = date.getTime();
+    
+    // Convert to hours and minutes
+    const hours = Math.floor(milliseconds / (1000 * 60 * 60));
+    const minutes = Math.floor((milliseconds % (1000 * 60 * 60)) / (1000 * 60));
+    
+    // Format the string
+    return `${hours} hour${hours !== 1 ? 's' : ''} ${minutes} minute${minutes !== 1 ? 's' : ''}`;
+  }
+
   return (
-    <div className="container mx-auto p-4 m-1 border border-gray-200 rounded-2xl bg-gray-50">
-      <header className="flex items-center justify-between py-4 px-4 my-2 rounded-xl rounded-b-none sticky top-0 bg-white z-10 border-b border-gray-100 shadow-sm">
+    <div className="container mx-auto p-1 sm:p-4 m-1 border border-gray-200 rounded-2xl bg-gray-50">
+      <header className="flex items-center justify-between p-3 sm:p-4 my-1 sm:my-2 rounded-xl rounded-b-none sticky  bg-white  border-b border-gray-100 shadow-sm">
         <div className="flex items-center gap-3">
           <ClipboardList className="h-8 w-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-800">Task Dashboard</h1>
+          <h1 className="text-xl md:text-2xl md:text-3xl font-bold text-gray-800">Task Dashboard</h1>
         </div>
         <Button 
           onClick={handleCreateTask} 
@@ -211,7 +226,7 @@ export default function TaskDashboard() {
         </Alert>
       )}
 
-      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div className="relative flex flex-1 items-center max-w-md">
           <Search className="absolute left-2.5 h-4 w-4 text-gray-500" />
           <Input
@@ -222,12 +237,12 @@ export default function TaskDashboard() {
           />
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           <Select
             value={filter}
             onValueChange={(value) => setFilter(value as TaskPriority | 'all')}
           >
-            <SelectTrigger className="w-40 border-gray-300">
+            <SelectTrigger className="w-45 border-gray-300">
               <div className="flex items-center gap-2">
                 <Filter size={16} />
                 <span>Priority</span>
@@ -247,14 +262,14 @@ export default function TaskDashboard() {
               setFilter('all');
               setTab('all');
             }}
-            className="border-gray-300 hover:bg-gray-100 transition-colors"
+            className="border-gray-300 hover:bg-gray-100 transition-colors w-40"
           >
             Reset Filters
           </Button>
         </div>
       </div>
       <Separator className="mb-2" />
-      <Tabs value={tab} onValueChange={setTab} className="mb-6">
+      <Tabs value={tab} onValueChange={setTab} className="mb-6flex  items-center sm:items-start mb-2">
         <TabsList className="bg-gray-100">
           <TabsTrigger value="all" className="data-[state=active]:bg-white">All</TabsTrigger>
           <TabsTrigger value="pending" className="data-[state=active]:bg-white">Pending</TabsTrigger>
@@ -264,7 +279,7 @@ export default function TaskDashboard() {
         </TabsList>
       </Tabs>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-1 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
         {loading && tasks.length === 0 ? (
           Array.from({ length: 6 }).map((_, index) => (
             <Card key={`skeleton-${index}`} className="shadow-md">
@@ -291,7 +306,7 @@ export default function TaskDashboard() {
       // </div>
         ) : filteredTasks.length > 0 ? (
           filteredTasks.map((task) => (
-            <Card key={task._id} onClick={()=>handleViewTask(task)} className="shadow-md transition-all duration-200 hover:shadow-lg hover:translate-y-[-2px] cursor-pointer bg-white border border-gray-200">
+            <Card key={task._id} onClick={()=>handleViewTask(task)} className="shadow-md transition-all duration-200 hover:shadow-lg hover:translate-y-[-2px] cursor-pointer bg-white border border-gray-200 gap-1 sm:gap-2 py-4 sm:py-6">
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
                 <CardTitle className="line-clamp-1 text-lg font-semibold text-gray-800">{task.title}</CardTitle>
@@ -329,7 +344,7 @@ export default function TaskDashboard() {
                 {task.estimatedTime && (
                   <div className="flex items-center gap-1 text-xs text-gray-500">
                     <Clock size={14} />
-                    {format(new Date(task.estimatedTime), 'MMM d')}
+                    {formatEstimatedTime(task.estimatedTime)}
                   </div>
                 )}
                 

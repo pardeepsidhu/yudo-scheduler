@@ -226,12 +226,12 @@ export default function RemindersComponent() {
   }
 
   return (
-    <div   className="container mx-auto py-6 px-4 rounded-2xl border-1 "   >
+    <div   className="container mx-auto  p-1 sm:p-2 md::p-4 rounded-2xl border-1 "   >
       {/* Header with title and new reminder button */}
-      <div className="py-6 mb-2 px-4  rounded-2xl rounded-b-none border-1 flex sticky z-20 top-0 bg-white flex-col sm:flex-row justify-between items-center">
+      <div className=" py-2 sm:py-6 mb-2  px-4  rounded-2xl rounded-b-none border-1 flex   bg-white flex-col sm:flex-row justify-between items-center">
         <div className="flex items-center gap-2 mb-4 sm:mb-0">
           <Bell className="h-6 w-6 text-blue-500" />
-          <h1 className="text-2xl font-bold text-gray-900">My Reminders</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">My Reminders</h1>
           {!initialLoading && reminders.length > 0 && (
             <Badge variant="secondary" className="ml-2">
               {reminders.length} of {total}
@@ -259,11 +259,11 @@ export default function RemindersComponent() {
 
       {/* Main card with reminder list */}
       <Card className="border shadow-lg rounded-t-none" >
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-1 sm:pb-3">
           <CardTitle className="text-xl">All Reminders</CardTitle>
           
           {/* Tabs for filtering */}
-          <div className="mt-4">
+          <div className="mt-2 sm:mt-4">
             <Tabs defaultValue="all" className="w-full" onValueChange={handleTabChange}>
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="all" className="flex items-center">
@@ -314,9 +314,9 @@ export default function RemindersComponent() {
                   const formatted = formatDateTime(reminder.scheduleTime)
                   
                   return (
-                    <div key={reminder._id} className="py-4">
+                    <div key={reminder._id} className="py-1 sm:py-4">
                       <div 
-                        className="group flex flex-col rounded-lg p-4 transition-colors hover:bg-slate-50 cursor-pointer"
+                        className="group flex flex-col rounded-lg p-1 py-2 sm:p-4 transition-colors hover:bg-slate-50 cursor-pointer"
                         onClick={() => handleViewReminder(reminder)}
                       >
                         <div className="flex justify-between items-start">
@@ -586,9 +586,6 @@ export default function RemindersComponent() {
     </form>
   </DialogContent>
 </Dialog>
-
-
-
     </div>
   )
 }

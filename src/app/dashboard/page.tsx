@@ -23,7 +23,8 @@ export default function Page() {
       
       {/* Main content - scrollable */}
       <div className="flex-grow overflow-y-auto p-2" style={{ overflow: "auto" }} id="scrollableDiv" >
-        {activeItem === "dashboard" && <Dashboard />}
+        <div className='w-full h-15'/>
+        {activeItem === "dashboard" && <Dashboard setActiveItem={setActiveItem}/>}
         {activeItem === "reminders" && <RemindersPage />}
         {activeItem === "tasks" && <TaskDashboard />}
         {activeItem === "analytics" && <Analytics />}

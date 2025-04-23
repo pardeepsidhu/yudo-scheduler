@@ -284,86 +284,93 @@ const ProfessionalTimesheet = () => {
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden">
       {/* Header Section */}
-      <div className="bg-white border-b px-6 py-4">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center">
-            <Calendar className="text-blue-600 w-6 h-6 mr-2" />
-            <h1 className="text-xl font-bold text-gray-800">Time Sheet</h1>
+      <div className="bg-white border-b px-3 sm:px-6 py-3 sm:py-4">
+      <div className="flex flex-col space-y-3 sm:space-y-4 lg:space-y-0 lg:flex-row lg:justify-between lg:items-center">
+        {/* Title - Always at top on mobile, left on desktop */}
+        <div className="flex items-center">
+          <Calendar className="text-blue-600 w-5 h-5 sm:w-6 sm:h-6 mr-2" />
+          <h1 className="text-lg sm:text-xl font-bold text-gray-800">Time Sheet</h1>
+        </div>
+        
+        {/* Controls - Stack on mobile, inline on desktop */}
+        <div className="flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-2 sm:items-center">
+          {/* Week/Month Toggle - Full width on xs, normal on sm+ */}
+          <div className="bg-gray-100 rounded-lg p-1 flex justify-center sm:justify-start">
+            <button
+              onClick={() => handleTimeframeChange('week')}
+              className={`flex-1 sm:flex-initial px-3 py-1 rounded-md text-sm ${
+                timeframe === 'week'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Week
+            </button>
+            <button
+              onClick={() => handleTimeframeChange('month')}
+              className={`flex-1 sm:flex-initial px-3 py-1 rounded-md text-sm ${
+                timeframe === 'month'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              Month
+            </button>
           </div>
           
-          <div className="flex items-center space-x-2">
-            <div className="bg-gray-100 rounded-lg p-1 flex">
-              <button 
-                onClick={() => handleTimeframeChange('week')}
-                className={`px-3 py-1 rounded-md text-sm ${
-                  timeframe === 'week' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Week
-              </button>
-              <button 
-                onClick={() => handleTimeframeChange('month')}
-                className={`px-3 py-1 rounded-md text-sm ${
-                  timeframe === 'month' 
-                    ? 'bg-blue-600 text-white' 
-                    : 'text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                Month
-              </button>
-            </div>
+          {/* Date Navigation - Full width on xs, normal on sm+ */}
+          <div className="flex items-center justify-between sm:justify-start bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={goToPrevious}
+              className="p-1 rounded-md hover:bg-gray-200"
+              title="Previous period"
+            >
+              <ChevronLeft className="w-5 h-5 text-gray-600" />
+            </button>
             
-            <div className="flex items-center bg-gray-100 rounded-lg p-1">
-              <button 
-                onClick={goToPrevious}
-                className="p-1 rounded-md hover:bg-gray-200"
-                title="Previous period"
-              >
-                <ChevronLeft className="w-5 h-5 text-gray-600" />
-              </button>
-              
-              <span className="px-2 text-sm font-medium text-gray-700">
-                {getPeriodRangeString()}
-              </span>
-              
-              <button 
-                onClick={goToNext}
-                className="p-1 rounded-md hover:bg-gray-200"
-                title="Next period"
-              >
-                <ChevronRight className="w-5 h-5 text-gray-600" />
-              </button>
-            </div>
+            <span className="px-2 text-sm font-medium text-gray-700 truncate">
+              {getPeriodRangeString()}
+            </span>
             
-            <button 
+            <button
+              onClick={goToNext}
+              className="p-1 rounded-md hover:bg-gray-200"
+              title="Next period"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            </button>
+          </div>
+          
+          {/* Action Buttons - Row on all sizes */}
+          <div className="flex items-center justify-end space-x-2">
+            <button
               onClick={handleRefresh}
               className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
               title="Refresh"
               disabled={isLoading}
             >
               {isLoading ? (
-                <Loader className="w-5 h-5 animate-spin" />
+                <Loader className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
               ) : (
-                <RefreshCw className="w-5 h-5" />
+                <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
               )}
             </button>
             
-            <button 
+            <button
               onClick={exportToCSV}
-              className="flex items-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              className="flex items-center px-2 sm:px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               disabled={isLoading}
             >
               <Download className="w-4 h-4 mr-1" />
-              <span className="text-sm">Export</span>
+              <span className="text-xs sm:text-sm">Export</span>
             </button>
           </div>
         </div>
       </div>
+    </div>
       
       {/* Summary Stats */}
-      <div className="bg-gray-50 px-6 py-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-gray-50 px-1 sm:px-6 py-4 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-center">
           <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
             <Clock className="w-6 h-6 text-blue-600" />
@@ -417,7 +424,7 @@ const ProfessionalTimesheet = () => {
       </div>
       
       {/* Main Content - Timesheet */}
-      <div className="px-4 py-6 md:px-6">
+      <div className="px-1 py-6 md:px-6">
         {isLoading ? (
           <div className="flex justify-center items-center py-20">
             <Loader className="w-8 h-8 text-blue-600 animate-spin" />

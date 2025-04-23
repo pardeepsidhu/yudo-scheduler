@@ -72,7 +72,7 @@ const StatsCard = ({ title, value, icon, color,percentage}) => {
 };
 
 // Task List Component (condensed overview version)
-const TaskOverview = ({ tasks = [] }) => {
+const TaskOverview = ({ tasks = [] ,setActiveItem}) => {
   const topTasks = tasks.slice(0, 3);
   
   return (
@@ -82,10 +82,10 @@ const TaskOverview = ({ tasks = [] }) => {
           <Inbox size={18} className="mr-2 text-blue-600" />
           Recent Tasks
         </h3>
-        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center transition-all duration-200 hover:translate-x-px">
-          <Link href={'/dashboard#tasks'}>
+        <button onClick={()=>setActiveItem("tasks")} className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center transition-all duration-200 hover:translate-x-px">
+         
           View All
-          </Link>
+          
           <ChevronRight size={16} />
         </button>
       </div>
@@ -105,7 +105,7 @@ const TaskOverview = ({ tasks = [] }) => {
                   )}
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-800 truncate max-w-xs">{task.title}</p>
+                  <p className="text-sm text-wrap font-medium text-gray-800 truncate max-w-xs">{task.title}</p>
                   <p className="text-xs text-gray-500">{formatDate(task.updatedAt)}</p>
                 </div>
               </div>
@@ -124,7 +124,7 @@ const TaskOverview = ({ tasks = [] }) => {
 };
 
 // Reminder List Component (condensed overview version)
-const ReminderOverview = ({ reminders = [] }) => {
+const ReminderOverview = ({ reminders = [] ,setActiveItem}) => {
   const topReminders = reminders.slice(0, 4);
   
   return (
@@ -134,10 +134,10 @@ const ReminderOverview = ({ reminders = [] }) => {
           <Bell size={18} className="mr-2 text-yellow-600" />
           Upcoming Reminders
         </h3>
-        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center transition-all duration-200 hover:translate-x-px">
-         <Link href={'/dashboard#reminders'}>
+        <button onClick={()=>setActiveItem("reminders")} className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center transition-all duration-200 hover:translate-x-px">
+        
          View All
-         </Link> 
+        
           <ChevronRight size={16} />
         </button>
       </div>
@@ -153,7 +153,7 @@ const ReminderOverview = ({ reminders = [] }) => {
                   </div>
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-gray-800 truncate max-w-xs">{reminder.subject}</p>
+                  <p className="text-sm text-wrap font-medium text-gray-800 truncate max-w-xs">{reminder.subject}</p>
                   <p className="text-xs text-gray-500">{formatDate(reminder.scheduleTime)}</p>
                 </div>
               </div>
@@ -176,18 +176,18 @@ const QuickActionButton = ({ icon: Icon, label, onClick, color }) => {
   return (
     <button 
       onClick={onClick}
-      className={`flex flex-col items-center justify-center bg-white rounded-lg shadow-sm p-4 transition-all duration-300 hover:shadow-md hover:translate-y-px ${color} w-full`}
+      className={`flex  flex-col items-center justify-center  rounded-lg shadow-sm p-4 transition-all duration-300 hover:shadow-md hover:translate-y-px ${color} w-full`}
     >
       <div className="rounded-full bg-gray-100 p-3 mb-2 transition-transform duration-300 hover:scale-110">
         <Icon size={20} className="text-gray-700" />
       </div>
-      <span className="text-sm font-medium text-gray-800">{label}</span>
+      <span className="text-sm  font-medium text-gray-800">{label}</span>
     </button>
   );
 };
 
 // Analytics Preview Component
-const AnalyticsPreview = () => {
+const AnalyticsPreview = ({setActiveItem}) => {
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 border border-transparent transition-all duration-300 hover:shadow-md hover:border-gray-100">
       <div className="flex justify-between items-center mb-4">
@@ -195,10 +195,10 @@ const AnalyticsPreview = () => {
           <BarChart2 size={18} className="mr-2 text-purple-600" />
           Analytics
         </h3>
-        <button className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center transition-all duration-200 hover:translate-x-px">
-          <Link href={'/dashboard#analytics'}>
+        <button onClick={()=>setActiveItem("analytics")} className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center transition-all duration-200 hover:translate-x-px">
+     
           Full Report
-          </Link>
+   
           <ChevronRight size={16} />
         </button>
       </div>
@@ -212,7 +212,7 @@ const AnalyticsPreview = () => {
 };
 
 // Main Dashboard Component
-export default function Dashboard() {
+export default function Dashboard({setActiveItem}) {
   const [tasks, setTasks] = useState([]);
   const [reminders, setReminders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -315,7 +315,7 @@ export default function Dashboard() {
   return (
     <div className="bg-gray-50 min-h-screen">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-10">
+      <header className="bg-white shadow-sm ">
         <div className="container mx-auto py-4 px-4 flex justify-between items-center">
           <h1 className="text-xl font-bold text-gray-800 flex items-center">
             <div className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center mr-3">
@@ -333,30 +333,28 @@ export default function Dashboard() {
               />
               <Search size={18} className="absolute left-3 top-2.5 text-gray-500" />
             </div> */}
-            <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-              <Link href={'/dashboard#notifications'}>
+            <button onClick={()=>setActiveItem("notifications")} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+              
               <Bell size={20} className="text-gray-600" />
-              </Link>
+              {/* </Link> */}
               
             </button>
-            <button className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-              <Link href={"/dashboard#settings"}>
+            <button onClick={()=>setActiveItem("profile")} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
+              
               <Settings size={20} className="text-gray-600" />
-              </Link>
+          
             </button>
             <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium">
               U
             </div>
           </div>
           
-          {/* <button className="md:hidden p-2 rounded-full hover:bg-gray-100 transition-colors">
-            <Search size={20} className="text-gray-600" />
-          </button> */}
+       
         </div>
       </header>
       
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6 pb-8">
+      <main className="container mx-auto px-1 sm:px-4 py-6 pb-8">
         {/* Stats Row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <StatsCard 
@@ -394,22 +392,26 @@ export default function Dashboard() {
           <QuickActionButton 
             icon={Inbox} 
             label="Tasks" 
-            onClick={() => {}} 
+            onClick={() =>setActiveItem("tasks")}
+            color={"bg-[repeating-linear-gradient(45deg,red,transparent_100px)]"} 
           />
           <QuickActionButton 
             icon={Bell} 
             label="Reminders" 
-            onClick={() => {}} 
+            onClick={() =>setActiveItem("reminders")} 
+            color={"bg-[repeating-linear-gradient(45deg,blue,transparent_100px)]"} 
           />
           <QuickActionButton 
             icon={BarChart2} 
             label="Analytics" 
-            onClick={() => {}} 
+            onClick={() => setActiveItem("analytics")} 
+            color={"bg-[repeating-linear-gradient(45deg,green,transparent_100px)]"} 
           />
           <QuickActionButton 
             icon={Settings} 
             label="Settings" 
-            onClick={() => {}} 
+            onClick={() => setActiveItem("profile")} 
+            color={"bg-[repeating-linear-gradient(45deg,cyan,transparent_100px)]"} 
           />
         </div>
         
@@ -418,16 +420,16 @@ export default function Dashboard() {
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
             {/* Tasks Overview */}
-            <TaskOverview tasks={tasks} />
+            <TaskOverview tasks={tasks} setActiveItem={setActiveItem}/>
             
             {/* Reminders Overview */}
-            <ReminderOverview reminders={reminders} />
+            <ReminderOverview reminders={reminders} setActiveItem={setActiveItem}/>
           </div>
           
           {/* Right Column */}
           <div className="space-y-6">
             {/* Analytics Preview */}
-            <AnalyticsPreview />
+            <AnalyticsPreview setActiveItem={setActiveItem}/>
             
             {/* User Productivity Summary */}
             <div className="bg-white rounded-lg shadow-sm p-4 border border-transparent transition-all duration-300 hover:shadow-md hover:border-gray-100">

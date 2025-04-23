@@ -1,571 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Light Mode Background Animations</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, sans-serif;
-      color: #1e293b;
-      overflow-x: hidden;
-    }
-    
-    section {
-      position: relative;
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-    
-    h2 {
-      position: relative;
-      z-index: 10;
-      font-size: 2rem;
-      text-align: center;
-      padding: 20px;
-      background-color: rgba(255, 255, 255, 0.6);
-      border-radius: 10px;
-      backdrop-filter: blur(5px);
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* Shared Animation Classes */
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-10px);
-      }
-    }
-    .animate-float {
-      animation: float 6s ease-in-out infinite;
-    }
-    
-    @keyframes blob {
-      0%, 100% {
-        transform: translate(0, 0) scale(1);
-      }
-      25% {
-        transform: translate(10px, -10px) scale(1.1);
-      }
-      50% {
-        transform: translate(-10px, 5px) scale(0.9);
-      }
-      75% {
-        transform: translate(5px, 10px) scale(1.05);
-      }
-    }
-    .animate-blob {
-      animation: blob 15s ease-in-out infinite;
-    }
-    
-    @keyframes pulse-slow {
-      0%, 100% {
-        opacity: 0.3;
-      }
-      50% {
-        opacity: 0.8;
-      }
-    }
-    .animate-pulse-slow {
-      animation: pulse-slow 8s ease-in-out infinite;
-    }
-    
-    @keyframes draw {
-      0% {
-        stroke-dashoffset: 1000;
-      }
-      100% {
-        stroke-dashoffset: 0;
-      }
-    }
-    .animate-draw {
-      stroke-dasharray: 1000;
-      stroke-dashoffset: 1000;
-      animation: draw 15s linear infinite alternate;
-    }
-    
-    .delay-1000 {
-      animation-delay: 1s;
-    }
-    .delay-2000 {
-      animation-delay: 2s;
-    }
-    .delay-4000 {
-      animation-delay: 4s;
-    }
-    
-    /* Background 1: Soft Gradient Wave */
-    .bg-soft-gradient {
-      background: linear-gradient(45deg, #f0f9ff, #e0f2fe, #bae6fd);
-      background-size: 400% 400%;
-    }
-    
-    @keyframes gradient-shift {
-      0% {
-        background-position: 0% 50%;
-      }
-      50% {
-        background-position: 100% 50%;
-      }
-      100% {
-        background-position: 0% 50%;
-      }
-    }
-    
-    .animate-gradient {
-      animation: gradient-shift 15s ease infinite;
-    }
-    
-    /* Background 2: Pastel Particles */
-    .bg-particles {
-      background-color: #f8fafc;
-    }
-    
-    .particles {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-    }
-    
-    .particle {
-      position: absolute;
-      border-radius: 50%;
-    }
-    
-    @keyframes float-particle {
-      0% {
-        transform: translateY(0) translateX(0);
-      }
-      25% {
-        transform: translateY(-20px) translateX(10px);
-      }
-      50% {
-        transform: translateY(0) translateX(20px);
-      }
-      75% {
-        transform: translateY(20px) translateX(10px);
-      }
-      100% {
-        transform: translateY(0) translateX(0);
-      }
-    }
-    
-    /* Background 3: Pastel Gradient Mesh */
-    .bg-gradient-mesh {
-      background-color: #f8fafc;
-    }
-    
-    .gradient-mesh {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-    }
-    
-    .mesh-blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(60px);
-    }
-    
-    /* Background 4: Flowing Lines */
-    .bg-flowing-lines {
-      background-color: #f0f9ff;
-    }
-    
-    .lines-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-    }
-    
-    @keyframes flow {
-      0% {
-        transform: translateX(-5%) translateY(0) rotate(0deg);
-      }
-      50% {
-        transform: translateX(5%) translateY(0) rotate(180deg);
-      }
-      100% {
-        transform: translateX(-5%) translateY(0) rotate(360deg);
-      }
-    }
-    
-    .animate-flow {
-      animation: flow 30s linear infinite;
-    }
-    
-    /* Background 5: Ripple Effect */
-    .bg-ripple {
-      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    }
-    
-    .ripple-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-    }
-    
-    .ripple {
-      position: absolute;
-      border: 2px solid rgba(59, 130, 246, 0.3);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-    }
-    
-    @keyframes ripple {
-      0% {
-        width: 0;
-        height: 0;
-        opacity: 1;
-      }
-      100% {
-        width: 500px;
-        height: 500px;
-        opacity: 0;
-      }
-    }
-    
-    .animate-ripple {
-      animation: ripple 6s linear infinite;
-    }
-    
-    /* Background 6: Soft Clouds */
-    .bg-soft-clouds {
-      background-color: #f8fafc;
-    }
-    
-    .clouds-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-    }
-    
-    .cloud {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(60px);
-    }
-    
-    @keyframes cloud-move {
-      0%, 100% {
-        transform: translate(0, 0) scale(1);
-      }
-      25% {
-        transform: translate(50px, -20px) scale(1.1);
-      }
-      50% {
-        transform: translate(10px, 30px) scale(0.9);
-      }
-      75% {
-        transform: translate(-40px, -10px) scale(1.05);
-      }
-    }
-    
-    .animate-cloud {
-      animation: cloud-move 40s ease-in-out infinite;
-    }
-    
-    /* Background 7: Dot Grid */
-    .bg-dot-grid {
-      background-color: #f8fafc;
-    }
-    
-    .grid-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      perspective: 1000px;
-    }
-    
-    .grid {
-      position: absolute;
-      width: 200%;
-      height: 200%;
-      top: -50%;
-      left: -50%;
-      background-image: 
-        radial-gradient(rgba(59, 130, 246, 0.15) 2px, transparent 2px);
-      background-size: 30px 30px;
-    }
-    
-    @keyframes grid-rotate {
-      0% {
-        transform: rotateX(60deg) rotateZ(0);
-      }
-      100% {
-        transform: rotateX(60deg) rotateZ(360deg);
-      }
-    }
-    
-    .animate-grid {
-      animation: grid-rotate 40s linear infinite;
-    }
-    
-    /* Background 8: Pastel Waves */
-    .bg-pastel-waves {
-      background-color: #f8fafc;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .waves-container {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-    }
-    
-    .wave {
-      position: absolute;
-      height: 100px;
-      width: 100%;
-      background: rgba(59, 130, 246, 0.1);
-      border-radius: 100%;
-    }
-    
-    @keyframes wave-move {
-      0% {
-        transform: translateY(0) scale(1);
-      }
-      50% {
-        transform: translateY(20px) scale(1.1);
-      }
-      100% {
-        transform: translateY(0) scale(1);
-      }
-    }
-    
-    .animate-wave {
-      animation: wave-move 10s ease-in-out infinite;
-    }
-    
-    .nav-buttons {
-      position: fixed;
-      bottom: 20px;
-      left: 0;
-      right: 0;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      z-index: 100;
-    }
-    
-    .nav-button {
-      padding: 10px 15px;
-      background-color: rgba(255, 255, 255, 0.7);
-      color: #1e293b;
-      border: 1px solid #e2e8f0;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 16px;
-      backdrop-filter: blur(5px);
-      transition: background-color 0.3s;
-    }
-    
-    .nav-button:hover {
-      background-color: rgba(255, 255, 255, 0.9);
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tailwind CSS Grid Showcase</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <!-- Navigation Buttons -->
-  <div class="nav-buttons">
-    <button class="nav-button" onclick="scrollToSection(0)">Soft Gradient</button>
-    <button class="nav-button" onclick="scrollToSection(1)">Pastel Particles</button>
-    <button class="nav-button" onclick="scrollToSection(2)">Gradient Mesh</button>
-    <button class="nav-button" onclick="scrollToSection(3)">Flowing Lines</button>
-    <button class="nav-button" onclick="scrollToSection(4)">Ripple Effect</button>
-    <button class="nav-button" onclick="scrollToSection(5)">Soft Clouds</button>
-    <button class="nav-button" onclick="scrollToSection(6)">Dot Grid</button>
-    <button class="nav-button" onclick="scrollToSection(7)">Pastel Waves</button>
+<body class="bg-gray-100 p-5 space-y-10">
+
+  <h1 class="text-2xl font-bold text-center">Tailwind CSS Grid Examples</h1>
+
+  <!-- Utility for demo boxes -->
+  <style>
+    .box { @apply bg-pink-300 p-4 text-white font-semibold text-center rounded; }
+  </style>
+
+  <!-- Grid Example 1: 2 columns -->
+  <div>
+    <h2 class="font-bold mb-2">1. Grid with 2 Columns</h2>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="box">1</div>
+      <div class="box">2</div>
+    </div>
   </div>
 
-  <!-- Background 1: Soft Gradient Wave -->
-  <section class="bg-soft-gradient animate-gradient">
-    <h2>Soft Gradient Background</h2>
-  </section>
-
-  <!-- Background 2: Pastel Particles -->
-  <section class="bg-particles">
-    <div class="particles" id="particlesContainer"></div>
-    <h2>Pastel Particles Background</h2>
-  </section>
-
-  <!-- Background 3: Pastel Gradient Mesh -->
-  <section class="bg-gradient-mesh">
-    <div class="gradient-mesh">
-      <div class="mesh-blob animate-blob" style="width: 400px; height: 400px; left: 20%; top: 30%; background: rgba(59, 130, 246, 0.1);"></div>
-      <div class="mesh-blob animate-blob delay-2000" style="width: 350px; height: 350px; left: 60%; top: 40%; background: rgba(99, 102, 241, 0.1);"></div>
-      <div class="mesh-blob animate-blob delay-4000" style="width: 300px; height: 300px; left: 40%; top: 60%; background: rgba(14, 165, 233, 0.1);"></div>
-      <div class="mesh-blob animate-blob" style="width: 250px; height: 250px; left: 70%; top: 20%; background: rgba(56, 189, 248, 0.1);"></div>
+  <!-- Grid Example 2: 3 Columns -->
+  <div>
+    <h2 class="font-bold mb-2">2. Grid with 3 Columns</h2>
+    <div class="grid grid-cols-3 gap-4">
+      <div class="box">1</div><div class="box">2</div><div class="box">3</div>
     </div>
-    <h2>Pastel Gradient Mesh Background</h2>
-  </section>
+  </div>
 
-  <!-- Background 4: Flowing Lines -->
-  <section class="bg-flowing-lines">
-    <div class="lines-container">
-      <svg width="100%" height="100%" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg" class="animate-flow">
-        <defs>
-          <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.2" />
-            <stop offset="100%" style="stop-color:#0ea5e9;stop-opacity:0.2" />
-          </linearGradient>
-        </defs>
-        <path d="M0,400 Q200,350 400,400 T800,400" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,410 Q200,360 400,410 T800,410" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,390 Q200,340 400,390 T800,390" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,420 Q200,370 400,420 T800,420" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,380 Q200,330 400,380 T800,380" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,430 Q200,380 400,430 T800,430" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,370 Q200,320 400,370 T800,370" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,440 Q200,390 400,440 T800,440" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,360 Q200,310 400,360 T800,360" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,450 Q200,400 400,450 T800,450" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,350 Q200,300 400,350 T800,350" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,460 Q200,410 400,460 T800,460" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,340 Q200,290 400,340 T800,340" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,470 Q200,420 400,470 T800,470" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-        <path d="M0,330 Q200,280 400,330 T800,330" stroke="url(#grad1)" fill="none" stroke-width="2" opacity="0.7" />
-      </svg>
+  <!-- Grid Example 3: 4 Columns -->
+  <div>
+    <h2 class="font-bold mb-2">3. Grid with 4 Columns</h2>
+    <div class="grid grid-cols-4 gap-4">
+      <div class="box">1</div><div class="box">2</div><div class="box">3</div><div class="box">4</div>
     </div>
-    <h2>Flowing Lines Background</h2>
-  </section>
+  </div>
 
-  <!-- Background 5: Ripple Effect -->
-  <section class="bg-ripple">
-    <div class="ripple-container" id="rippleContainer"></div>
-    <h2>Ripple Effect Background</h2>
-  </section>
-
-  <!-- Background 6: Soft Clouds -->
-  <section class="bg-soft-clouds">
-    <div class="clouds-container">
-      <div class="cloud animate-cloud" style="width: 500px; height: 500px; left: 30%; top: 40%; background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0) 70%);"></div>
-      <div class="cloud animate-cloud delay-2000" style="width: 400px; height: 400px; left: 60%; top: 50%; background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, rgba(56, 189, 248, 0) 70%);"></div>
-      <div class="cloud animate-cloud delay-4000" style="width: 450px; height: 450px; left: 20%; top: 60%; background: radial-gradient(circle, rgba(14, 165, 233, 0.1) 0%, rgba(14, 165, 233, 0) 70%);"></div>
-      <div class="cloud animate-cloud" style="width: 350px; height: 350px; left: 70%; top: 30%; background: radial-gradient(circle, rgba(2, 132, 199, 0.1) 0%, rgba(2, 132, 199, 0) 70%);"></div>
+  <!-- Grid Example 4: Auto Columns -->
+  <div>
+    <h2 class="font-bold mb-2">4. Auto Columns</h2>
+    <div class="grid grid-cols-auto gap-4">
+      <div class="box">1</div><div class="box">2</div>
     </div>
-    <h2>Soft Clouds Background</h2>
-  </section>
+  </div>
 
-  <!-- Background 7: Dot Grid -->
-  <section class="bg-dot-grid">
-    <div class="grid-container">
-      <div class="grid animate-grid"></div>
+  <!-- Grid Example 5: Auto-fit minmax -->
+  <div>
+    <h2 class="font-bold mb-2">5. Auto-fit with minmax</h2>
+    <div class="grid grid-cols-[repeat(auto-fit,minmax(100px,1fr))] gap-4">
+      <div class="box">1</div><div class="box">2</div><div class="box">3</div><div class="box">4</div><div class="box">5</div>
     </div>
-    <h2>Dot Grid Background</h2>
-  </section>
+  </div>
 
-  <!-- Background 8: Pastel Waves -->
-  <section class="bg-pastel-waves">
-    <div class="waves-container">
-      <div class="wave animate-wave" style="bottom: -50px; animation-delay: 0s;"></div>
-      <div class="wave animate-wave" style="bottom: 0px; height: 80px; animation-delay: 1s;"></div>
-      <div class="wave animate-wave" style="bottom: 50px; height: 70px; animation-delay: 2s;"></div>
-      <div class="wave animate-wave" style="bottom: 100px; height: 60px; animation-delay: 3s;"></div>
-      <div class="wave animate-wave" style="bottom: 150px; height: 50px; animation-delay: 4s;"></div>
+  <!-- Grid Example 6: Row span -->
+  <div>
+    <h2 class="font-bold mb-2">6. Row Span</h2>
+    <div class="grid grid-cols-3 gap-4">
+      <div class="box row-span-2 bg-purple-400">1</div>
+      <div class="box">2</div>
+      <div class="box">3</div>
+      <div class="box">4</div>
     </div>
-    <h2>Pastel Waves Background</h2>
-  </section>
+  </div>
 
-  <script>
-    // Particles Background
-    function createParticles() {
-      const container = document.getElementById('particlesContainer');
-      const colors = ['rgba(59, 130, 246, 0.2)', 'rgba(14, 165, 233, 0.2)', 'rgba(56, 189, 248, 0.2)', 'rgba(2, 132, 199, 0.2)'];
-      
-      for (let i = 0; i < 70; i++) {
-        const particle = document.createElement('div');
-        particle.classList.add('particle');
-        
-        // Random size
-        const size = Math.random() * 5 + 1;
-        particle.style.width = size + 'px';
-        particle.style.height = size + 'px';
-        
-        // Random position
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.top = Math.random() * 100 + '%';
-        
-        // Random color
-        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        
-        // Random opacity
-        particle.style.opacity = Math.random() * 0.5 + 0.3;
-        
-        // Animation
-        particle.style.animation = `float-particle ${Math.random() * 10 + 10}s ease-in-out infinite`;
-        particle.style.animationDelay = Math.random() * 5 + 's';
-        
-        container.appendChild(particle);
-      }
-    }
-    
-    // Ripple Effect
-    function createRipples() {
-      const container = document.getElementById('rippleContainer');
-      const createRipple = () => {
-        const ripple = document.createElement('div');
-        ripple.classList.add('ripple', 'animate-ripple');
-        
-        // Random position
-        ripple.style.left = Math.random() * 100 + '%';
-        ripple.style.top = Math.random() * 100 + '%';
-        
-        container.appendChild(ripple);
-        
-        // Remove ripple after animation completes
-        setTimeout(() => {
-          ripple.remove();
-        }, 6000);
-      };
-      
-      // Create initial ripples
-      for (let i = 0; i < 3; i++) {
-        setTimeout(() => {
-          createRipple();
-        }, i * 2000);
-      }
-      
-      // Create new ripples periodically
-      setInterval(createRipple, 2000);
-    }
-    
-    // Navigation
-    function scrollToSection(index) {
-      const sections = document.querySelectorAll('section');
-      if (sections[index]) {
-        sections[index].scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-    
-    // Initialize
-    window.addEventListener('load', () => {
-      createParticles();
-      createRipples();
-    });
-  </script>
+  <!-- Grid Example 7: Col span -->
+  <div>
+    <h2 class="font-bold mb-2">7. Column Span</h2>
+    <div class="grid grid-cols-3 gap-4">
+      <div class="box col-span-2 bg-yellow-400">1</div>
+      <div class="box">2</div>
+      <div class="box">3</div>
+    </div>
+  </div>
+
+  <!-- Grid Example 8: Grid with gaps -->
+  <div>
+    <h2 class="font-bold mb-2">8. Custom Gap</h2>
+    <div class="grid grid-cols-3 gap-x-10 gap-y-2">
+      <div class="box">1</div><div class="box">2</div><div class="box">3</div>
+    </div>
+  </div>
+
+  <!-- Grid Example 9: Nested Grids -->
+  <div>
+    <h2 class="font-bold mb-2">9. Nested Grids</h2>
+    <div class="grid grid-cols-2 gap-4">
+      <div class="box">1</div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="box bg-green-400">A</div>
+        <div class="box bg-green-400">B</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid Example 10: Grid with fixed width columns -->
+  <div>
+    <h2 class="font-bold mb-2">10. Fixed Width Columns</h2>
+    <div class="grid grid-cols-[100px_200px] gap-4">
+      <div class="box">100px</div>
+      <div class="box">200px</div>
+    </div>
+  </div>
+
+  <!-- Grid Example 11: 5 Columns -->
+  <div>
+    <h2 class="font-bold mb-2">11. 5 Columns</h2>
+    <div class="grid grid-cols-5 gap-2">
+      <div class="box">1</div><div class="box">2</div><div class="box">3</div><div class="box">4</div><div class="box">5</div>
+    </div>
+  </div>
+
+  <!-- Grid Example 12: Grid Rows -->
+  <div>
+    <h2 class="font-bold mb-2">12. Grid with Rows</h2>
+    <div class="grid grid-rows-3 grid-flow-col gap-4">
+      <div class="box">1</div><div class="box">2</div><div class="box">3</div><div class="box">4</div>
+    </div>
+  </div>
+
+  <!-- Grid Example 13: Dense Flow -->
+  <div>
+    <h2 class="font-bold mb-2">13. Dense Grid</h2>
+    <div class="grid grid-cols-3 grid-flow-dense gap-2">
+      <div class="box col-span-2">Wide</div>
+      <div class="box">A</div>
+      <div class="box">B</div>
+    </div>
+  </div>
+
+  <!-- Grid Example 14: Grid with Justify -->
+  <div>
+    <h2 class="font-bold mb-2">14. Justified Grid</h2>
+    <div class="grid grid-cols-3 justify-items-center gap-4">
+      <div class="box">1</div><div class="box">2</div><div class="box">3</div>
+    </div>
+  </div>
+
+  <!-- Grid Example 15: Align Items -->
+  <div>
+    <h2 class="font-bold mb-2">15. Align Items</h2>
+    <div class="grid grid-cols-3 items-end gap-4 h-40 bg-gray-200">
+      <div class="box h-10">1</div><div class="box h-20">2</div><div class="box h-32">3</div>
+    </div>
+  </div>
+
+  <!-- Grid Example 16: Grid Template Areas (using custom style) -->
+  <div>
+    <h2 class="font-bold mb-2">16. Grid Template Areas (CSS)</h2>
+    <div class="grid" style="display: grid; grid-template-areas: 'header header' 'sidebar content'; grid-template-columns: 1fr 2fr; gap: 1rem;">
+      <div class="box bg-blue-500" style="grid-area: header;">Header</div>
+      <div class="box bg-blue-400" style="grid-area: sidebar;">Sidebar</div>
+      <div class="box bg-blue-300" style="grid-area: content;">Content</div>
+    </div>
+  </div>
+
+  <!-- Grid Example 17: Grid-auto-rows -->
+  <div>
+    <h2 class="font-bold mb-2">17. Auto Rows</h2>
+    <div class="grid grid-cols-2 grid-rows-2 grid-rows-[100px_200px] gap-4">
+      <div class="box">1</div><div class="box">2</div><div class="box">3</div><div class="box">4</div>
+    </div>
+  </div>
+
+  <!-- Grid Example 18: Responsive Columns -->
+  <div>
+    <h2 class="font-bold mb-2">18. Responsive Columns</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="box">1</div><div class="box">2</div><div class="box">3</div><div class="box">4</div>
+    </div>
+  </div>
+
+  <!-- Grid Example 19: Grid with Icons (optional layout) -->
+  <div>
+    <h2 class="font-bold mb-2">19. Grid with Icons</h2>
+    <div class="grid grid-cols-4 gap-4 text-3xl text-center">
+      <div class="box">🔥</div><div class="box">💻</div><div class="box">🎨</div><div class="box">📱</div>
+    </div>
+  </div>
+
+  <!-- Grid Example 20: Complex layout with Span -->
+  <div>
+    <h2 class="font-bold mb-2">20. Complex Span</h2>
+    <div class="grid grid-cols-4 gap-4">
+      <div class="box col-span-4 bg-teal-400">Header</div>
+      <div class="box col-span-1">Nav</div>
+      <div class="box col-span-3">Main Content</div>
+      <div class="box col-span-4 bg-teal-400">Footer</div>
+    </div>
+  </div>
+
 </body>
 </html>
