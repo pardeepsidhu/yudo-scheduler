@@ -149,100 +149,81 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
   }, []);
 
   // Mobile navbar component
-  const MobileNavbar = () => { return (
+  const MobileNavbar = () => (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-teal-100 shadow-sm">
-      <div className="container mx-auto">
-        <div className="flex items-center justify-between px-4 py-3">
-          <Logo collapsed={false} />
+      <div className="flex items-center justify-between px-4 py-3">
+        <Logo collapsed={false} />
+        
+        <div className="flex items-center gap-3">
+          <Avatar className="h-8 w-8 border-2 border-teal-100">
+            <AvatarImage src={userImage} alt={userName} />
+            <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-500 text-white">
+              {userName?.charAt(0).toUpperCase() || "U"}
+            </AvatarFallback>
+          </Avatar>
           
-          {/* Desktop Navigation - hidden on mobile */}
-          <div className="hidden md:flex items-center space-x-4">
-            {menuItems.map((item) => (
-              <div 
-                key={item.id}
-                className={`flex items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer transition-colors duration-200
-                  ${activeItem === item.id 
-                    ? "bg-teal-50 text-teal-700" 
-                    : "text-gray-600 hover:bg-gray-100 hover:text-teal-600"}`}
-                onClick={() => setActiveItem(item.id)}
-              >
-                {item.icon && <span className="mr-2">{item.icon}</span>}
-                {item.label}
-              </div>
-            ))}
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <Avatar className="h-8 w-8 border-2 border-teal-100 hover:border-teal-300 transition-colors duration-200">
-              <AvatarImage src={userImage} alt={userName} />
-              <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-500 text-white">
-                {userName?.charAt(0).toUpperCase() || "U"}
-              </AvatarFallback>
-            </Avatar>
-            
-            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-gray-600 md:hidden hover:bg-gray-100 hover:text-teal-600">
-                  <Menu className="h-6 w-6" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="left" className="w-[260px] p-0">
-                <div className="flex flex-col h-full">
-                  <div className="flex items-center justify-between p-4 border-b border-teal-100">
-                    <Logo collapsed={false} />
-                    <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
-                      {/* <X className="h-5 w-5 text-gray-600" /> */}
-                    </Button>
-                  </div>
-                  
-                  <div className="flex items-center p-4 border-b border-teal-100">
-                    <Avatar className="h-10 w-10 border-2 border-teal-100">
-                      <AvatarImage src={userImage} alt={userName} />
-                      <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-500 text-white">
-                        {userName?.charAt(0).toUpperCase() || "U"}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="ml-3 overflow-hidden">
-                      <p className="font-medium text-gray-800 truncate">{userName}</p>
-                      <p className="text-xs text-gray-500 truncate">{userEmail}</p>
-                    </div>
-                  </div>
-                  
-                  <nav className="flex-1 overflow-y-auto p-4">
-                    {menuItems.map((item) => (
-                      <SidebarItem
-                        key={item.id}
-                        icon={item.icon}
-                        label={item.label}
-                        active={activeItem === item.id}
-                        isMobile={true}
-                        onClick={() => {
-                          setActiveItem(item.id);
-                          setMobileMenuOpen(false);
-                        }}
-                      />
-                    ))}
-                  </nav>
-                  
-                  <div className="p-4 border-t border-teal-100">
-                    <Button
-                      variant="ghost"
-                      size="default"
-                      className="w-full justify-start text-gray-600 hover:text-rose-600 hover:bg-rose-50"
-                      onClick={handleLogout}
-                    >
-                      <LogOut className="h-5 w-5 mr-3" />
-                      <span>Logout</span>
-                    </Button>
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-gray-600">
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[260px] p-0">
+              <div className="flex flex-col h-full">
+                <div className="flex items-center justify-between p-4 border-b border-teal-100">
+                  <Logo collapsed={false} />
+                  <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+                    {/* <X className="h-5 w-5 text-gray-600" /> */}
+                  </Button>
+                </div>
+                
+                <div className="flex items-center p-4 border-b border-teal-100">
+                  <Avatar className="h-10 w-10 border-2 border-teal-100">
+                    <AvatarImage src={userImage} alt={userName} />
+                    <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-500 text-white">
+                      {userName?.charAt(0).toUpperCase() || "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="ml-3 overflow-hidden">
+                    <p className="font-medium text-gray-800 truncate">{userName}</p>
+                    <p className="text-xs text-gray-500 truncate">{userEmail}</p>
                   </div>
                 </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+                
+                <nav className="flex-1 overflow-y-auto p-4">
+                  {menuItems.map((item) => (
+                    <SidebarItem
+                      key={item.id}
+                      icon={item.icon}
+                      label={item.label}
+                      active={activeItem === item.id}
+                      isMobile={true}
+                      onClick={() => {
+                        setActiveItem(item.id);
+                        setMobileMenuOpen(false);
+                      }}
+                    />
+                  ))}
+                </nav>
+                
+                <div className="p-4 border-t border-teal-100">
+                  <Button
+                    variant="ghost"
+                    size="default"
+                    className="w-full justify-start text-gray-600 hover:text-rose-600 hover:bg-rose-50"
+                    onClick={handleLogout}
+                  >
+                    <LogOut className="h-5 w-5 mr-3" />
+                    <span>Logout</span>
+                  </Button>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </div>
-  ) }
+  );
 
   // Desktop sidebar component
   const DesktopSidebar = () => (
@@ -334,7 +315,7 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
 
   return (
     <>
-      {!isMobile ? <MobileNavbar /> : <DesktopSidebar />}
+      {isMobile ? <MobileNavbar /> : <DesktopSidebar />}
       
       {/* Add padding to main content area when mobile navbar is present */}
       {isMobile && <div className="h-14"></div>}

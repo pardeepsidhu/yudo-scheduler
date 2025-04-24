@@ -23,7 +23,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { fetchUser, sendTelegramLink, updateProfile } from '../api/userApi';
+import { fetchUser, sendRestPassLink, sendTelegramLink, updateProfile } from '../api/userApi';
 
 interface UserData {
   email: string;
@@ -50,6 +50,7 @@ export default function UserProfileComponent() {
   const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
   const [showEmailAlert, setShowEmailAlert] = useState(false);
   const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [showPassAlet,setPassAlert]=useState(false);
   const [initialLoading,setInitialLoading]=useState(true);
 
 
@@ -144,6 +145,22 @@ export default function UserProfileComponent() {
     
   };
 
+  const handleResetPass = async()=>{
+    try {
+      let result = await sendRestPassLink()
+      if(result.error){
+        console.log(error);
+      }
+      else{
+         setPassAlert(true)
+         setTimeout(()=>setPassAlert(false),4000)
+      }
+    } catch (error) {
+      console.log(error)
+      throw new Error("some error accured")
+    }
+  }
+
   const handleAddTelegramClick = async() => {
     try {
       const res = await sendTelegramLink()
@@ -191,12 +208,24 @@ export default function UserProfileComponent() {
         </div>
       )}
 
+
+{showPassAlet && (
+        <div className="fixed top-4 right-4 z-50 max-w-md">
+          <Alert className="bg-blue-50 border-blue-200 text-blue-800">
+            <Mail className="h-4 w-4 text-blue-600" />
+            <AlertTitle>Reset Pasword Email Sent</AlertTitle>
+            <AlertDescription>
+              We've sent a Reset Password email to {userData.email}. Please check your inbox to complete the process.
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
       <div className="container mx-auto ">
         {/* <h1 className="text-3xl font-bold mb-8 text-center sm:text-left">Account Settings</h1> */}
         
         <Card className="shadow-xl border-slate-200 overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-4">
-            <div className="flex flex-col sm:flex-row items-center gap-6">
+          <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-2 sm:py-4 ">
+            <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
               <div className="relative group">
                 <Avatar className="h-28 w-28 border-4 border-white shadow-lg">
                   <AvatarImage src={userData.profile || '/public/profile/Profile.png'} alt={userData.name || 'Profile'} />
@@ -227,7 +256,7 @@ export default function UserProfileComponent() {
                 </label>
               </div>
               
-              <div className="flex-1 text-center sm:text-left">
+              <div className="flex-1 text-center sm:text-left relative right-7 sm:right-0">
                 {isEditingName ? (
                   <div className="space-y-3">
                     <Input
@@ -306,7 +335,7 @@ export default function UserProfileComponent() {
             </div>
           </CardHeader>
           
-          <CardContent className="py-8 px-6">
+          <CardContent className="py-2 sm:py-6 px-3 sm:px-6">
             <div className="space-y-8">
               {/* Profile Info Section */}
               <div>
@@ -314,7 +343,7 @@ export default function UserProfileComponent() {
                   <User className="h-5 w-5 mr-2 text-primary" />
                   Personal Information
                 </h3>
-                <div className="space-y-4 pl-7">
+                <div className="space-y-4 pl-2 sm:pl-5">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b">
                     <div>
                       <h4 className="text-sm font-medium text-slate-500">Full Name</h4>
@@ -353,7 +382,7 @@ export default function UserProfileComponent() {
                   Telegram Connection
                 </h3>
                 
-                <div className="pl-7 space-y-4">
+                <div className="pl-2 sm:pl-5 space-y-4">
                   {userData.telegram ? (
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 p-4 rounded-lg border">
                       <div className='flex  w-full justify-between'>
@@ -362,7 +391,7 @@ export default function UserProfileComponent() {
                             <Phone className="h-5 w-5 text-blue-600" />
                           </div>
                           <div>
-                            <h4 className="font-medium">Stay Update With Telegram</h4>
+                            <h4 className="font-medium text-sm sm:text-lg">Stay Update With Telegram</h4>
                             <p className="text-sm text-slate-500">Connected Telegram Account</p>
                           </div>
                         </div>
@@ -420,7 +449,7 @@ export default function UserProfileComponent() {
                 </h3>
                 
                 <div className="pl-7">
-                  <Button variant="outline" className="w-full sm:w-auto flex justify-between hover:bg-slate-50 transition-colors">
+                  <Button variant="outline" onClick={handleResetPass} className="w-full sm:w-auto flex justify-between hover:bg-slate-50 transition-colors cursor-pointer">
                     <span className="flex items-center">
                       <Shield className="h-4 w-4 mr-2" />
                       Change Password

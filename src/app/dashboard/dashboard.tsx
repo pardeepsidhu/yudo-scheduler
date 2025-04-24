@@ -105,7 +105,8 @@ const TaskOverview = ({ tasks = [] ,setActiveItem}) => {
                   )}
                 </div>
                 <div>
-                  <p className="text-sm text-wrap font-medium text-gray-800 truncate max-w-xs">{task.title}</p>
+                  <p className="text-sm sm:hidden text-wrap font-medium text-gray-800 truncate max-w-xs">{ task.title.length <20 ? task.title : task.title.substring(0, 22)+"..."} </p>
+                  <p className="text-sm hidden sm:flex text-wrap font-medium text-gray-800 truncate max-w-xs">{ task.title} </p>
                   <p className="text-xs text-gray-500">{formatDate(task.updatedAt)}</p>
                 </div>
               </div>

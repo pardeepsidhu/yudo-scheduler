@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "./Nav";
+import Sidebar from "@/components/SideBar"
 
 export const metadata: Metadata = {
   title: "Yudo-Gram",
@@ -16,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body cz-shortcut-listen="true" className="antialiased">
         {/* <Navbar /> */}
+     
         {children}
       </body>
     </html>

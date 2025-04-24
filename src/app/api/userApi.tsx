@@ -90,3 +90,29 @@ const getAuthToken = () => {
       return { error: "some error occurred while updating profile!" };
     }
   }
+
+
+
+
+  export async function sendRestPassLink() {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        throw new Error('Authentication token not found');
+      }
+     
+      
+      let response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/user/resetPass`, {
+        headers: {
+          'auth-token': token
+        }
+  
+      });
+      
+      const data = await response.json();
+ 
+      return data;
+    } catch (error) {
+      return { error: "some error occurred while updating profile!" };
+    }
+  }

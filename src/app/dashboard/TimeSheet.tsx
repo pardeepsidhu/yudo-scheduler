@@ -370,7 +370,7 @@ const ProfessionalTimesheet = () => {
     </div>
       
       {/* Summary Stats */}
-      <div className="bg-gray-50 px-1 sm:px-6 py-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="bg-gray-50 px-1 sm:px-6 py-2 sm:py-4 grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4">
         <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 flex items-center">
           <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mr-4">
             <Clock className="w-6 h-6 text-blue-600" />
@@ -449,7 +449,7 @@ const ProfessionalTimesheet = () => {
               
               return (
                 <div key={dateStr} className="border-b pb-6 last:border-b-0">
-                  <div className="flex justify-between items-center mb-4">
+                  <div className="flex justify-between items-center mb-4 px-3">
                     <h3 className="font-semibold text-lg text-gray-800">
                       {getDayName(date)}, {formatDate(date)}
                     </h3>
