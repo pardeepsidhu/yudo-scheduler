@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "./Nav";
-import Sidebar from "@/components/SideBar"
+import Navbar from "@/components/navbar";
+import { NavigationProvider } from "./context/ActiveItemContext";
+
+
 
 export const metadata: Metadata = {
   title: "Yudo-Gram",
@@ -13,12 +15,16 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  
   return (
     <html lang="en">
       <body cz-shortcut-listen="true" className="antialiased">
-        {/* <Navbar /> */}
-     
-        {children}
+        
+        <NavigationProvider defaultActiveItem="dashboard">
+        <Navbar  />
+          {children}
+        </NavigationProvider>
+        
       </body>
     </html>
   );

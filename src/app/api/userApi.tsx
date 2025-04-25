@@ -20,7 +20,7 @@ const getAuthToken = () => {
   export async function fetchUser(): Promise {
     const token = getAuthToken();
     if (!token) {
-      throw new Error('Authentication token not found');
+      return {error:"some error accured !"};
     }
   
     const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/user/get`, {
@@ -31,7 +31,7 @@ const getAuthToken = () => {
     });
     
     if (!response.ok) {
-      throw new Error('Failed to fetch task');
+      return {error:"some error accured !"};
     }
   
     return await response.json();

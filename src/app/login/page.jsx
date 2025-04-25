@@ -358,7 +358,7 @@ const AuthPage = () => {
                       required 
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0" 
+                      className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 px-3" 
                     />
                   </div>
                   <p className="text-xs text-gray-500">Password must be at least 8 characters</p>
@@ -374,7 +374,7 @@ const AuthPage = () => {
                       required 
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0" 
+                      className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 px-3" 
                     />
                   </div>
                 </div>
@@ -433,7 +433,7 @@ const AuthPage = () => {
                         required 
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0" 
+                        className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 px-3" 
                       />
                     </div>
                   </div>
@@ -453,7 +453,7 @@ const AuthPage = () => {
                         required 
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0" 
+                        className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 px-3" 
                       />
                     </div>
                   </div>
@@ -494,7 +494,7 @@ const AuthPage = () => {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         disabled={otpSent}
-                        className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0" 
+                        className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 px-3" 
                       />
                     </div>
                   </div>
@@ -510,7 +510,7 @@ const AuthPage = () => {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         disabled={otpSent}
-                        className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0" 
+                        className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 px-3" 
                       />
                     </div>
                     <p className="text-xs text-gray-500">Password must be at least 8 characters</p>
@@ -527,7 +527,7 @@ const AuthPage = () => {
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         disabled={otpSent}
-                        className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0" 
+                        className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 p-0 px-3" 
                       />
                     </div>
                   </div>

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import LogoutConfirmation from './logout';
 
 // Utility function for class names
 const cn = (...classes: string[]) => {
@@ -102,9 +103,9 @@ const Logo = ({ collapsed = false }) => (
 );
 
 const ResponsiveNav: React.FC<ResponsiveNavProps> = ({ 
-  userName = "User", 
-  userEmail = "user@example.com", 
-  userImage = "",
+  userName, 
+  userEmail ,
+  userImage ,
   onLogout,
   activeItem,
   setActiveItem
@@ -125,12 +126,14 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
     { id: "profile", label: "Profile", icon: Users },
   ];
 
-  // Handle logout
-  const handleLogout = () => {
+  // Handle logout success
+  const handleLogoutSuccess = () => {
+    localStorage.clear();
     if (onLogout) {
       onLogout();
     } else {
-      console.log("Logout");
+      // Default redirect to login page
+      window.location.href = '/login';
     }
   };
 
@@ -147,6 +150,38 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
       window.removeEventListener('resize', checkMobile);
     };
   }, []);
+
+  // Custom logout button for mobile
+  const MobileLogoutButton = () => (
+    <LogoutConfirmation 
+      onLogoutConfirmed={handleLogoutSuccess}
+      buttonClassName="w-full justify-start text-gray-600 hover:text-rose-600 hover:bg-rose-50"
+      buttonContent={
+        <>
+          <LogOut className="h-5 w-5 mr-3" />
+          <span>Logout</span>
+        </>
+      }
+    />
+  );
+
+  // Custom logout button for desktop (considering collapsed state)
+  const DesktopLogoutButton = () => (
+    <LogoutConfirmation 
+      onLogoutConfirmed={handleLogoutSuccess}
+      buttonClassName={cn(
+        "w-full justify-start text-gray-600 hover:text-rose-600 hover:bg-rose-50",
+        collapsed ? "flex items-center justify-center" : ""
+      )}
+      buttonContent={
+        <>
+          <LogOut className={cn("h-5 w-5", collapsed ? "" : "mr-3")} />
+          {!collapsed && <span>Logout</span>}
+        </>
+      }
+      tooltipContent={collapsed ? "Logout" : undefined}
+    />
+  );
 
   // Mobile navbar component
   const MobileNavbar = () => (
@@ -172,9 +207,9 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b border-teal-100">
                   <Logo collapsed={false} />
-                  <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
-                    {/* <X className="h-5 w-5 text-gray-600" /> */}
-                  </Button>
+                  {/* <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
+                    <X className="h-5 w-5 text-gray-600" />
+                  </Button> */}
                 </div>
                 
                 <div className="flex items-center p-4 border-b border-teal-100">
@@ -207,15 +242,7 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
                 </nav>
                 
                 <div className="p-4 border-t border-teal-100">
-                  <Button
-                    variant="ghost"
-                    size="default"
-                    className="w-full justify-start text-gray-600 hover:text-rose-600 hover:bg-rose-50"
-                    onClick={handleLogout}
-                  >
-                    <LogOut className="h-5 w-5 mr-3" />
-                    <span>Logout</span>
-                  </Button>
+                  <MobileLogoutButton />
                 </div>
               </div>
             </SheetContent>
@@ -292,22 +319,7 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
       {/* Logout Button */}
       <div className="p-3 border-t border-teal-100">
         <TooltipProvider delayDuration={0}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size={collapsed ? "icon" : "default"}
-                className={cn(
-                  "w-full justify-start text-gray-600 hover:text-rose-600 hover:bg-rose-50",
-                )}
-                onClick={handleLogout}
-              >
-                <LogOut className={cn("h-5 w-5", collapsed ? "" : "mr-3")} />
-                {!collapsed && <span>Logout</span>}
-              </Button>
-            </TooltipTrigger>
-            {collapsed && <TooltipContent side="right">Logout</TooltipContent>}
-          </Tooltip>
+          <DesktopLogoutButton />
         </TooltipProvider>
       </div>
     </div>

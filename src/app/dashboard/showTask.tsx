@@ -338,11 +338,12 @@ export function TaskDialog({
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs defaultValue="details ">
-          <TabsList className="grid grid-cols-2  mx-auto sm:mx-0">
-            <TabsTrigger value="details">Details</TabsTrigger>
-            <TabsTrigger value="time">Time Tracking</TabsTrigger>
-          </TabsList>
+      
+<Tabs defaultValue="details">
+  <TabsList className="grid grid-cols-2  mx-auto sm:mx-0">
+    <TabsTrigger value="details">Details</TabsTrigger>
+    <TabsTrigger value="time">Time Tracking</TabsTrigger>
+  </TabsList>
           
           <TabsContent value="details" className="space-y-4 pt-4">
             {/* Task Title */}

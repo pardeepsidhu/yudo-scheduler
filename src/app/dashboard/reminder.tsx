@@ -208,7 +208,7 @@ export default function RemindersComponent() {
     // Clear message after 3 seconds
     setTimeout(() => {
       setMessage("")
-    }, 3000)
+    }, 5000)
   }
 
   // Helper for formatting dates

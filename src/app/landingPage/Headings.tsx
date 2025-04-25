@@ -3,12 +3,15 @@ import React, { useEffect, useState } from 'react';
 import { AuroraText } from '@/components/magicui/aurora-text';
 import { BoxReveal } from '@/components/magicui/box-reveal';
 import { TypingAnimation } from '@/components/magicui/typing-animation';
-import { CheckIcon, ChevronRightIcon } from 'lucide-react';
+import { ArrowRight, Calendar, CheckIcon, ChevronLeft, ChevronRight, ChevronRightIcon, Clock, Quote, Settings, Star } from 'lucide-react';
 import { RetroGrid } from '@/components/magicui/retro-grid';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { HeroSection } from './HeroSection';
 import Image from 'next/image';
 import { BackgroundBeams } from '@/components/ui/background-beams';
+import ScheduleDemoButton from "@/components/ui/start-a-demo-button"
+import Button from "@/components/ui/start-today-button"
+import { AvatarCircles } from '@/components/magicui/avatar-circles';
 
 
 
@@ -16,12 +19,41 @@ import { BackgroundBeams } from '@/components/ui/background-beams';
 const ProfessionalScheduler = () => {
   // State to track which elements have been scrolled into view
   const [isClient, setIsClient] = useState(false);
-
+  const [hoveredTestimonial, setHoveredTestimonial] = useState(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   // Only run on client-side to avoid SSR hydration issues
   useEffect(() => {
     setIsClient(true);
   }, []);
 
+  const features = [
+    
+    { icon: <Clock className="h-5 w-5" />, text: "Save 8+ hours weekly" },
+    { icon: <Calendar className="h-5 w-5" />, text: "14-day free trial" },
+    { icon: <Settings className="h-5 w-5" />, text: "No credit card required" }
+  ];
+
+
+  const avatars = [
+    {
+      imageUrl: "https://avatars.githubusercontent.com/u/16860528",
+      profileUrl: "https://github.com/dillionverma",
+    },
+    {
+      imageUrl: "https://avatars.githubusercontent.com/u/20110627",
+      profileUrl: "https://github.com/tomonarifeehan",
+    },
+    {
+      imageUrl: "https://avatars.githubusercontent.com/u/59442788",
+      profileUrl: "https://github.com/sanjay-mali",
+    },
+    {
+      imageUrl: "https://avatars.githubusercontent.com/u/89768406",
+      profileUrl: "https://github.com/itsarghyadas",
+    },
+  ];
+  
   // Initialize scroll animations after component mounts
   useEffect(() => {
     if (!isClient) return;
@@ -57,6 +89,13 @@ const ProfessionalScheduler = () => {
     { title: "3.5x", subtitle: "Return on investment" }
   ];
 
+  const navigateTestimonials = (direction) => {
+    if (direction === 'next') {
+      setActiveIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
+    } else {
+      setActiveIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
+    }
+  };
   // Testimonials data
   const testimonials = [
     {
@@ -136,7 +175,7 @@ const ProfessionalScheduler = () => {
      <HeroSection/>
 
       {/* Main Features Section */}
-      <div className="py-20  ">
+      <div className="py-10  ">
       <div className={`bg-[url('https://img.freepik.com/free-vector/geometric-pattern-background-vector-white_53876-126684.jpg')] w-full h-full bg-center z-0 absolute opacity-30`} />
       
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ">
@@ -198,10 +237,10 @@ const ProfessionalScheduler = () => {
 
               <div className="scroll-animate slide-in-left delay-400">
                 <BoxReveal boxColor="#4f46e5" duration={0.5}>
-                  <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-md font-medium text-lg transition-colors duration-300 flex items-center group">
+                  <ScheduleDemoButton >
                     Schedule a Demo
                     <ChevronRightIcon className="ml-2 size-5 transition-transform duration-300 group-hover:translate-x-1" />
-                  </button>
+                  </ScheduleDemoButton>
                 </BoxReveal>
               </div>
             </div>
@@ -212,7 +251,7 @@ const ProfessionalScheduler = () => {
                 <Image
                   src="/landingPage/ScheduleDemp.jpg" 
                   alt="Yudo Scheduler Dashboard" 
-                  className="relative z-10 rounded-xl shadow-xl max-w-full h-auto"
+                  className="relative z-10 rounded-xl ease-in-out duration-200 shadow-xl max-w-full h-auto hover:scale-105"
                   width={1000}
                   height={1000}
                 />
@@ -224,110 +263,343 @@ const ProfessionalScheduler = () => {
       </div>
 
       {/* Benefits Section with Animated Counter */}
-      <div className="py-20 bg-gradient-to-b from-gray-100 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl bg-indigo-900 text-white shadow-xl scroll-animate scale-in">
-            <div className="flex flex-col lg:flex-row items-center justify-between gap-12 px-8 py-16 lg:px-16">
-              <div className="w-full lg:w-1/2 space-y-6 relative z-10">
-                <span className="inline-block font-bold py-1 px-4 rounded-full bg-indigo-500 text-white scroll-animate fade-in">
+      <div className="py-16 bg-gradient-to-b from-gray-100 to-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-900 to-violet-900 text-white shadow-2xl">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22 viewBox=%220 0 100 100%22%3E%3Cg fill-rule=%22evenodd%22%3E%3Cg fill=%22%23fff%22 fill-opacity=%22.05%22%3E%3Cpath opacity=%22.5%22 d=%22M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+          
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 px-8 py-16 lg:px-16 relative z-10">
+            <div className="w-full lg:w-1/2 space-y-8">
+              <div className="relative inline-block group">
+                <span className="absolute inset-0 bg-white bg-opacity-20 rounded-full blur-md transform group-hover:scale-110 transition-all duration-300"></span>
+                <span className="relative inline-block font-bold py-1.5 px-5 rounded-full bg-indigo-500 text-white transform transition duration-300 group-hover:translate-y-[-2px] group-hover:shadow-lg">
                   Why Choose Yudo
                 </span>
-                <h2 className="text-white text-4xl sm:text-5xl font-bold leading-tight scroll-animate fade-in delay-100">
-                  Achieve More With <AuroraText>Less Effort</AuroraText>
-                </h2>
-                <p className="text-indigo-100 text-lg leading-relaxed scroll-animate fade-in delay-200">
-                  Yudo Scheduler doesn&apos;t just organize your tasks—it transforms your approach to time management. With intelligent prioritization, automated reminders, and deep analytics, you&apos;ll make better decisions about your time and resources.
-                </p>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
-                  {statistics.map((stat, index) => (
-                    <div 
-                      key={index} 
-                      className={`bg-indigo-800 bg-opacity-50 p-6 rounded-xl scroll-animate fade-in ${index === 1 ? 'delay-100' : index === 2 ? 'delay-200' : index === 3 ? 'delay-300' : ''}`}
-                    >
-                      <p className="text-3xl font-bold text-white">{stat.title}</p>
-                      <p className="text-indigo-200">{stat.subtitle}</p>
-                    </div>
-                  ))}
-                </div>
               </div>
-
-              <div className="w-full lg:w-1/2 flex justify-center relative z-10">
-                <div className="scroll-animate scale-in delay-300">
-                  <Image
-                    src="/landingPage/WhyYudo.png" 
-                    alt="Professional using Yudo Scheduler"
-                    className="w-full max-w-lg rounded-xl shadow-lg object-cover hover:scale-105 transition-transform duration-500"
-                    width={1000}
-                    height={1000}
-                 />
+              
+              <h2 className="text-white text-4xl sm:text-5xl font-bold leading-tight">
+                Achieve More With{' '}
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-300 via-purple-300 to-blue-200 relative">
+                  Less Effort
+                  <svg className="absolute bottom-0 left-0 w-full h-1" viewBox="0 0 100 10" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0,5 Q25,0 50,5 T100,5" fill="none" stroke="url(#grad)" strokeWidth="2" />
+                    <defs>
+                      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#93c5fd" stopOpacity="0.7" />
+                        <stop offset="50%" stopColor="#d8b4fe" stopOpacity="0.7" />
+                        <stop offset="100%" stopColor="#93c5fd" stopOpacity="0.7" />
+                      </linearGradient>
+                    </defs>
+                  </svg>
+                </span>
+              </h2>
+              
+              <p className="text-indigo-100 text-lg leading-relaxed">
+                Yudo Scheduler doesn't just organize your tasks—it transforms your approach to time management. With intelligent prioritization, automated reminders, and deep analytics, you'll make better decisions about your time and resources.
+              </p>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8">
+                {statistics.map((stat, index) => (
+                  <div
+                    key={index}
+                    className="relative group"
+                    onMouseEnter={() => setHoveredStat(index)}
+                    onMouseLeave={() => setHoveredStat(null)}
+                  >
+                    <div className="absolute inset-0 bg-indigo-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="bg-indigo-800 bg-opacity-50 p-6 rounded-xl relative z-10 transition-all duration-500 group-hover:shadow-xl group-hover:translate-y-[-4px] overflow-hidden">
+                      <div className="absolute right-4 top-4 opacity-30 group-hover:opacity-100 transition-opacity">
+                        {stat.icon}
+                      </div>
+                      <div className="flex items-center mb-2">
+                        <p className="text-3xl font-bold text-white">{stat.title}</p>
+                      </div>
+                      <p className="text-indigo-200">{stat.subtitle}</p>
+                      <div className="h-0 overflow-hidden group-hover:h-auto group-hover:mt-3 transition-all duration-300">
+                        <p className="text-indigo-100 text-sm">{stat.description}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+             
+            </div>
+            
+            <div className="w-full lg:w-1/2 flex justify-center">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl opacity-50 blur-xl group-hover:opacity-75 transition-opacity duration-500"></div>
+                <div className="relative bg-gradient-to-br from-indigo-900 to-violet-900 p-1 rounded-xl overflow-hidden transform transition duration-500 group-hover:scale-[1.02] group-hover:shadow-2xl">
+                  <div className="bg-gradient-to-br from-indigo-800 to-indigo-900 rounded-lg p-2">
+                    <div className="flex justify-start space-x-1.5 mb-4">
+                      <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                      <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <div className=" flex items-center justify-center rounded-md overflow-hidden bg-indigo-950">
+                      <img
+                        src="/landingPage/WhyYudo.png"
+                        alt="Professional using Yudo Scheduler"
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    </div>
+                    
+                  </div>
                 </div>
               </div>
             </div>
-            <RetroGrid className="opacity-10" />
-          </div>
-        </div>
-    
-      </div>
-
-      {/* Testimonials with Scroll Animation */}
-      <div className="bg-white py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-5xl font-bold text-gray-900 mb-6 scroll-animate">
-              Trusted by <span className="text-indigo-600">Industry Leaders</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto scroll-animate delay-100">
-              See how professionals across various industries have transformed their productivity with Yudo Scheduler.
-            </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div 
-                key={index} 
-                className={`bg-gray-50 p-8 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 scroll-animate ${index === 1 ? 'delay-100' : index === 2 ? 'delay-200' : ''}`}
-              >
-                <svg className="h-8 w-8 text-indigo-400 mb-4" fill="currentColor" viewBox="0 0 32 32">
-                  <path d="M9.352 4C4.456 7.456 1 13.12 1 19.36c0 5.088 3.072 8.064 6.624 8.064 3.36 0 5.856-2.688 5.856-5.856 0-3.168-2.208-5.472-5.088-5.472-.576 0-1.344.096-1.536.192.48-3.264 3.552-7.104 6.624-9.024L9.352 4zm16.512 0c-4.8 3.456-8.256 9.12-8.256 15.36 0 5.088 3.072 8.064 6.624 8.064 3.264 0 5.856-2.688 5.856-5.856 0-3.168-2.304-5.472-5.184-5.472-.576 0-1.248.096-1.44.192.48-3.264 3.456-7.104 6.528-9.024L25.864 4z" />
-                </svg>
-                <p className="text-gray-600 mb-6">{testimonial.quote}</p>
-                <div className="flex items-center">
-                  <div className="bg-indigo-100 h-12 w-12 rounded-full flex items-center justify-center text-indigo-600 font-bold text-xl">
-                  <Avatar className='w-full h-full'>
-  <AvatarImage className='rounded-full w-full h-full' src={testimonial.img} />
-  <AvatarFallback>CN</AvatarFallback>
-</Avatar>
+          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-indigo-900 to-transparent opacity-50"></div>
+        </div>
+      </div>
+    </div>
 
+      {/* Testimonials with Scroll Animation */}
+      <div className="bg-gradient-to-b from-white to-gray-50 py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-16 relative z-10">
+          <div className="inline-block mb-3">
+            <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-indigo-100 text-indigo-700 font-medium text-sm">
+              <Star className="h-4 w-4 mr-2" />
+              <span>Customer Stories</span>
+            </div>
+          </div>
+          
+          <h2 className="text-3xl sm:text-5xl font-bold mb-6 relative inline-block">
+            Trusted by 
+            <span className="relative ml-2">
+              <span className="text-indigo-600">Industry Leaders</span>
+              <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 150 10" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,5 Q37.5,0 75,5 T150,5" fill="none" stroke="#818cf8" strokeWidth="3" strokeLinecap="round" />
+              </svg>
+            </span>
+          </h2>
+          
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            See how professionals across various industries have transformed their productivity with Yudo Scheduler.
+          </p>
+        </div>
+        
+        {/* Desktop Layout - Grid */}
+        <div className="hidden md:grid md:grid-cols-3 gap-8 relative z-10">
+          {testimonials.map((testimonial, index) => (
+            <div
+              key={index}
+              className="relative group cursor-pointer"
+              onMouseEnter={() => setHoveredTestimonial(index)}
+              onMouseLeave={() => setHoveredTestimonial(null)}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl opacity-0 transform scale-95 group-hover:scale-105 group-hover:opacity-100 transition-all duration-300 -z-10 blur-lg"></div>
+              
+              <div className="bg-white p-8 rounded-xl border border-gray-200 shadow-sm transition-all duration-500 group-hover:shadow-xl group-hover:border-transparent h-full flex flex-col">
+                <div className="flex justify-between items-start mb-6">
+                  <Quote className="h-10 w-10 text-indigo-400 opacity-70" />
+                  <div className="flex">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-4 w-4 text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                </div>
+                
+                <p className="text-gray-700 mb-6 flex-grow italic">"{testimonial.quote}"</p>
+                
+                <div className="flex items-center mt-auto">
+                  <div className={`h-12 w-12 rounded-full overflow-hidden transform transition-transform duration-300 ${hoveredTestimonial === index ? 'scale-110' : ''}`}>
+                    <img 
+                      src={testimonial.img} 
+                      alt={testimonial.author}
+                      className="h-full w-full object-cover"
+                    />
                   </div>
                   <div className="ml-4">
-                    <p className="font-medium text-gray-900">{testimonial.author}</p>
+                    <p className="font-semibold text-gray-900">{testimonial.author}</p>
                     <p className="text-gray-500 text-sm">{testimonial.role}{testimonial.company}</p>
+                  </div>
+                  <div className={`ml-auto bg-indigo-100 text-indigo-600 text-xs font-medium py-1 px-2 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0`}>
+                    {testimonial.industry}
                   </div>
                 </div>
               </div>
+            </div>
+          ))}
+        </div>
+        
+        {/* Mobile Layout - Carousel */}
+        <div className="md:hidden relative">
+          <div className="overflow-hidden">
+            <div 
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{ transform: `translateX(-${activeIndex * 100}%)` }}
+            >
+              {testimonials.map((testimonial, index) => (
+                <div
+                  key={index}
+                  className="min-w-full px-4"
+                >
+                  <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm h-full flex flex-col">
+                    <div className="flex justify-between items-start mb-4">
+                      <Quote className="h-8 w-8 text-indigo-400 opacity-70" />
+                      
+                      <div className="flex">
+                        {[...Array(testimonial.rating)].map((_, i) => (
+                          <Star key={i} className="h-3 w-3 text-amber-400 fill-amber-400" />
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <p className="text-gray-700 mb-6 flex-grow text-sm italic">"{testimonial.quote}"</p>
+                    
+                    <div className="flex items-center mt-auto">
+                      <div className="h-10 w-10 rounded-full overflow-hidden">
+                        <img 
+                          src={testimonial.img} 
+                          alt={testimonial.author}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                      <div className="ml-3">
+                        <p className="font-semibold text-gray-900 text-sm">{testimonial.author}</p>
+                        <p className="text-gray-500 text-xs">{testimonial.role}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Mobile Navigation Controls */}
+          <div className="flex justify-center items-center mt-6 space-x-2">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveIndex(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${activeIndex === index ? 'bg-indigo-600 w-6' : 'bg-gray-300'}`}
+                aria-label={`Go to testimonial ${index + 1}`}
+              />
             ))}
           </div>
+          
+          <button 
+            onClick={() => navigateTestimonials('prev')}
+            className="absolute top-1/2 left-0 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md"
+            aria-label="Previous testimonial"
+          >
+            <ChevronLeft className="h-5 w-5 text-gray-600" />
+          </button>
+          
+          <button 
+            onClick={() => navigateTestimonials('next')}
+            className="absolute top-1/2 right-0 transform -translate-y-1/2 bg-white rounded-full p-2 shadow-md"
+            aria-label="Next testimonial"
+          >
+            <ChevronRight className="h-5 w-5 text-gray-600" />
+          </button>
         </div>
+        
+        {/* Decorative elements */}
+        <div className="hidden lg:block absolute top-40 right-10 w-64 h-64 bg-indigo-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+        <div className="hidden lg:block absolute bottom-40 left-10 w-72 h-72 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
+      
       </div>
+    </div>
       
       {/* Call to Action */}
-      <div className="bg-indigo-900 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-white mb-6 scroll-animate">
-            Ready to Transform Your Productivity?
+      <div className="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-indigo-800 to-violet-900 py-20">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -right-10 -top-20 w-80 h-80 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
+        <div className="absolute left-0 bottom-0 w-72 h-72 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
+        <div className="absolute right-1/3 top-1/3 w-64 h-64 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
+        
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2240%22 height=%2240%22 viewBox=%220 0 40 40%22%3E%3Cg fill=%22%23fff%22 fill-opacity=%220.05%22%3E%3Cpath d=%22M0 0h40v40H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20z%22/%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
+      </div>
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col items-center text-center">
+          <div className="inline-block mb-6">
+            <div className="animate-pulse-slow inline-flex items-center px-4 py-1.5 rounded-full bg-indigo-700 bg-opacity-50 backdrop-blur-sm border border-indigo-500 border-opacity-40">
+              <span className="w-2 h-2 rounded-full bg-green-400 mr-2 animate-pulse"></span>
+              <span className="text-indigo-100 text-sm font-medium">Limited Time Offer</span>
+            </div>
+          </div>
+          
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6 tracking-tight">
+            Ready to 
+            <span className="relative mx-2">
+              Transform
+              <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0,5 Q50,0 100,5 T200,5" fill="none" stroke="#818cf8" strokeWidth="3" strokeLinecap="round" />
+              </svg>
+            </span> 
+            Your Productivity?
           </h2>
-          <p className="text-xl text-indigo-200 max-w-3xl mx-auto mb-8 scroll-animate delay-100">
+          
+          <p className="text-xl text-indigo-200 max-w-3xl mx-auto mb-10">
             Join thousands of professionals who have revolutionized their time management with Yudo Scheduler.
           </p>
-          <div className="scroll-animate delay-200">
-            <button className="bg-white text-indigo-900 hover:bg-indigo-100 px-8 py-4 rounded-md font-bold text-lg transition-colors duration-300 inline-flex items-center group">
-              Get Started Today
-              <ChevronRightIcon className="ml-2 size-5 transition-transform duration-300 group-hover:translate-x-1" />
-            </button>
+          
+          <div className="mb-12 relative w-full max-w-md">
+            <div 
+              className={`relative group transition-all duration-500 transform ${isHovered ? 'scale-105' : 'scale-100'}`}
+              onMouseEnter={() => setIsHovered(true)}
+              onMouseLeave={() => setIsHovered(false)}
+            >
+              {/* Button glow effect */}
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500"></div>
+              
+              <button className="relative w-full px-8 py-4 bg-white rounded-lg flex items-center justify-center space-x-2 text-indigo-900 font-bold text-lg shadow-xl transition-all duration-500">
+                <span>Get Started Today</span>
+                <ArrowRight className={`h-5 w-5 transition-transform duration-500 ${isHovered ? 'translate-x-1' : ''}`} />
+              </button>
+            </div>
+            
+            {/* Button shine animation */}
+            <div className={`absolute inset-0 -z-10 overflow-hidden rounded-lg ${isHovered ? 'animate-shine' : ''}`}>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent -translate-x-full transform-gpu animate-shine"></div>
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-4 mb-8">
+            {features.map((feature, index) => (
+              <div key={index} className="flex items-center space-x-2 text-indigo-200">
+                <div className="p-1 bg-indigo-800 bg-opacity-50 rounded-full">
+                  {feature.icon}
+                </div>
+                <span>{feature.text}</span>
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-6 pt-6">
+            <div className="flex items-center space-x-4">
+              <div className="flex -space-x-2">
+              <AvatarCircles numPeople={999} avatarUrls={avatars} />
+              
+              </div>
+              <div className="text-indigo-200 text-sm">
+                <span className="font-bold"></span> users joined this month
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <div className="flex space-x-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <svg key={star} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <div className="text-indigo-200 text-sm">
+                <span className="font-bold">4.9/5</span> from 2,000+ reviews
+              </div>
+            </div>
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };
