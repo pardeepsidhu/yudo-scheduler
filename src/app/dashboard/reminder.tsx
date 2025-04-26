@@ -235,7 +235,7 @@ export default function RemindersComponent() {
   }
 
   return (
-    <div   className="container mx-auto  p-1 sm:p-2 md::p-4 rounded-2xl border-1 "   >
+    <div   className="container mx-auto  p-1 sm:p-2 md::p-4  border-1 "   >
       {/* Header with title and new reminder button */}
       <div className=" py-2 sm:py-6 mb-2  px-4  rounded-2xl rounded-b-none border-1 flex   bg-white flex-col sm:flex-row justify-between items-center">
         <div className="flex items-center gap-2 mb-4 sm:mb-0">

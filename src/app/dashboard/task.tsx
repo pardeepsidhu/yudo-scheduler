@@ -204,7 +204,7 @@ export default function TaskDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-1 sm:p-4 m-1 border border-gray-200 rounded-2xl bg-gray-50">
+    <div className="container mx-auto p-1 sm:p-4  border border-gray-200  bg-gray-50">
       <header className="flex items-center justify-between p-3 sm:p-4 my-1 sm:my-2 rounded-xl rounded-b-none sticky  bg-white  border-b border-gray-100 shadow-sm">
         <div className="flex items-center gap-3">
           <ClipboardList className="h-8 w-8 text-blue-600" />

@@ -226,7 +226,7 @@ const ProfessionalNavbar = ({
              <Image alt="Yudo Scheduler" src={"/logo.png"} className="relative bottom-[44px] right-[10px] cursor-pointer" height={110} width={130} />
              </div>
             {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center space-x-1 w-[75%] justify-end">
+            <nav className="hidden lg:flex items-center space-x-1 w-[75%] justify-end cursor-pointer">
 
               <TooltipProvider delayDuration={0}>
                 <Tooltip>

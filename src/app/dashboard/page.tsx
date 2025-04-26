@@ -8,8 +8,9 @@ import Analytics from './Analytics';
 import UserProfileComponent from './Profile';
 import ProfessionalTimesheet from './TimeSheet';
 import { useRouter } from 'next/navigation';
-import { fetchUser } from '../api/userApi';
+import { fetchNotifications, fetchUser } from '../api/userApi';
 import { useNavigation } from '../context/ActiveItemContext';
+import  NotificationsPage from './notification-page';
 
 
 export default function Page() {
@@ -36,6 +37,7 @@ export default function Page() {
     const fetchData = async () => {
       try {
         const result = await fetchUser();
+       await fetchNotifications()
         if (result.error) {
           router.push("/login");
         } else {
@@ -66,14 +68,15 @@ export default function Page() {
       </div>
       
       {/* Main content - scrollable */}
-      <div className="flex-grow overflow-y-auto p-2" style={{ overflow: "auto" }} id="scrollableDiv" >
-   {  isMobile &&   <div className='w-full h-15'/>}
+      <div className="flex-grow overflow-y-auto pt-2 md:p-0 " style={{ overflow: "auto" }} id="scrollableDiv" >
+   {  isMobile &&   <div className='w-full h-17'/>}
         {activeItem === "dashboard" && <Dashboard setActiveItem={setActiveItem}/>}
         {activeItem === "reminders" && <RemindersPage />}
         {activeItem === "tasks" && <TaskDashboard />}
         {activeItem === "analytics" && <Analytics />}
         {activeItem === "profile" && <UserProfileComponent />}
         {activeItem === "timesheet" && <ProfessionalTimesheet />}
+        {activeItem === "notifications" && <NotificationsPage />}
       </div>
     </div>
   );

@@ -385,7 +385,7 @@ const TimesheetAnalytics = () => {
         </div>
       </div>
       
-      <div className="flex items-center space-x-3 mt-4 md:mt-0">
+      <div className="flex items-center mx-auto md:mx-0  space-x-3 mt-4 md:mt-0">
         <button
           onClick={handleRefresh}
           className="flex items-center justify-center px-3 py-2 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors"

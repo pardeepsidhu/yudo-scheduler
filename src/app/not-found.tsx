@@ -83,13 +83,8 @@ export default function NotFound() {
         <div className="absolute top-2/3 left-1/3 w-40 h-40 rounded-full bg-pink-600/20 dark:bg-pink-600/10 blur-3xl animate-blob delay-4000"></div>
       </div>
 
-      {/* Brand Logo - Responsive position */}
-      <div className="absolute top-4 md:top-8 left-4 md:left-8 flex items-center">
-        <div className="h-8 w-8 md:h-10 md:w-10 rounded-lg bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg">
-          <span className="text-white font-bold text-lg md:text-xl">N</span>
-        </div>
-        <span className="ml-2 md:ml-3 text-lg md:text-xl font-semibold text-gray-900 dark:text-white">YourBrand</span>
-      </div>
+  
+
 
       {/* Main Content - Properly contained */}
       <div className="relative z-10 w-full max-w-3xl mx-auto mt-10 md:mt-0">
@@ -183,7 +178,7 @@ export default function NotFound() {
       
       {/* Footer - Adjusted position */}
       <div className="w-full text-center text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-8 md:mt-12">
-        © {new Date().getFullYear()} YourBrand. All rights reserved.
+        © {new Date().getFullYear()} Yudo-Scheduler. All rights reserved.
       </div>
       
      

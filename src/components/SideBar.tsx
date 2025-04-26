@@ -190,8 +190,8 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
   const MobileNavbar = () => (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-teal-100 shadow-sm">
       <div className="flex items-center justify-between px-4 py-3">
-      <div className="h-12 overflow-hidden ">
-             <Image alt="Yudo Scheduler" src={"/logo.png"} className="relative bottom-[44px]" height={125} width={140} />
+      <div className="h-9 overflow-hidden ">
+             <Image alt="Yudo Scheduler" src={"/logo.png"} className="relative bottom-[36px]" height={110} width={110} />
              </div>
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8 border-2 border-teal-100">

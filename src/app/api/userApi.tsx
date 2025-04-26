@@ -116,3 +116,76 @@ const getAuthToken = () => {
       return { error: "some error occurred while updating profile!" };
     }
   }
+
+
+
+
+
+  /**
+ * Interface for notification response from API
+ */
+interface NotificationsResponse {
+  success: boolean;
+  count: number;
+  total: number;
+  page: number;
+  pages: number;
+  data: Notification[];
+}
+
+/**
+ * Interface for notification object
+ */
+interface Notification {
+  _id: string;
+  title: string;
+  createdAt: string;
+  type: 'form' | 'auth' | 'telegram' | 'yudo';
+  description: string;
+  user: string;
+  read: boolean;
+}
+
+/**
+ * Fetches notifications for the authenticated user with optional filtering
+ * 
+ * @param options - Optional parameters for filtering and pagination
+ * @param options.limit - Maximum number of notifications to return
+ * @param options.skip - Number of notifications to skip (for pagination)
+ * @param options.type - Filter by notification type
+ * @param options.read - Filter by read status (true/false)
+ * @returns Promise with notifications data and pagination info
+ */
+export async function fetchNotifications(options?: {
+  limit?: number;
+  skip?: number;
+  type?: 'auth' | 'telegram' | 'yudo';
+  read?: boolean;
+  page?: number;
+}): Promise<NotificationsResponse> {
+  const token = getAuthToken();
+  if (!token) {
+    console.log("token not found")
+  }
+
+  const queryParams = new URLSearchParams();
+  
+  if (options?.limit) queryParams.append('limit', options.limit.toString());
+  if (options?.skip) queryParams.append('skip', options.skip.toString());
+  if (options?.type) queryParams.append('type', options.type);
+  if (options?.read !== undefined) queryParams.append('read', options.read.toString());
+  if (options?.page) queryParams.append('page', options.page.toString());
+  
+  const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+  
+  const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/notification/getall/${queryString}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'auth-token': token
+    },
+  });
+  const result =await response.json();
+  console.log(result)
+  return result
+}
+

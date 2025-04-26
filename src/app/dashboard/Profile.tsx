@@ -223,7 +223,7 @@ export default function UserProfileComponent() {
       <div className="container mx-auto ">
         {/* <h1 className="text-3xl font-bold mb-8 text-center sm:text-left">Account Settings</h1> */}
         
-        <Card className="shadow-xl border-slate-200 overflow-hidden">
+        <Card style={{borderRadius:"0px !important"}} className="shadow-xl border-slate-200 overflow-hidden ">
           <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-2 sm:py-4 ">
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
               <div className="relative group">
