@@ -1,11 +1,13 @@
 'use client'
 import React, { useState, useEffect } from "react";
-import { Calendar, LayoutDashboard, Clock, Bell, Users, ChevronRight, ChevronLeft, LogOut, PieChart, CheckSquare, Menu, X } from "lucide-react";
+import { Calendar, LayoutDashboard, Clock, Bell, Users, ChevronRight, ChevronLeft, LogOut, PieChart, CheckSquare, Menu, X, Home, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import LogoutConfirmation from './logout';
+import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 // Utility function for class names
 const cn = (...classes: string[]) => {
@@ -57,7 +59,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
         )}
         onClick={onClick}
       >
-        <Icon className="h-5 w-5 mr-3" />
+        <Icon className="h-5 w-5 mr-3 " />
         <span>{label}</span>
         {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-teal-500 to-emerald-500 rounded-r-md" />}
       </Button>
@@ -73,14 +75,14 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
             size={collapsed ? "icon" : "default"}
             className={cn(
               "w-full justify-start mb-1 relative",
-              active ? "bg-gradient-to-r from-teal-500/10 to-emerald-500/10 text-teal-600 hover:from-teal-500/20 hover:to-emerald-500/20" : 
+              active ? "bg-gradient-to-r from-teal-500/10 to-emerald-500/10 text-teal-600 hover:from-teal-500/20 hover:to-emerald-500/20 pl-1" : 
               "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
             )}
             onClick={onClick}
           >
-            <Icon className={cn("h-5 w-5", collapsed ? "" : "mr-3")} />
+            <Icon className={cn("h-5 w-5", collapsed ? "" : "mr-3 ")} />
             {!collapsed && <span>{label}</span>}
-            {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-teal-500 to-emerald-500 rounded-r-md" />}
+            {active && <div className="absolute -left-1 top-0 bottom-0 w-1 bg-gradient-to-b from-teal-500 to-emerald-500 rounded-r-md" />}
           </Button>
         </TooltipTrigger>
         {collapsed && <TooltipContent side="right">{label}</TooltipContent>}
@@ -91,7 +93,7 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 
 const Logo = ({ collapsed = false }) => (
   <div className="flex items-center">
-    <div className="h-8 w-8 bg-gradient-to-br from-teal-400 to-emerald-400 rounded-md flex items-center justify-center shadow-sm">
+    <div className="h-8 w-8 bg-[#5F61C4] rounded-md flex items-center justify-center shadow-sm">
       <Calendar className="h-5 w-5 text-white" />
     </div>
     {!collapsed && (
@@ -114,6 +116,7 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
   const [collapsed, setCollapsed] = useState<boolean>(true);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const router = useRouter()
 
   // Menu items
   const menuItems: MenuItem[] = [
@@ -187,8 +190,9 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
   const MobileNavbar = () => (
     <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-teal-100 shadow-sm">
       <div className="flex items-center justify-between px-4 py-3">
-        <Logo collapsed={false} />
-        
+      <div className="h-12 overflow-hidden ">
+             <Image alt="Yudo Scheduler" src={"/logo.png"} className="relative bottom-[44px]" height={125} width={140} />
+             </div>
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8 border-2 border-teal-100">
             <AvatarImage src={userImage} alt={userName} />
@@ -206,7 +210,9 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
             <SheetContent side="left" className="w-[260px] p-0">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b border-teal-100">
-                  <Logo collapsed={false} />
+                <div className="h-10 overflow-hidden">
+             <Image alt="Yudo Scheduler" src={"/logo.png"} className="relative bottom-[44px] right-[10px]" height={110} width={130} />
+             </div>
                   {/* <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
                     <X className="h-5 w-5 text-gray-600" />
                   </Button> */}
@@ -226,6 +232,16 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
                 </div>
                 
                 <nav className="flex-1 overflow-y-auto p-4">
+              <SidebarItem
+              key={"home"}
+              icon={Home}
+              label={"Home"}
+              active={false}
+              isMobile={true}
+              collapsed={collapsed}
+              onClick={() =>router.push("/")}
+            />
+
                   {menuItems.map((item) => (
                     <SidebarItem
                       key={item.id}
@@ -239,6 +255,16 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
                       }}
                     />
                   ))}
+
+            <SidebarItem
+              key={"about"}
+              isMobile={true}
+              icon={Info}
+              label={"About"}
+              active={false}
+              collapsed={collapsed}
+              onClick={() =>router.push("/about")}
+            />
                 </nav>
                 
                 <div className="p-4 border-t border-teal-100">
@@ -266,7 +292,9 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
         collapsed ? "justify-center p-4" : "justify-between p-4"
       )}>
         {!collapsed ? (
-          <Logo collapsed={false} />
+          <div className="h-10 overflow-hidden">
+             <Image alt="Yudo Scheduler" src={"/logo.png"} className="relative bottom-[44px] right-[10px]" height={110} width={130} />
+             </div>
         ) : (
           <Logo collapsed={true} />
         )}
@@ -302,7 +330,19 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
 
       {/* Navigation Menu */}
       <div className="flex-1 overflow-y-auto p-3">
-        <nav className="space-y-1">
+        <nav className="space-y-1 ">
+                 
+            <SidebarItem
+              key={"home"}
+              icon={Home}
+              label={"Home"}
+              active={false}
+              collapsed={collapsed}
+              onClick={() =>router.push("/")}
+            />
+
+    
+
           {menuItems.map((item) => (
             <SidebarItem
               key={item.id}
@@ -313,6 +353,15 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
               onClick={() => setActiveItem(item.id)}
             />
           ))}
+
+            <SidebarItem
+              key={"about"}
+              icon={Info}
+              label={"About"}
+              active={false}
+              collapsed={collapsed}
+              onClick={() =>router.push("/about")}
+            />
         </nav>
       </div>
 

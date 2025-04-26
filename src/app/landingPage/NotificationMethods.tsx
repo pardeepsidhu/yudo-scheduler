@@ -62,9 +62,6 @@ export default function EnhancedFeaturesSection() {
         className={`transition-all duration-700 transform ${
           revealed ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
         }`}
-        style={{ 
-          borderLeft: revealed ? `4px solid ${boxColor}` : '4px solid transparent'
-        }}
       >
         {children}
       </div>

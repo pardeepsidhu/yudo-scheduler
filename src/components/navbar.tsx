@@ -22,6 +22,7 @@ import { useNavigation } from "@/app/context/ActiveItemContext";
 import { usePathname, useRouter } from "next/navigation";
 import { fetchUser } from "@/app/api/userApi";
 import LogoutConfirmation from "./logout";
+import Image from "next/image";
 
 
 // Utility function for class names
@@ -212,28 +213,18 @@ const ProfessionalNavbar = ({
     },
   ];
 
-  // Logo component
-  const Logo = () => (
-    <div className="flex items-center">
-      <div className="h-8 w-8 bg-gradient-to-br from-teal-400 to-emerald-400 rounded-md flex items-center justify-center shadow-sm">
-        <Calendar className="h-5 w-5 text-white" />
-      </div>
-      <span className="ml-2 font-bold text-gray-800">
-        YUDO <span className="text-teal-600">Scheduler</span>
-      </span>
-    </div>
-  );
-
   
   return pathName ==="/dashboard"?<></>:
     <>
       {/* Main Navbar */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-teal-100 shadow-sm">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Logo />
-            
+          <div className="flex items-center justify-between h-16 ">
+           
+            {/* <Logo /> */} 
+            <div className="h-10 overflow-hidden cursor-pointer">
+             <Image alt="Yudo Scheduler" src={"/logo.png"} className="relative bottom-[44px] right-[10px] cursor-pointer" height={110} width={130} />
+             </div>
             {/* Desktop Navigation Links */}
             <nav className="hidden lg:flex items-center space-x-1 w-[75%] justify-end">
 
@@ -379,13 +370,15 @@ const ProfessionalNavbar = ({
                 <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                   <SheetTrigger asChild>
                     <Button variant="ghost" size="icon" className="text-gray-600">
-                      <Menu className="h-6 w-6" />
+                      <Menu  className="h-8 w-8" />
                     </Button>
                   </SheetTrigger>
                   <SheetContent side="right" className="w-[280px] p-0">
                     <div className="flex flex-col h-full">
-                      <div className="flex items-center justify-between p-4 border-b border-teal-100">
-                        <Logo />
+                      <div className="flex items-center justify-between p-4 pl-2 border-b border-teal-100 overflow-hidden h-15">
+                      <div className="h-10 overflow-hidden">
+             <Image alt="Yudo Scheduler" src={"/logo.png"}  className="relative bottom-[44px] right-[10px] cursor-pointer" height={110} width={130} />
+             </div>
                         {/* <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
                           <X className="h-5 w-5 text-gray-600" />
                         </Button> */}

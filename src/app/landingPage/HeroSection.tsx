@@ -4,11 +4,13 @@ import { WordRotate } from '@/components/magicui/word-rotate'
 import { Calendar, Clock, Target, Zap } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { cn } from "@/lib/utils";
+import { useRouter } from 'next/navigation'
 
 export const HeroSection: React.FC = () => {
   const [currentWord, setCurrentWord] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const router = useRouter()
   
   const words = ['BOOST PRODUCTIVITY', 'MEET EVERY DEADLINE', 'BALANCE YOUR LIFE'];
   
@@ -119,7 +121,7 @@ export const HeroSection: React.FC = () => {
         </p>
         
         <div className="mt-8 flex justify-center space-x-4">
-          <button className="group relative inline-flex items-center px-6 py-3 overflow-hidden rounded-lg bg-indigo-600 text-white font-medium transition-all duration-300 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+          <button onClick={()=>router.push("/dashboard")} className="group relative inline-flex items-center px-6 py-3 overflow-hidden rounded-lg bg-indigo-600 text-white font-medium transition-all duration-300 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400">
             <span className="relative z-10 flex items-center">
               Get Started
               <svg className="ml-2 h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -129,7 +131,7 @@ export const HeroSection: React.FC = () => {
             <span className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
           </button>
           
-          <button className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 hover:text-indigo-600 hover:border-indigo-400 transition-all duration-300">
+          <button onClick={()=>router.push("/dashboard")} className="px-6 py-3 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 hover:text-indigo-600 hover:border-indigo-400 transition-all duration-300">
             Watch Demo
           </button>
         </div>
@@ -169,7 +171,7 @@ export const HeroSection: React.FC = () => {
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
                   <p className="text-gray-600">{feature.description}</p>
                   <div className="mt-auto pt-4">
-                    <button className="text-indigo-600 font-medium flex items-center hover:text-indigo-800 transition-colors">
+                    <button onClick={()=>router.push('/about')} className="text-indigo-600 font-medium flex items-center hover:text-indigo-800 transition-colors">
                       Learn more
                       <svg className="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>

@@ -10,8 +10,8 @@ import { HeroSection } from './HeroSection';
 import Image from 'next/image';
 import { BackgroundBeams } from '@/components/ui/background-beams';
 import ScheduleDemoButton from "@/components/ui/start-a-demo-button"
-import Button from "@/components/ui/start-today-button"
 import { AvatarCircles } from '@/components/magicui/avatar-circles';
+import { useRouter } from 'next/navigation';
 
 
 
@@ -22,6 +22,7 @@ const ProfessionalScheduler = () => {
   const [hoveredTestimonial, setHoveredTestimonial] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+  const router = useRouter()
   // Only run on client-side to avoid SSR hydration issues
   useEffect(() => {
     setIsClient(true);
@@ -30,7 +31,7 @@ const ProfessionalScheduler = () => {
   const features = [
     
     { icon: <Clock className="h-5 w-5" />, text: "Save 8+ hours weekly" },
-    { icon: <Calendar className="h-5 w-5" />, text: "14-day free trial" },
+    { icon: <Calendar className="h-5 w-5" />, text: "Unlimted free trial" },
     { icon: <Settings className="h-5 w-5" />, text: "No credit card required" }
   ];
 
@@ -550,7 +551,7 @@ const ProfessionalScheduler = () => {
               {/* Button glow effect */}
               <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-lg blur opacity-75 group-hover:opacity-100 transition duration-500"></div>
               
-              <button className="relative w-full px-8 py-4 bg-white rounded-lg flex items-center justify-center space-x-2 text-indigo-900 font-bold text-lg shadow-xl transition-all duration-500">
+              <button onClick={()=>router.push("/dashboard")} className="relative w-full px-8 py-4 bg-white rounded-lg flex items-center justify-center space-x-2 text-indigo-900 font-bold text-lg shadow-xl transition-all duration-500">
                 <span>Get Started Today</span>
                 <ArrowRight className={`h-5 w-5 transition-transform duration-500 ${isHovered ? 'translate-x-1' : ''}`} />
               </button>

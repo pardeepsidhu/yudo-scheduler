@@ -1,11 +1,13 @@
 import { ChevronsRight } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 import styled from 'styled-components';
 
 const Button = () => {
+  const router = useRouter();
   return (
     <StyledWrapper>
-      <button> Get Started Now 
+      <button onClick={()=>router.push("/dashboard")}> Get Started Now 
       </button>
     </StyledWrapper>
   );

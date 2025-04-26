@@ -12,11 +12,13 @@ import StartedButton from "@/components/ui/hover-width-button";
 import StayUpdated from "./StayUpdateSection"
 import NotificatinMethods from "./NotificationMethods"
 
+
 const Notifications = () => {
   // Refs for scroll animations
   const featuresRef = useRef(null);
   const whyMattersRef = useRef(null);
   const testimonialsRef = useRef(null);
+  
 
   useEffect(() => {
     // Simple intersection observer for scroll animations
@@ -138,8 +140,9 @@ const Notifications = () => {
           ].map((testimonial, index) => (
             <div
               key={index}
-              className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+              className=" p-8 rounded-2xl shadow-md  hover:shadow-2xl bg-gradient-to-r from-indigo-500 to-purple-500 transition-all duration-300 hover:scale-105"
             >
+            
               <div className="flex flex-col h-full">
                 <div className="mb-4 text-yellow-400 flex">
                   {[...Array(5)].map((_, i) => (
@@ -153,15 +156,15 @@ const Notifications = () => {
                     </svg>
                   ))}
                 </div>
-                <p className="text-gray-600 italic flex-grow">
+                <p className=" italic flex-grow font-bold">
                   {testimonial.quote}
                 </p>
 
                 <div className="mt-6 pt-6 border-t border-gray-100">
-                  <p className="font-semibold text-gray-900">
+                  <p className="font-semibold text-border">
                     {testimonial.name}
                   </p>
-                  <p className="text-sm text-gray-500">{testimonial.role}</p>
+                  <p className="text-sm text-white">{testimonial.role}</p>
                 </div>
               </div>
             </div>
@@ -179,7 +182,7 @@ const Notifications = () => {
             Join thousands of users who never miss an important update with
             Yudo&apos;s notification system.
           </p>
-          <StartedButton className="bg-white text-[#5046e6] font-bold py-3 px-8 rounded-full text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 cursor-pointer" />
+          <StartedButton  className="bg-white text-[#5046e6] font-bold py-3 px-8 rounded-full text-lg hover:shadow-lg transform hover:scale-105 transition-all duration-300 cursor-pointer" />
         </div>
       </div>
     </div>

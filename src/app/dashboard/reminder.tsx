@@ -96,7 +96,7 @@ export default function RemindersComponent() {
       setPage(1)
       setReminders([])
     }
-
+    
     try {
       const token = getToken()
       const currentPage = reset ? 1 : page
@@ -105,13 +105,22 @@ export default function RemindersComponent() {
       const { getAllReminders } = await import("../api/reminderService")
       
       const result = await getAllReminders(token, currentPage, pageSize, activeTab)
-  
+      
       if (result.error) {
         showMessage(result.error, "error")
       } else {
         setTotal(result.total)
-        setReminders(prev => reset ? result.emails : [...prev, ...result.emails])
-        setHasMore(result.emails.length === pageSize && (reset ? result.emails.length : prev.length + result.emails.length) < result.total)
+        
+        // Calculate the new reminders array
+        const newReminders = reset ? result.emails : [...reminders, ...result.emails]
+        
+        // Set reminders state
+        setReminders(newReminders)
+        
+        console.log("lengths : " + newReminders.length + " " + result.total)
+        
+        // Use the calculated array length directly when setting hasMore
+        setHasMore(newReminders.length < result.total)
         
         if (reset) {
           setPage(2) // Set to 2 for next fetch
@@ -120,7 +129,7 @@ export default function RemindersComponent() {
         }
       }
     } catch (error) {
-      if(error);
+      if (error);
       showMessage("Error loading reminders", "error")
     } finally {
       setInitialLoading(false)
@@ -303,7 +312,7 @@ export default function RemindersComponent() {
               }
               endMessage={
                 <p className="text-center text-sm text-muted-foreground py-4">
-                  {reminders.length > 10 && "No more reminders to load"}
+                  {reminders.length >= total && "No more reminders to load"}
                 </p>
               }
               scrollableTarget="scrollableDiv"
