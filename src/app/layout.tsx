@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 import { NavigationProvider } from "./context/ActiveItemContext";
+import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Yudo Scheduler | Professional Task & Time Management Solution",
@@ -71,6 +72,7 @@ export default function RootLayout({
         <NavigationProvider defaultActiveItem="dashboard">
         <Navbar  />
           {children}
+          <Footer />
         </NavigationProvider>
         
       </body>
