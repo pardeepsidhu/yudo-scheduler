@@ -2,7 +2,7 @@ import React from 'react'
 import TopHeroSection from "@/components/Shape-background"
 import { NotificationSection } from './smartNotificationSection'
 import { TimeSheet } from './timeSheet'
-import { DynamicBackground } from '@/components/dynatic-backgroud'
+import { Footer } from '@/components/footer'
 
 export default function page() {
   return (
@@ -10,7 +10,7 @@ export default function page() {
         <TopHeroSection/>
         <NotificationSection />
         <TimeSheet />
-       
+        <Footer />
     </div>
   )
 }

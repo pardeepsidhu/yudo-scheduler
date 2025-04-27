@@ -558,6 +558,14 @@ const AuthPage = () => {
                           {otpTimer > 0 ? `Resend in ${otpTimer}s` : "Resend code"}
                         </button>
                       </p>
+                      <Button 
+                          type="button"
+                          onClick={resetForm}
+                          variant="outline"
+                          className="flex-1 w-full"
+                        >
+                          Reset
+                        </Button>
                     </div>
                   )}
 
