@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from "react";
 import { Calendar, LayoutDashboard, Clock, Bell, Users, LogOut, 
          PieChart, CheckSquare, Menu, X, Home, Info, 
-         User} from "lucide-react";
+         User,
+         LogIn,
+         Users2} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } 
@@ -266,8 +268,31 @@ const ProfessionalNavbar = ({
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu> 
-
+{userEmail ==="user@example.com"? (
               <TooltipProvider delayDuration={0}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+                      )}
+                      onClick={()=>{
+                        // setActiveItem("profile"); 
+                        router.push("/login");
+                      }}
+                    >
+                      <Users2 className="h-4 w-4 mr-2" />
+                      <span>Login</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Login</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              ) :
+              (
+                <TooltipProvider delayDuration={0}>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -288,6 +313,7 @@ const ProfessionalNavbar = ({
                   <TooltipContent>Profile</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
+              ) }
               
               <TooltipProvider delayDuration={0}>
                 <Tooltip>
@@ -349,7 +375,7 @@ const ProfessionalNavbar = ({
                       className="cursor-pointer text-rose-600 hover:text-rose-700"
                     >
                       
-                 { userEmail !=="user@example.com" &&     <MobileLogoutButton />}
+                 {/* { userEmail !=="user@example.com" &&     <MobileLogoutButton />} */}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

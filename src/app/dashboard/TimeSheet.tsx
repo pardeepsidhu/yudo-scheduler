@@ -284,7 +284,7 @@ const ProfessionalTimesheet = () => {
   return (
     <div className="bg-white shadow-lg rounded-lg overflow-hidden">
       {/* Header Section */}
-      <div className="bg-white border-b px-3 sm:px-6 py-3 sm:py-4">
+      <div className="bg-white border-b px-3 sm:px-6 py-1 sm:py-2">
       <div className="flex flex-col space-y-3 sm:space-y-4 lg:space-y-0 lg:flex-row lg:justify-between lg:items-center">
         {/* Title - Always at top on mobile, left on desktop */}
         <div className="flex items-center">
@@ -350,7 +350,7 @@ const ProfessionalTimesheet = () => {
               disabled={isLoading}
             >
               {isLoading ? (
-                <Loader className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                <Loader className="w-4 h-4 sm:w-5 sm:h-5" />
               ) : (
                 <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
               )}

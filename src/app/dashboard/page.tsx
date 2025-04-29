@@ -68,7 +68,7 @@ export default function Page() {
       </div>
       
       {/* Main content - scrollable */}
-      <div className="flex-grow overflow-y-auto pt-2 md:p-0 " style={{ overflow: "auto" }} id="scrollableDiv" >
+      <div className="flex-grow overflow-y-auto  md:p-0 " style={{ overflow: "auto" }} id="scrollableDiv" >
    {  isMobile &&   <div className='w-full h-17'/>}
         {activeItem === "dashboard" && <Dashboard setActiveItem={setActiveItem}/>}
         {activeItem === "reminders" && <RemindersPage />}

@@ -329,9 +329,9 @@ export default function Dashboard({setActiveItem}) {
     </header>
     
     {/* Main Content */}
-    <main className="container mx-auto px-4 sm:px-6 py-8 pb-12">
+    <main className="container mx-auto px-4 sm:px-6 py-2 sm:py-8 pb-12">
       {/* Stats Row with improved cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-6 mb-8">
         <StatsCard 
           title="Total Tasks" 
           value={taskStats.total} 
