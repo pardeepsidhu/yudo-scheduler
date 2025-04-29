@@ -73,7 +73,7 @@ const StatsCard = ({ title, value, icon, color,percentage}) => {
 
 // Task List Component (condensed overview version)
 const TaskOverview = ({ tasks = [] ,setActiveItem}) => {
-  const topTasks = tasks.slice(0, 3);
+  const topTasks = tasks.slice(0, 4);
   
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 border border-transparent transition-all duration-300 hover:shadow-md hover:border-gray-100">
@@ -315,171 +315,153 @@ export default function Dashboard({setActiveItem}) {
   
   return (
     <div className="bg-gray-50 min-h-screen">
-      {/* Header */}
-      <header className="bg-white shadow-sm ">
-        <div className="container mx-auto py-4 px-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-gray-800 flex items-center">
-            <div className="w-8 h-8 bg-blue-600 rounded-md flex items-center justify-center mr-3">
-              <Inbox size={18} className="text-white" />
-            </div>
-            Productivity Dashboard
-          </h1>
-          
-          <div className="hidden md:flex items-center space-x-4">
-            {/* <div className="relative">
-              <input
-                type="text"
-                placeholder="Search..."
-                className="w-64 pl-9 pr-4 py-2 bg-gray-100 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-              <Search size={18} className="absolute left-3 top-2.5 text-gray-500" />
-            </div> */}
-            <button onClick={()=>setActiveItem("notifications")} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-              
-              <Bell size={20} className="text-gray-600" />
-              {/* </Link> */}
-              
-            </button>
-            <button onClick={()=>setActiveItem("profile")} className="p-2 rounded-full hover:bg-gray-100 transition-colors">
-              
-              <Settings size={20} className="text-gray-600" />
-          
-            </button>
-            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-medium">
-              U
-            </div>
+    {/* Header with subtle gradient */}
+    <header className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-10">
+      <div className="container mx-auto py-4 px-6 flex justify-between items-center">
+        <h1 className="text-xl font-bold text-gray-800 flex items-center">
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center mr-3 shadow-sm">
+            <Inbox size={20} className="text-white" />
           </div>
-          
-       
-        </div>
-      </header>
+          Productivity Dashboard
+        </h1>
+        
+      </div>
+    </header>
+    
+    {/* Main Content */}
+    <main className="container mx-auto px-4 sm:px-6 py-8 pb-12">
+      {/* Stats Row with improved cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <StatsCard 
+          title="Total Tasks" 
+          value={taskStats.total} 
+          icon={Inbox} 
+          color="blue-600" 
+          percentage={100}
+        />
+        <StatsCard 
+          title="Completed Tasks" 
+          value={taskStats.completed} 
+          icon={CheckCircle2} 
+          color="green-600" 
+          percentage={Math.floor(((taskStats.completed/taskStats.total)*100) || 0)}
+        />
+        <StatsCard 
+          title="In Progress" 
+          value={taskStats.inProgress} 
+          icon={ArrowRightCircle} 
+          color="purple-600" 
+          percentage={Math.floor(((taskStats.inProgress/taskStats.total)*100) || 0)}
+        />
+        <StatsCard 
+          title="Total Reminders" 
+          value={reminderStats.total} 
+          icon={Bell} 
+          color="yellow-600" 
+          percentage={100}
+        />
+      </div>
       
-      {/* Main Content */}
-      <main className="container mx-auto px-1 sm:px-4 py-6 pb-8">
-        {/* Stats Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <StatsCard 
-            title="Total Tasks" 
-            value={taskStats.total} 
-            icon={Inbox} 
-            color="blue-600" 
-            percentage={100}
-          />
-          <StatsCard 
-            title="Completed Tasks" 
-            value={taskStats.completed} 
-            icon={CheckCircle2} 
-            color="green-600" 
-            percentage={Math.floor(((taskStats.completed/taskStats.total)*100))}
-          />
-          <StatsCard 
-            title="In Progress" 
-            value={taskStats.inProgress} 
-            icon={ArrowRightCircle} 
-            color="purple-600" 
-            percentage={Math.floor(((taskStats.inProgress/taskStats.total)*100))}
-          />
-          <StatsCard 
-            title="Total Reminders" 
-            value={reminderStats.total} 
-            icon={Bell} 
-            color="yellow-600" 
-            percentage={100}
-          />
-        </div>
-        
-        {/* Quick Actions Row - Mobile Only */}
-        <div className="grid grid-cols-4 gap-3 mb-6 md:hidden">
-          <QuickActionButton 
-            icon={Inbox} 
-            label="Tasks" 
-            onClick={() =>setActiveItem("tasks")}
-            color={"bg-[repeating-linear-gradient(45deg,red,transparent_100px)]"} 
-          />
-          <QuickActionButton 
-            icon={Bell} 
-            label="Reminders" 
-            onClick={() =>setActiveItem("reminders")} 
-            color={"bg-[repeating-linear-gradient(45deg,blue,transparent_100px)]"} 
-          />
-          <QuickActionButton 
-            icon={BarChart2} 
-            label="Analytics" 
-            onClick={() => setActiveItem("analytics")} 
-            color={"bg-[repeating-linear-gradient(45deg,green,transparent_100px)]"} 
-          />
-          <QuickActionButton 
-            icon={Settings} 
-            label="Settings" 
-            onClick={() => setActiveItem("profile")} 
-            color={"bg-[repeating-linear-gradient(45deg,cyan,transparent_100px)]"} 
-          />
-        </div>
-        
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Tasks Overview */}
-            <TaskOverview tasks={tasks} setActiveItem={setActiveItem}/>
-            
-            {/* Reminders Overview */}
-            <ReminderOverview reminders={reminders} setActiveItem={setActiveItem}/>
-          </div>
+      {/* Quick Actions Row - Mobile Only with gradient backgrounds */}
+      <div className="grid grid-cols-4 gap-4 mb-8 md:hidden">
+        <QuickActionButton 
+          icon={Inbox} 
+          label="Tasks" 
+          onClick={() => setActiveItem("tasks")}
+          color="bg-gradient-to-r from-blue-500 to-blue-600" 
+        />
+        <QuickActionButton 
+          icon={Bell} 
+          label="Reminders" 
+          onClick={() => setActiveItem("reminders")} 
+          color="bg-gradient-to-r from-purple-500 to-purple-600" 
+        />
+        <QuickActionButton 
+          icon={BarChart2} 
+          label="Analytics" 
+          onClick={() => setActiveItem("analytics")} 
+          color="bg-gradient-to-r from-green-500 to-green-600" 
+        />
+        <QuickActionButton 
+          icon={Settings} 
+          label="Settings" 
+          onClick={() => setActiveItem("profile")} 
+          color="bg-gradient-to-r from-gray-500 to-gray-600" 
+        />
+      </div>
+      
+      {/* Main Content Grid with improved spacing */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Tasks Overview */}
+          <TaskOverview tasks={tasks} setActiveItem={setActiveItem}/>
           
-          {/* Right Column */}
-          <div className="space-y-6">
-            {/* Analytics Preview */}
-            <AnalyticsPreview setActiveItem={setActiveItem}/>
+          {/* Reminders Overview */}
+          <ReminderOverview reminders={reminders} setActiveItem={setActiveItem}/>
+        </div>
+        
+        {/* Right Column */}
+        <div className="space-y-8">
+          {/* Analytics Preview */}
+          <AnalyticsPreview setActiveItem={setActiveItem}/>
+          
+          {/* User Productivity Summary with enhanced design */}
+          <div className="bg-white rounded-xl shadow-sm p-6 border border-transparent transition-all duration-300 hover:shadow-md hover:border-gray-100">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="font-medium text-lg flex items-center">
+                <Calendar size={20} className="mr-2 text-green-600" /> 
+                Task Summary
+              </h3>
+            </div>
             
-            {/* User Productivity Summary */}
-            <div className="bg-white rounded-lg shadow-sm p-4 border border-transparent transition-all duration-300 hover:shadow-md hover:border-gray-100">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-medium flex items-center">
-                  <Calendar size={18} className="mr-2 text-green-600" /> 
-                  Task Summary
-                </h3>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
+            <div className="space-y-6">
+              <div>
+                <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-gray-600">Completion Rate</span>
-                  <span className="text-sm font-medium">{taskStats.total ? Math.round((taskStats.completed / taskStats.total) * 100) : 0}%</span>
+                  <span className="text-sm font-medium bg-green-50 text-green-700 px-2 py-1 rounded">
+                    {taskStats.total ? Math.round((taskStats.completed / taskStats.total) * 100) : 0}%
+                  </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-100 rounded-full h-2.5">
                   <div 
-                    className="bg-green-600 h-2 rounded-full transition-all duration-700 ease-in-out" 
+                    className="bg-gradient-to-r from-green-500 to-green-600 h-2.5 rounded-full transition-all duration-700 ease-in-out" 
                     style={{ width: `${taskStats.total ? Math.round((taskStats.completed / taskStats.total) * 100) : 0}%` }}
                   ></div>
                 </div>
-                
-                <div className="flex justify-between items-center mt-4">
+              </div>
+              
+              <div>
+                <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-gray-600">Pending Tasks</span>
-                  <span className="text-sm font-medium">{taskStats.pending}</span>
+                  <span className="text-sm font-medium bg-yellow-50 text-yellow-700 px-2 py-1 rounded">
+                    {taskStats.pending}
+                  </span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
+                <div className="w-full bg-gray-100 rounded-full h-2.5">
                   <div 
-                    className="bg-yellow-500 h-2 rounded-full transition-all duration-700 ease-in-out" 
+                    className="bg-gradient-to-r from-yellow-400 to-yellow-500 h-2.5 rounded-full transition-all duration-700 ease-in-out" 
                     style={{ width: `${taskStats.total ? Math.round((taskStats.pending / taskStats.total) * 100) : 0}%` }}
                   ></div>
                 </div>
-                
-                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-                  <div className="flex items-start">
-                    <div className="rounded-full bg-blue-100 p-2 mr-3">
-                      <Bell size={16} className="text-blue-600" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-medium text-blue-800">Productivity Tip</h4>
-                      <p className="text-xs text-blue-700 mt-1">Focus on completing 2-3 high priority tasks each day rather than juggling multiple tasks.</p>
-                    </div>
+              </div>
+              
+              <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                <div className="flex items-start">
+                  <div className="rounded-full bg-gradient-to-r from-blue-500 to-blue-600 p-2 mr-3 shadow-sm">
+                    <Bell size={16} className="text-white" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium text-blue-800">Productivity Tip</h4>
+                    <p className="text-xs text-blue-700 mt-1">Focus on completing 2-3 high priority tasks each day rather than juggling multiple tasks.</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
+  </div>
   );
 }

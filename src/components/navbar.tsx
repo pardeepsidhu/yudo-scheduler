@@ -78,7 +78,7 @@ const ListItem = React.forwardRef(({ className, title, children, icon: Icon, des
 ListItem.displayName = "ListItem";
 
 const ProfessionalNavbar = ({ 
-  onLogout
+
 }) => {
   // State for mobile menu
   const [isMobile, setIsMobile] = useState(false);
@@ -92,12 +92,9 @@ const ProfessionalNavbar = ({
 
   const handleLogoutSuccess = () => {
     localStorage.clear();
-    if (onLogout) {
-      onLogout();
-    } else {
-      // Default redirect to login page
+  
       window.location.href = '/login';
-    }
+  
   };
   
   const MobileLogoutButton = () => (
@@ -145,14 +142,7 @@ const ProfessionalNavbar = ({
     { id: "analytics", label: "Analytics", icon: PieChart },
   ];
 
-  // Handle logout
-  const handleLogout = () => {
-    if (onLogout) {
-      onLogout();
-    } else {
-      console.log("Logout");
-    }
-  };
+
 
   // Handle dashboard item click
   const handleDashboardItemClick = (title:string) => {

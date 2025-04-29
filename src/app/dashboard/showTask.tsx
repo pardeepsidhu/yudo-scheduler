@@ -315,63 +315,59 @@ export function TaskDialog({
 
   return (
     <Dialog open={open} onOpenChange={handleDialogClose}>
-      <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto p-4">
-        <DialogHeader>
-          <div className="flex justify-between items-center">
-            <DialogTitle>{editMode ? 'Edit Task' : 'Task Details'}</DialogTitle>
-            <Button 
-            className='mr-5'
-              variant={editMode ? "default" : "outline"} 
-              size="sm" 
-              onClick={() => setEditMode(!editMode)}
-            >
-              {editMode ? 'Discard Changes' : 'Edit'}
-            </Button>
-          </div>
-          <DialogDescription>
-            Created {
-          task.createdAt &&  format(new Date(task.createdAt), 'PPP')
-            } {"  "} • Last updated {" "}
-            { 
-          task.updatedAt && formatDistance(new Date(task.updatedAt), new Date(), { addSuffix: true })
-            }
-          </DialogDescription>
-        </DialogHeader>
-        
+    <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto p-0 rounded-lg border shadow-lg">
+      <DialogHeader className="p-6 border-b bg-gray-50 dark:bg-gray-900">
+        <div className="flex justify-between items-center">
+          <DialogTitle className="text-xl font-semibold">{editMode ? 'Edit Task' : 'Task Details'}</DialogTitle>
+          <Button 
+            className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            variant={editMode ? "default" : "outline"} 
+            size="sm" 
+            onClick={() => setEditMode(!editMode)}
+          >
+            {editMode ? 'Discard Changes' : 'Edit'}
+          </Button>
+        </div>
+        <DialogDescription className="text-sm text-muted-foreground mt-1">
+          Created {task.createdAt && format(new Date(task.createdAt), 'PPP')} • 
+          Last updated {task.updatedAt && formatDistance(new Date(task.updatedAt), new Date(), { addSuffix: true })}
+        </DialogDescription>
+      </DialogHeader>
       
-<Tabs defaultValue="details">
-  <TabsList className="grid grid-cols-2  mx-auto sm:mx-0">
-    <TabsTrigger value="details">Details</TabsTrigger>
-    <TabsTrigger value="time">Time Tracking</TabsTrigger>
-  </TabsList>
+      <div className="p-6">
+        <Tabs defaultValue="details" className="w-full">
+          <TabsList className="grid grid-cols-2 w-full max-w-md mx-auto mb-4">
+            <TabsTrigger value="details" className="font-medium">Details</TabsTrigger>
+            <TabsTrigger value="time" className="font-medium">Time Tracking</TabsTrigger>
+          </TabsList>
           
-          <TabsContent value="details" className="space-y-4 pt-4">
+          <TabsContent value="details" className="space-y-5 pt-2">
             {/* Task Title */}
             {editMode ? (
               <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
+                <Label htmlFor="title" className="text-sm font-medium">Title</Label>
                 <Input 
                   id="title" 
                   value={editedTask.title || task.title} 
                   onChange={(e) => handleInputChange('title', e.target.value)}
-                  className="w-full"
+                  className="w-full border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-primary/20"
                 />
               </div>
             ) : (
-              <h2 className="text-2xl font-bold">{task.title}</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{task.title}</h2>
             )}
             
             {/* Task Status and Priority */}
-            <div className="flex flex-wrap gap-2 items-center">
+            <div className="flex flex-wrap gap-4 items-center">
               {editMode ? (
                 <>
                   <div className="space-y-1">
-                    <Label htmlFor="status">Status</Label>
+                    <Label htmlFor="status" className="text-sm font-medium">Status</Label>
                     <Select 
                       value={editedTask.status || task.status} 
                       onValueChange={(value) => handleInputChange('status', value)}
                     >
-                      <SelectTrigger className="w-32">
+                      <SelectTrigger className="w-40 border-gray-300 dark:border-gray-700">
                         <SelectValue placeholder="Status" />
                       </SelectTrigger>
                       <SelectContent>
@@ -384,12 +380,12 @@ export function TaskDialog({
                   </div>
                   
                   <div className="space-y-1">
-                    <Label htmlFor="priority">Priority</Label>
+                    <Label htmlFor="priority" className="text-sm font-medium">Priority</Label>
                     <Select 
                       value={editedTask.priority || task.priority} 
                       onValueChange={(value) => handleInputChange('priority', value)}
                     >
-                      <SelectTrigger className="w-32">
+                      <SelectTrigger className="w-40 border-gray-300 dark:border-gray-700">
                         <SelectValue placeholder="Priority" />
                       </SelectTrigger>
                       <SelectContent>
@@ -401,101 +397,115 @@ export function TaskDialog({
                   </div>
                 </>
               ) : (
-                <>
+                <div className="flex gap-2">
                   {renderStatusBadge(task.status)}
                   {renderPriorityBadge(task.priority)}
-                </>
+                </div>
               )}
             </div>
             
             {/* Task Description */}
-            <div className="space-y-2">
+            <div className="space-y-2 pt-2">
               {editMode ? (
                 <>
-                  <Label htmlFor="description">Description</Label>
+                  <Label htmlFor="description" className="text-sm font-medium">Description</Label>
                   <Textarea 
                     id="description" 
                     value={editedTask.description || task.description} 
                     onChange={(e) => handleInputChange('description', e.target.value)}
-                    className="min-h-32"
+                    className="min-h-32 border-gray-300 dark:border-gray-700 focus:ring-2 focus:ring-primary/20"
                   />
                 </>
               ) : (
-                <div className="prose dark:prose-invert">
-                  <p className="whitespace-pre-wrap">{task.description}</p>
+                <div className="prose dark:prose-invert max-w-none bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                  <p className="whitespace-pre-wrap text-gray-700 dark:text-gray-300">{task.description}</p>
                 </div>
               )}
             </div>
             
             {/* Estimated Time */}
-            <div className="pt-2">
-              <Label className="text-sm text-muted-foreground mb-1 block">Estimated Completion</Label>
+            <div className="pt-3 pb-1">
+              <Label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Estimated Completion</Label>
               {editMode ? (
-             <div className="flex gap-2">
-             <Input
-               type="number"
-               min="0"
-               placeholder="Hours"
-               value={editedTask.estimatedTime ? 
-                 Math.floor(editedTask.estimatedTime / (1000 * 60 * 60)) : 
-                 ''}
-               onChange={(e) => {
-                 const hours = parseInt(e.target.value) || 0;
-                 const minutes = editedTask.estimatedTime ? 
-                   Math.floor((editedTask.estimatedTime % (1000 * 60 * 60)) / (1000 * 60)) : 
-                   0;
-                 const totalMilliseconds = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
-                 handleInputChange('estimatedTime', totalMilliseconds);
-               }}
-               className="w-1/2"
-             />
-             <span className="self-center">hours</span>
-             
-             <Input
-               type="number"
-               min="0"
-               max="59"
-               placeholder="Minutes"
-               value={editedTask.estimatedTime ? 
-                 Math.floor((editedTask.estimatedTime % (1000 * 60 * 60)) / (1000 * 60)) : 
-                 ''}
-               onChange={(e) => {
-                 const minutes = parseInt(e.target.value) || 0;
-                 const hours = editedTask.estimatedTime ? 
-                   Math.floor(editedTask.estimatedTime / (1000 * 60 * 60)) : 
-                   0;
-                 const totalMilliseconds = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
-                 handleInputChange('estimatedTime', totalMilliseconds);
-               }}
-               className="w-1/2"
-             />
-             <span className="self-center">minutes</span>
-           </div>
+                <div className="flex gap-3 items-center">
+                  <div className="flex items-center bg-gray-50 dark:bg-gray-900 rounded-lg p-2 flex-1">
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder="Hours"
+                      value={editedTask.estimatedTime ? 
+                        Math.floor(editedTask.estimatedTime / (1000 * 60 * 60)) : 
+                        ''}
+                      onChange={(e) => {
+                        const hours = parseInt(e.target.value) || 0;
+                        const minutes = editedTask.estimatedTime ? 
+                          Math.floor((editedTask.estimatedTime % (1000 * 60 * 60)) / (1000 * 60)) : 
+                          0;
+                        const totalMilliseconds = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
+                        handleInputChange('estimatedTime', totalMilliseconds);
+                      }}
+                      className="border-gray-300 dark:border-gray-700"
+                    />
+                    <span className="ml-2 text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">hours</span>
+                  </div>
+                  
+                  <div className="flex items-center bg-gray-50 dark:bg-gray-900 rounded-lg p-2 flex-1">
+                    <Input
+                      type="number"
+                      min="0"
+                      max="59"
+                      placeholder="Minutes"
+                      value={editedTask.estimatedTime ? 
+                        Math.floor((editedTask.estimatedTime % (1000 * 60 * 60)) / (1000 * 60)) : 
+                        ''}
+                      onChange={(e) => {
+                        const minutes = parseInt(e.target.value) || 0;
+                        const hours = editedTask.estimatedTime ? 
+                          Math.floor(editedTask.estimatedTime / (1000 * 60 * 60)) : 
+                          0;
+                        const totalMilliseconds = (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
+                        handleInputChange('estimatedTime', totalMilliseconds);
+                      }}
+                      className="border-gray-300 dark:border-gray-700"
+                    />
+                    <span className="ml-2 text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">minutes</span>
+                  </div>
+                </div>
               ) : (
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="w-4 h-4 text-muted-foreground" />
+                <div className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                  <Calendar className="w-5 h-5 text-primary" />
                   {task.estimatedTime ? (
-                    formatEstimatedTime(task.estimatedTime)
+                    <span className="font-medium">{formatEstimatedTime(task.estimatedTime)}</span>
                   ) : (
-                    <span className="text-muted-foreground">No estimated time set</span>
+                    <span className="text-muted-foreground italic">No estimated time set</span>
                   )}
                 </div>
               )}
             </div>
           </TabsContent>
           
-          <TabsContent value="time" className="space-y-2 sm:space-y-4 pt-1 sm:pt-4 ">
-            <Card>
-              <CardHeader className="pb-1 sm:pb-2">
-                <CardTitle className="text-lg">Time Tracking</CardTitle>
-                <CardDescription>
-                  Total time: {formatTime(calculateTotalTime(task.time))}
+          <TabsContent value="time" className="space-y-4 pt-2">
+            <Card className="border-gray-200 dark:border-gray-800 shadow-sm">
+              <CardHeader className="pb-2 bg-gray-50 dark:bg-gray-900">
+                <CardTitle className="text-lg font-semibold flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-primary" />
+                  Time Tracking
+                </CardTitle>
+                <CardDescription className="text-sm font-medium">
+                  Total time: <span className="text-primary">{formatTime(calculateTotalTime(task.time))}</span>
                 </CardDescription>
               </CardHeader>
-              <CardContent className="pb-2 px-2 sm:px-6">
-                <div className="flex justify-between items-center mb-4">
+              <CardContent className="p-4">
+                <div className="flex justify-between items-center mb-4 p-3 bg-gray-50 dark:bg-gray-900 rounded-lg">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-muted-foreground" />
+                    {isTimerRunning ? (
+                      <span className="flex h-3 w-3">
+                        <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-green-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                      </span>
+                    ) : (
+                      <span className="h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-700"></span>
+                    )}
                     <span className="text-sm font-medium">
                       {isTimerRunning ? 'Timer Running' : 'Timer Stopped'}
                     </span>
@@ -507,7 +517,7 @@ export function TaskDialog({
                         size="sm" 
                         onClick={handleStopTimer}
                         disabled={isLoading}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1 shadow-sm hover:shadow transition-all"
                       >
                         <Square className="w-4 h-4" /> Stop
                       </Button>
@@ -517,47 +527,48 @@ export function TaskDialog({
                         size="sm" 
                         onClick={handleStartTimer}
                         disabled={isLoading}
-                        className="flex items-center gap-1"
+                        className="flex items-center gap-1 shadow-sm hover:shadow transition-all"
                       >
                         <Play className="w-4 h-4" /> Start
                       </Button>
                     )}
                   </div>
                 </div>
-
-                <div className="space-y-1">
-                  <Label className="text-sm text-muted-foreground">Time Entries</Label>
-                  <div className="max-h-60 overflow-y-auto space-y-2 p-1">
+  
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Time Entries</Label>
+                  <div className="max-h-64 overflow-y-auto space-y-2 p-1 rounded-lg border border-gray-200 dark:border-gray-800">
                     {task.time?.length === 0 ? (
-                      <p className="text-sm text-muted-foreground italic">No time entries yet</p>
+                      <div className="flex items-center justify-center p-4">
+                        <p className="text-sm text-muted-foreground italic">No time entries yet</p>
+                      </div>
                     ) : (
-               [...task.time].reverse().map((entry, index) => (
+                      [...task.time].reverse().map((entry, index) => (
                         <div 
                           key={index} 
-                          className={`border rounded-md p-2 ${!entry.ended ? 'border-primary bg-primary/5' : ''}`}
+                          className={`border rounded-md p-3 ${!entry.ended ? 'border-primary/30 bg-primary/5' : 'bg-gray-50 dark:bg-gray-900'}`}
                         >
                           <div className="flex justify-between items-center">
                             <div className="flex items-center gap-2">
-                              <Timer className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-sm">
-                                Started: {format(new Date(entry.stated), 'PPp')}
+                              <Timer className="w-4 h-4 text-primary" />
+                              <span className="text-sm font-medium">
+                                {format(new Date(entry.stated), 'PPp')}
                               </span>
                             </div>
                             {entry.ended && (
-                              <span className="text-sm">
-                                Duration: {formatTime(new Date(entry.ended).getTime() - new Date(entry.stated).getTime())}
+                              <span className="text-sm font-medium px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded-md">
+                                {formatTime(new Date(entry.ended).getTime() - new Date(entry.stated).getTime())}
                               </span>
                             )}
                           </div>
-                          {entry.ended && (
-                            <div className="flex items-center gap-2 mt-1 pl-6">
+                          {entry.ended ? (
+                            <div className="flex items-center gap-2 mt-2 pl-6">
                               <span className="text-sm text-muted-foreground">
                                 Ended: {format(new Date(entry.ended), 'PPp')}
                               </span>
                             </div>
-                          )}
-                          {!entry.ended && (
-                            <div className="flex items-center gap-2 mt-1 pl-6">
+                          ) : (
+                            <div className="flex items-center gap-2 mt-2 pl-6">
                               <span className="text-sm text-green-500 font-medium animate-pulse">
                                 Currently active
                               </span>
@@ -572,29 +583,32 @@ export function TaskDialog({
             </Card>
           </TabsContent>
         </Tabs>
-        
-        <DialogFooter className="flex justify-between items-center">
-          <div className="text-sm text-muted-foreground">
-            {/* ID: {task._id} */}
-          </div>
-          {editMode ? (
-            <Button 
-              variant="default" 
-              onClick={async() => { await updateTask(task._id,editedTask); setEditMode(false); } }
-              disabled={isLoading}
-            >
-              Save Changes
-            </Button>
-          ) : (
-            <Button 
-              variant="outline" 
-              onClick={() => onOpenChange(false)}
-            >
-              Close
-            </Button>
-          )}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </div>
+      
+      <DialogFooter className="flex justify-between items-center p-6 border-t bg-gray-50 dark:bg-gray-900">
+        <div className="text-sm text-muted-foreground">
+          {/* ID: {task._id} */}
+        </div>
+        {editMode ? (
+          <Button 
+            variant="default" 
+            onClick={async() => { await updateTask(task._id, editedTask); setEditMode(false); }}
+            disabled={isLoading}
+            className="shadow-sm hover:shadow transition-all"
+          >
+            Save Changes
+          </Button>
+        ) : (
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            className="hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            Close
+          </Button>
+        )}
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
   );
 }

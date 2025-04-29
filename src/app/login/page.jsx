@@ -25,7 +25,7 @@ const handleSignIn = async (email, password, setMessage, e, navigate, setWaiting
     const data = await response.json();
     
     if (response.ok) {
-      setMessage("Login Successfuly !")
+      setMessage("Login successfuly !")
       localStorage.setItem("user", JSON.stringify(data));
       setUser(data.user);
       navigate("/dashboard");

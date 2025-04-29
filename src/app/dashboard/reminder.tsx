@@ -35,6 +35,10 @@ import {
   Lightbulb,
   Columns,
   Loader,
+  RefreshCw,
+  Sparkles,
+  FileText,
+  CalendarDays,
 } from "lucide-react"
 import { format } from "date-fns"
 import { generateAIContent } from "../api/reminderService"
@@ -62,6 +66,7 @@ export default function RemindersComponent() {
   const [pageSize] = useState(10)
   const [activeTab, setActiveTab] = useState<"all" | "pending" | "sent">("all")
   const [aiPrompt,setAiPrompt]=useState<string>('');
+  const [isLoading,setIsLoading]=useState(true);
 
   // Dialog states
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -91,7 +96,7 @@ export default function RemindersComponent() {
  
   // Fetch reminders from API
   const fetchReminders = async (reset = false) => {
-    console.log("fetcherd")
+   setIsLoading(true)
     if (reset) {
       setPage(1)
       setReminders([])
@@ -129,10 +134,11 @@ export default function RemindersComponent() {
         }
       }
     } catch (error) {
-      if (error);
+      
       showMessage("Error loading reminders", "error")
     } finally {
       setInitialLoading(false)
+      setIsLoading(false)
     }
   }
 
@@ -234,10 +240,16 @@ export default function RemindersComponent() {
     setActiveTab(value as "all" | "pending" | "sent")
   }
 
+  const handleRefresh = ()=>{
+    setIsLoading(true)
+
+    setIsLoading(false)
+  }
+
   return (
     <div   className="container mx-auto  p-1 sm:p-2 md::p-4  border-1 "   >
       {/* Header with title and new reminder button */}
-      <div className=" py-2 sm:py-6 mb-2  px-4  rounded-2xl rounded-b-none border-1 flex   bg-white flex-col sm:flex-row justify-between items-center">
+      <div className=" py-2 sm:py-6 mb-2  px-4  rounded-2xl rounded-b-none border-1    bg-white flex-col sm:flex-row justify-between items-center hidden md:flex">
         <div className="flex items-center gap-2 mb-4 sm:mb-0">
           <Bell className="h-6 w-6 text-blue-500" />
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900">My Reminders</h1>
@@ -247,9 +259,26 @@ export default function RemindersComponent() {
             </Badge>
           )}
         </div>
+        <div className="flex gap-3 ">
+
         <Button onClick={handleCreateReminder} className="w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" /> New Reminder
         </Button>
+        <button
+              onClick={handleRefresh}
+              className="p-2 text-gray-600 hover:bg-gray-100 rounded-full "
+              title="Refresh"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader className="w-4 h-4 sm:w-5 sm:h-5" />
+              ) : (
+                
+                <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
+              )}
+            </button>
+      
+        </div>
       </div>
 
       {/* Notification message */}
@@ -268,29 +297,63 @@ export default function RemindersComponent() {
 
       {/* Main card with reminder list */}
       <Card className="border shadow-lg rounded-t-none" >
-        <CardHeader className="pb-1 sm:pb-3">
-          <CardTitle className="text-xl">All Reminders</CardTitle>
-          
-          {/* Tabs for filtering */}
-          <div className="mt-2 sm:mt-4">
-            <Tabs defaultValue="all" className="w-full" onValueChange={handleTabChange}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="all" className="flex items-center">
-                  <Mail className="mr-2 h-4 w-4" />
-                  All
-                </TabsTrigger>
-                <TabsTrigger value="pending" className="flex items-center">
-                  <Clock className="mr-2 h-4 w-4" />
-                  Pending
-                </TabsTrigger>
-                <TabsTrigger value="sent" className="flex items-center">
-                  <MailCheck className="mr-2 h-4 w-4" />
-                  Sent
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-        </CardHeader>
+      <CardHeader className="pb-1 sm:pb-3 space-y-4">
+  <div className="flex justify-between items-center md:hidden">
+    <div className="flex items-center gap-3">
+      <Button onClick={handleCreateReminder} variant="primary" className="bg-indigo-600 hover:bg-indigo-700 text-white font-medium">
+        <Plus className="mr-2 h-4 w-4" /> New Reminder
+      </Button>
+      {!initialLoading && reminders.length > 0 && (
+        <Badge variant="secondary" className="bg-gray-100 text-gray-700 font-medium">
+          {reminders.length} of {total}
+        </Badge>
+      )}
+    </div>
+    
+    <button
+      onClick={handleRefresh}
+      className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-colors duration-200 flex items-center gap-1"
+      title="Refresh"
+      disabled={isLoading}
+    >
+      {isLoading ? (
+        <Loader className="w-4 h-4 animate-spin" />
+      ) : (
+        <div className="text-sm font-medium flex items-center gap-1">
+          Refresh <RefreshCw className="w-4 h-4" />
+        </div>
+      )}
+    </button>
+  </div>
+
+  <div className="w-full">
+    <Tabs defaultValue="all" className="w-full" onValueChange={handleTabChange}>
+      <TabsList className="grid w-full grid-cols-3 bg-gray-50 p-1 rounded-lg h-[content]">
+        <TabsTrigger 
+          value="all" 
+          className="flex items-center justify-center py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-600"
+        >
+          <Mail className="mr-2 h-4 w-4" />
+          All
+        </TabsTrigger>
+        <TabsTrigger 
+          value="pending" 
+          className="flex items-center justify-center py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-600"
+        >
+          <Clock className="mr-2 h-4 w-4" />
+          Pending
+        </TabsTrigger>
+        <TabsTrigger 
+          value="sent" 
+          className="flex items-center justify-center py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-600"
+        >
+          <MailCheck className="mr-2 h-4 w-4" />
+          Sent
+        </TabsTrigger>
+      </TabsList>
+    </Tabs>
+  </div>
+</CardHeader>
         <Separator />
         <CardContent>
           {initialLoading ? (
@@ -501,98 +564,124 @@ export default function RemindersComponent() {
 
       {/* Create Reminder Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-  <DialogContent className="sm:max-w-md">
-    <DialogHeader>
-      <DialogTitle>Create New Reminder</DialogTitle>
+  <DialogContent className="sm:max-w-md max-h-[90vh] bg-white rounded-xl shadow-2xl border-0 p-0 overflow-hidden">
+    {/* Gradient Header */}
+    <DialogHeader className="bg-gradient-to-r from-blue-600 to-indigo-700 px-6 py-4 sticky top-0 z-10">
+      <DialogTitle className="text-xl font-semibold text-white flex items-center gap-2">
+        <Clock className="w-5 h-5" />
+        Create New Reminder
+      </DialogTitle>
     </DialogHeader>
-    <form onSubmit={handleCreateReminderSubmit}>
-      <div className="py-4 space-y-4">
-        {/* AI Generation Section at the top */}
-        <div className="bg-gray-50 p-3 rounded-md border border-gray-200 space-y-2">
-          <Label htmlFor="aiPrompt" className="text-sm font-medium">Generate with AI</Label>
+    
+    <div className="overflow-y-auto max-h-[calc(90vh-180px)] px-6 py-4">
+      <form onSubmit={handleCreateReminderSubmit} className="space-y-5">
+        {/* AI Generation Section with subtle gradient */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100 shadow-sm space-y-2">
+          <Label htmlFor="aiPrompt" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-blue-500" />
+            Generate with AI
+          </Label>
           <div className="flex items-center gap-2">
             <Input
               id="aiPrompt"
               placeholder="Type what reminder you need..."
               value={aiPrompt}
               onChange={(e) => setAiPrompt(e.target.value)}
+              className="border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
             />
-            <Button 
-              type="button" 
-              size="sm" 
+            <Button
+              type="button"
+              size="sm"
               onClick={() => generateAIContent(aiPrompt, setNewReminder, setWaiting, setMessage, newReminder)}
               disabled={!aiPrompt || waiting}
+              className={`h-10 px-3 flex-shrink-0 ${!aiPrompt || waiting ? 'bg-gray-200 text-gray-500' : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:opacity-90'}`}
             >
-            
               {waiting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Lightbulb fontSize="small" />
+                <Lightbulb className="w-4 h-4" />
               )}
             </Button>
           </div>
-          {message && <p className="text-xs text-red-500">{message}</p>}
+          {message && <p className="text-xs text-red-600 font-medium">{message}</p>}
         </div>
-
+        
+        {/* Subject with icon */}
         <div className="space-y-2">
-          <Label htmlFor="subject">Subject</Label>
+          <Label htmlFor="subject" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-blue-500" />
+            Subject
+          </Label>
           <Input
             id="subject"
             placeholder="Enter reminder subject"
             value={newReminder.subject}
             onChange={(e) => setNewReminder({...newReminder, subject: e.target.value})}
+            className="border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
             required
           />
         </div>
         
+        {/* Date and Time with icon */}
         <div className="space-y-2">
-          <Label htmlFor="scheduledTime">Schedule Date and Time</Label>
+          <Label htmlFor="scheduledTime" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <CalendarDays className="w-4 h-4 text-blue-500" />
+            Schedule Date and Time
+          </Label>
           <Input
             id="scheduledTime"
             type="datetime-local"
             value={newReminder.scheduledTime}
             onChange={(e) => setNewReminder({...newReminder, scheduledTime: e.target.value})}
+            className="border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent"
             required
           />
         </div>
         
+        {/* Message with icon */}
         <div className="space-y-2">
-          <Label htmlFor="message">Message</Label>
+          <Label htmlFor="message" className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            <FileText className="w-4 h-4 text-blue-500" />
+            Message
+          </Label>
           <Textarea
             id="message"
             placeholder="Enter your reminder message"
             value={newReminder.message}
             onChange={(e) => setNewReminder({...newReminder, message: e.target.value})}
-            className="min-h-32"
+            className="h-24 border-gray-300 focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none"
             required
           />
         </div>
-      </div>
+      </form>
+    </div>
       
-      <DialogFooter className="justify-start">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setCreateDialogOpen(false)}
-          disabled={waiting}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          disabled={waiting || !newReminder.subject || !newReminder.message || !newReminder.scheduledTime}
-        >
-          {waiting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating...
-            </>
-          ) : (
-            <>Create Reminder</>
-          )}
-        </Button>
-      </DialogFooter>
-    </form>
+    {/* Footer with gradient button - sticky at bottom */}
+    <DialogFooter className="px-6 py-4 bg-gray-50 border-t border-gray-100 sticky bottom-0 z-10 flex justify-end gap-3">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => setCreateDialogOpen(false)}
+        disabled={waiting}
+        className="px-4 py-2 rounded-md text-gray-700 bg-white hover:bg-gray-50 border border-gray-300"
+      >
+        Cancel
+      </Button>
+      <Button
+        onClick={handleCreateReminderSubmit}
+        disabled={waiting || !newReminder.subject || !newReminder.message || !newReminder.scheduledTime}
+        className={`px-4 py-2 rounded-md flex items-center gap-2 ${waiting || !newReminder.subject || !newReminder.message || !newReminder.scheduledTime ? 'bg-gray-200 text-gray-500' : 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:opacity-90'}`}
+      >
+        {waiting ? (
+          <>
+            <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+            Creating...
+          </>
+        ) : (
+          <>Create Reminder</>
+        )}
+      </Button>
+    </DialogFooter>
   </DialogContent>
 </Dialog>
     </div>
