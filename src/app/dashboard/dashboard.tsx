@@ -230,7 +230,7 @@ export default function Dashboard({setActiveItem}) {
           console.error("Error fetching tasks:", error);
           return { tasks: [] };
         });
-      console.log(taskResponse.tasks)
+    
         setTasks(taskResponse.tasks || []);
         
         // Fetch reminders from API - handle potential errors with user auth
@@ -243,13 +243,13 @@ export default function Dashboard({setActiveItem}) {
         }
       
         if (user) {
-          console.log(user)
+
           const reminderResponse = await getAllReminders(user).catch(error => {
-            console.log(error)
+            
             console.error("Error fetching reminders:", error);
             return { emails: [] };
           });
-          console.log(reminderResponse)
+          
           setReminders(reminderResponse.emails || []);
         } else {
           console.warn("No user found in localStorage");

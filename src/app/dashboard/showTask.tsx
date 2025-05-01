@@ -110,7 +110,7 @@ export function TaskDialog({
 
   // Fetch task data when dialog opens
   useEffect(() => {
-    console.log("loaded show reminder")
+
     const fetchTask = async () => {
       if (open && taskId) {
         setIsLoading(true);
@@ -146,9 +146,9 @@ export function TaskDialog({
 
   // Handle timer start
   const handleStartTimer = async () => {
-    console.log("stardy")
+
     if (!task) return;
-    console.log("endy")
+
     
     setIsLoading(true);
     try {

@@ -226,7 +226,7 @@ export const updateTask = async (taskId: string, updatedTask: Partial<Task>) => 
         success: false
       };
     }
-    console.log(data)
+
     return {
       task: data.task,
       success: true,

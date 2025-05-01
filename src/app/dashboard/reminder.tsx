@@ -121,8 +121,7 @@ export default function RemindersComponent() {
         
         // Set reminders state
         setReminders(newReminders)
-        
-        console.log("lengths : " + newReminders.length + " " + result.total)
+  
         
         // Use the calculated array length directly when setting hasMore
         setHasMore(newReminders.length < result.total)

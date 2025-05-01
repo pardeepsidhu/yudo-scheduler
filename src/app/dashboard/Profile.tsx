@@ -61,9 +61,9 @@ export default function UserProfileComponent() {
       try {
         let result = await fetchUser();
        setUserData(result)
-        console.log(result)
+       
       } catch (error) {
-        console.log(error)
+
       }
       finally{
         setInitialLoading(false)
@@ -87,7 +87,7 @@ export default function UserProfileComponent() {
       setIsEditingName(false);
       setShowSuccessAlert(true);
       setTimeout(() => setShowSuccessAlert(false), 3000);
-      console.log(userData)
+   
     } catch (error) {
       console.error('Failed to update name:', error);
     } finally {
@@ -118,7 +118,7 @@ export default function UserProfileComponent() {
       }
   
       const data = await response.json();
-      console.log(data)
+ 
       
       setUserData({...userData,profile:data.url})
       setShowSuccessAlert(true);
@@ -132,7 +132,7 @@ export default function UserProfileComponent() {
   const handleUpdateProfile = async() => {
     try {
       const res = await updateProfile(userData);
-      console.log(res)
+      
       if(!res.error){
         setInitialLoading(true)
         await getUser()
@@ -140,7 +140,7 @@ export default function UserProfileComponent() {
       }
   
     } catch (error) {
-      console.log(error)
+
     }
     
   };
@@ -149,14 +149,14 @@ export default function UserProfileComponent() {
     try {
       let result = await sendRestPassLink()
       if(result.error){
-        console.log(error);
+  
       }
       else{
          setPassAlert(true)
          setTimeout(()=>setPassAlert(false),4000)
       }
     } catch (error) {
-      console.log(error)
+ 
       throw new Error("some error accured")
     }
   }
@@ -170,7 +170,7 @@ export default function UserProfileComponent() {
       }
   
     } catch (error) {
-      console.log(error)
+    
     }
     
   };

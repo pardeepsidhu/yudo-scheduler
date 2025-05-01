@@ -137,7 +137,7 @@ export default function TaskDashboard() {
       }
 
       const response = await fetchTasks(options);
-      console.log(response)
+     
       setTasks(prev => [...prev, ...response.tasks]);
       setHasMore(tasks.length + response.tasks.length < response.total);
       setPage(prev => prev + 1);

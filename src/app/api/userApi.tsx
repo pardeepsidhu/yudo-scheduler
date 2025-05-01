@@ -67,7 +67,7 @@ const getAuthToken = () => {
       if (!token) {
         throw new Error('Authentication token not found');
       }
-      console.log("this is token: " + token);
+
       
       // Create request body with only the fields that are provided
       const updateData = {};
@@ -84,7 +84,7 @@ const getAuthToken = () => {
       });
       
       const data = await response.json();
-      console.log(data);
+
       return data;
     } catch (error) {
       return { error: "some error occurred while updating profile!" };
@@ -165,7 +165,7 @@ export async function fetchNotifications(options?: {
 }): Promise<NotificationsResponse> {
   const token = getAuthToken();
   if (!token) {
-    console.log("token not found")
+  
   }
 
   const queryParams = new URLSearchParams();
@@ -185,7 +185,7 @@ export async function fetchNotifications(options?: {
     },
   });
   const result =await response.json();
-  console.log(result)
+
   return result
 }
 

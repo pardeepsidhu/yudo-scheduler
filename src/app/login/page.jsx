@@ -84,7 +84,6 @@ const verifyOtp = async (email, otp, password, setMessage, navigate, setWaiting,
       setUser(data.user);
       navigate("/dashboard");
     } else {
-      // console.log("this is data"+data)
       setMessage(data.error || "OTP verification failed");
     }
   } catch (error) {
@@ -114,7 +113,6 @@ const AuthPage = () => {
     // setResetIdWaiting()
     const urlParams = new URLSearchParams(window.location.search);
     const token = urlParams.get('resetId');
-    console.log('Reset ID from query:', token);
     setResetId(token);
     setResetIdWaiting(false)
   }, []);
@@ -231,7 +229,6 @@ const AuthPage = () => {
       });
       
       const data = await response.json();
-      console.log(data)
       if (response.ok) {
         setMessage("password changed login please")
         navigate("/login");
@@ -261,7 +258,6 @@ const AuthPage = () => {
         });
         
        let data = await response.json()
-      //  console.log(data)
         if (response.ok) {
           setMessage("Link sent successfuly please check inbox")
         } else {

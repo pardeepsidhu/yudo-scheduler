@@ -369,7 +369,7 @@ const TimesheetAnalytics = () => {
     fetchTasksByTimeframe();
   }, [timeframe, currentDate]);
 
-  console.log(chartData)
+  
   return (
     <div className="bg-gray-50 min-h-screen m-0">
       <div className="container mx-auto px-1 sm:px-4 py-1 sm:py-2">

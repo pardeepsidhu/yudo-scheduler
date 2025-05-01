@@ -111,25 +111,14 @@ export function CreateTaskDialog({
       } else {
         // Handle create
         let response = await createTask(formattedData);
-        console.log(response);
+     
       }
     
-      //   toast({
-      //     title: isEditMode ? "Task updated" : "Task created",
-      //     description: isEditMode 
-      //       ? "Your task has been successfully updated."
-      //       : "Your task has been successfully created.",
-      //   });
-      
       form.reset();
       onOpenChange(false);
       if (onTaskCreated) onTaskCreated();
     } catch (error) {
-    //   toast({
-    //     variant: "destructive",
-    //     title: "Error",
-    //     description: `Failed to ${isEditMode ? 'update' : 'create'} task. Please try again.`,
-    //   });
+  
       console.error(error);
     } finally {
       setIsSubmitting(false);

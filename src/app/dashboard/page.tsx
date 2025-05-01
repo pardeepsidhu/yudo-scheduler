@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { fetchNotifications, fetchUser } from '../api/userApi';
 import { useNavigation } from '../context/ActiveItemContext';
 import  NotificationsPage from './notification-page';
+import { Loader, Loader2 } from 'lucide-react';
 
 
 export default function Page() {
@@ -18,6 +19,7 @@ export default function Page() {
   const router = useRouter();
   const [user,setUser]=useState()
   const [isMobile, setIsMobile] = useState<boolean>(false);
+  const [waiting,setWaiting]=useState<boolean>(true)
   
 
   useEffect(() => {
@@ -34,6 +36,7 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    setWaiting(true)
     const fetchData = async () => {
       try {
         const result = await fetchUser();
@@ -42,19 +45,30 @@ export default function Page() {
           router.push("/login");
         } else {
           setUser(result);
-          console.log(result);
+    
         }
 
       } catch (err) {
         console.error("Error fetching user:", err);
       }
+      finally{
+        setWaiting(false)
+      }
     };
-  
     fetchData();
+
   }, []);
 
   
-  return (
+  return waiting ?  <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+  <div className="flex flex-col items-center">
+    <div className="rounded-full bg-blue-50 p-4 mb-3">
+      <Loader size={32} className="animate-spin text-blue-600" />
+    </div>
+    <p className="text-gray-600 font-medium">Loading...</p>
+  </div>
+</div>  :
+
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar - fixed */}
       <div className="flex-shrink-0 ">
@@ -79,5 +93,5 @@ export default function Page() {
         {activeItem === "notifications" && <NotificationsPage />}
       </div>
     </div>
-  );
+  
 }
