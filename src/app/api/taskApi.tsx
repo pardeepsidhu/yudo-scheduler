@@ -244,7 +244,15 @@ export const updateTask = async (taskId: string, updatedTask: Partial<Task>) => 
 
 
 
-export const getTaskByTimeFrames = async (timeframe, startDate, endDate) => {
+export const getTaskByTimeFrames = async (
+  timeframe: string, 
+  options?: {
+    startDate?: Date | string;
+    endDate?: Date | string;
+    page?: number;
+    limit?: number;
+  }
+) => {
   const token = getAuthToken();
   if (!token) {
     return {
@@ -254,16 +262,35 @@ export const getTaskByTimeFrames = async (timeframe, startDate, endDate) => {
   }
 
   try {
-    // Format dates as YYYY-MM-DD for API
-    const formattedStartDate = startDate instanceof Date ? 
-      startDate.toISOString().split('T')[0] : 
-      new Date(startDate).toISOString().split('T')[0];
+    // Build query parameters
+    const params = new URLSearchParams();
     
-    const formattedEndDate = endDate instanceof Date ? 
-      endDate.toISOString().split('T')[0] : 
-      new Date(endDate).toISOString().split('T')[0];
+    // Add date parameters if provided
+    if (options?.startDate && options?.endDate) {
+      const formattedStartDate = options.startDate instanceof Date ? 
+        options.startDate.toISOString().split('T')[0] : 
+        new Date(options.startDate).toISOString().split('T')[0];
+      
+      const formattedEndDate = options.endDate instanceof Date ? 
+        options.endDate.toISOString().split('T')[0] : 
+        new Date(options.endDate).toISOString().split('T')[0];
+      
+      params.append('startDate', formattedStartDate);
+      params.append('endDate', formattedEndDate);
+    }
     
-    const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/task/timeframe/${timeframe}?startDate=${formattedStartDate}&endDate=${formattedEndDate}`;
+    // Add pagination parameters
+    if (options?.page) {
+      params.append('page', options.page.toString());
+    }
+    
+    if (options?.limit) {
+      params.append('limit', options.limit.toString());
+    }
+    
+    // Build endpoint URL
+    const queryString = params.toString();
+    const endpoint = `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/task/timeframe/${timeframe}${queryString ? `?${queryString}` : ''}`;
     
     const response = await fetch(endpoint, {
       headers: {
@@ -281,7 +308,10 @@ export const getTaskByTimeFrames = async (timeframe, startDate, endDate) => {
       };
     }
     
-    return data;
+    return {
+      ...data,
+      success: true
+    };
   } catch (error) {
     return {
       error: "Error occurred while fetching tasks by time frame!",
