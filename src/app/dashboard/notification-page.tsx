@@ -1,13 +1,9 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Bell, MessageSquare, ShieldAlert, Check, X, RefreshCw, AlertCircle, FileText, ChevronDown, Filter, CheckCheck, Inbox } from "lucide-react";
 import { fetchNotifications } from '../api/userApi';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
-import { AlertCircle, Bell, MessageSquare, ShieldAlert, Check, X, RefreshCw } from "lucide-react";
 
-// Interface for Notification
+
 interface Notification {
   _id: string;
   title: string;
@@ -17,38 +13,36 @@ interface Notification {
   user: string;
 }
 
-
-// Custom Toast component
-const Toast = ({ message, type, onClose }: { message: string; type: 'success' | 'error' | 'info'; onClose: () => void }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 5000);
-    
-    return () => clearTimeout(timer);
-  }, [onClose]);
-  
-  const bgColor = type === 'error' ? 'bg-red-100 text-red-700 border-red-200' : 
-                  type === 'success' ? 'bg-green-100 text-green-700 border-green-200' :
-                  'bg-blue-100 text-blue-700 border-blue-200';
-  
-  return (
-    <div className={`fixed top-4 right-4 p-4 rounded-md shadow-md border ${bgColor} flex items-center gap-2 z-50 animate-in fade-in slide-in-from-top-5`}>
-      {type === 'error' && <AlertCircle className="h-5 w-5" />}
-      {type === 'success' && <Check className="h-5 w-5" />}
-      {type === 'info' && <Bell className="h-5 w-5" />}
-      <p>{message}</p>
-      <button onClick={onClose} className="ml-4 text-gray-500 hover:text-gray-700">×</button>
-    </div>
-  );
-};
-
-// Interface for Toast
 interface ToastMessage {
   id: string;
   message: string;
   type: 'success' | 'error' | 'info';
 }
+
+const Toast = ({ message, type, onClose }: { message: string; type: 'success' | 'error' | 'info'; onClose: () => void }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 5000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+  
+  const styles = {
+    success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    error: 'bg-red-50 text-red-700 border-red-200',
+    info: 'bg-blue-50 text-blue-700 border-blue-200'
+  };
+  
+  return (
+    <div className={`${styles[type]} border px-4 py-3 rounded-sm shadow-lg flex items-center gap-3 animate-in fade-in slide-in-from-top-2 duration-300`}>
+      {type === 'error' && <AlertCircle className="h-5 w-5 flex-shrink-0" />}
+      {type === 'success' && <Check className="h-5 w-5 flex-shrink-0" />}
+      {type === 'info' && <Bell className="h-5 w-5 flex-shrink-0" />}
+      <p className="text-sm font-medium">{message}</p>
+      <button onClick={onClose} className="ml-2 hover:opacity-70 transition-opacity">
+        <X className="h-4 w-4" />
+      </button>
+    </div>
+  );
+};
 
 export default function FullscreenNotificationCenter() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -60,9 +54,9 @@ export default function FullscreenNotificationCenter() {
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [filterType, setFilterType] = useState<'form' | 'auth' | 'telegram' | 'yudo' | ''>('');
+  const [showMobileDetail, setShowMobileDetail] = useState(false);
   const observer = useRef<IntersectionObserver | null>(null);
 
-  // Custom toast function
   const showToast = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
     const id = Date.now().toString();
     setToasts(prev => [...prev, { id, message, type }]);
@@ -72,7 +66,6 @@ export default function FullscreenNotificationCenter() {
     setToasts(prev => prev.filter(toast => toast.id !== id));
   };
 
-  // Function to fetch notifications
   const loadNotifications = useCallback(async (pageNum: number, reset = false) => {
     try {
       setLoading(true);
@@ -84,15 +77,13 @@ export default function FullscreenNotificationCenter() {
       };
       
       if (filterType) options.type = filterType;
-    
       
-      const result = await fetchNotifications(options);
+      const result:any = await fetchNotifications(options);
       
       if (!result || !result.success) {
         throw new Error(result?.error || 'Failed to fetch notifications');
       }
       
-      // Align with backend response structure
       const newNotifications = result.data || [];
       const totalPagesCount = result.pages || 1;
       
@@ -107,14 +98,13 @@ export default function FullscreenNotificationCenter() {
     } finally {
       setLoading(false);
     }
-  }, [notifications, filterType]);
+  }, [filterType]);
 
-  // Initial load
   useEffect(() => {
+    setPage(1);
     loadNotifications(1, true);
-  }, [filterType]); // Reset and load when filters change
+  }, [filterType]);
 
-  // Setup intersection observer for infinite scroll
   const lastNotificationRef = useCallback((node: HTMLDivElement | null) => {
     if (loading) return;
     
@@ -129,285 +119,290 @@ export default function FullscreenNotificationCenter() {
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
-  // Load more notifications when page changes
   useEffect(() => {
     if (page > 1) {
       loadNotifications(page, false);
     }
   }, [page]);
 
-
-
-  // Handle notification click
   const handleNotificationClick = (notification: Notification) => {
-    if (!notification) return;
     setSelectedNotification(notification);
-    
+    setShowMobileDetail(true);
   };
 
-  // Function to get notification icon based on type
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'auth':
-        return <ShieldAlert className="h-6 w-6 text-purple-500" />;
-      case 'telegram':
-        return <MessageSquare className="h-6 w-6 text-blue-600" />;
-      case 'yudo':
-        return <Bell className="h-6 w-6 text-yellow-500" />;
-      default:
-        return <AlertCircle className="h-6 w-6 text-gray-500" />;
-    }
-  };
-
-  // Function to format date
-  const formatDate = (dateString: string) => {
-    if (!dateString) return '';
-    
-    try {
-      const date = new Date(dateString);
-      return new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-      }).format(date);
-    } catch (error) {
-      return dateString; // Return original string if parsing fails
-    }
-  };
-
-  // Handle refresh
   const handleRefresh = () => {
     setPage(1);
     loadNotifications(1, true);
+    showToast('Notifications refreshed', 'success');
   };
 
-  // Handle filter changes
-  const handleTypeFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setPage(1);
-    setFilterType(e.target.value as any);
+  const getNotificationConfig = (type: string) => {
+    const configs = {
+      auth: {
+        icon: <ShieldAlert className="w-5 h-5" />,
+        label: 'Security',
+        gradient: 'from-amber-500 to-orange-500',
+        bg: 'bg-gradient-to-br from-amber-50 to-orange-50',
+        border: 'border-amber-200',
+        text: 'text-amber-700',
+        iconBg: 'bg-amber-100'
+      },
+      telegram: {
+        icon: <MessageSquare className="w-5 h-5" />,
+        label: 'Telegram',
+        gradient: 'from-blue-500 to-cyan-500',
+        bg: 'bg-gradient-to-br from-blue-50 to-cyan-50',
+        border: 'border-blue-200',
+        text: 'text-blue-700',
+        iconBg: 'bg-blue-100'
+      },
+      yudo: {
+        icon: <Check className="w-5 h-5" />,
+        label: 'Task',
+        gradient: 'from-purple-500 to-pink-500',
+        bg: 'bg-gradient-to-br from-purple-50 to-pink-50',
+        border: 'border-purple-200',
+        text: 'text-purple-700',
+        iconBg: 'bg-purple-100'
+      },
+      
+    };
+    return configs[type as keyof typeof configs];
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }).format(date);
+  };
+
+  const filters = [
+    { value: '', label: 'All Notifications' },
+    { value: 'auth', label: 'Security' },
+    { value: 'telegram', label: 'Telegram' },
+    { value: 'yudo', label: 'Tasks' }
+  ];
 
   return (
-    <div className="w-full h-screen flex flex-col bg-gray-50 dark:bg-gray-900">
-      {/* Toast notifications */}
-      <div className="fixed top-4 right-4 z-50 space-y-2">
-        {toasts.map((toast) => (
-          <Toast 
-            key={toast.id} 
-            message={toast.message} 
-            type={toast.type} 
-            onClose={() => removeToast(toast.id)} 
-          />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+      {/* Toasts */}
+      <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+        {toasts.map(toast => (
+          <Toast key={toast.id} message={toast.message} type={toast.type} onClose={() => removeToast(toast.id)} />
         ))}
       </div>
       
       {/* Header */}
-      <header className="p-4 border-b bg-white dark:bg-gray-800 shadow-sm">
-        <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Bell className="h-6 w-6" />
-            Notifications
-          </h1>
-
-          <div className="flex gap-2 lg:hidden">
-  <Button onClick={handleRefresh} variant="ghost" size="sm">
-    Refresh
-    {loading ? <RefreshCw className='animate-spin h-5'/> :<RefreshCw className='h-5'/>} 
-  </Button>
-</div>
-          
-          <div className="hidden lg:flex gap-2 items-center ">
-
-          <div className="w-65">
-          <label className="block text-sm font-medium mb-1">Filter by Type</label>
-          <select 
-            className="w-full p-2 border rounded-md bg-transparent dark:text-white"
-            value={filterType}
-            onChange={handleTypeFilterChange}
-          >
-            <option value="">All Types</option>
-            <option value="auth">Authentication</option>
-            <option value="telegram">Telegram</option>
-            <option value="yudo">Yudo-Scheduler</option>
-          </select>
-        </div>
-
-            <Button onClick={handleRefresh} variant="ghost" size="sm">
-              Refresh
-              {loading ? <RefreshCw className='animate-spin h-5'/> :<RefreshCw className='h-5'/>} 
-            </Button>
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 backdrop-blur-sm bg-white/80">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-sm flex items-center justify-center shadow-lg">
+                <Bell className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-slate-900">Notifications</h1>
+                <p className="text-xs text-slate-500">Stay updated with your activities</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleRefresh}
+                disabled={loading}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors disabled:opacity-50"
+              >
+                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+                <span className="hidden sm:inline">Refresh</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>
       
-      {/* Filters */}
-      <div className="container flex lg:hidden mx-auto p-4 flex-col md:flex-row gap-4 bg-white dark:bg-gray-800 shadow-sm mb-4">
-        <div className="w-full md:w-1/2 lg:w-1/3">
-          <label className="block text-sm font-medium mb-1">Filter by Type</label>
-          <select 
-            className="w-full p-2 border rounded-md bg-transparent dark:text-white"
-            value={filterType}
-            onChange={handleTypeFilterChange}
-          >
-            <option value="">All Types</option>
-            <option value="auth">Authentication</option>
-            <option value="telegram">Telegram</option>
-            <option value="yudo">Yudo-Scheduler</option>
-          </select>
-        </div>
-      </div>
-      
-      {/* Main content */}
-      <main className="flex-1 container lg:overflow-hidden mx-auto p-4 flex">
-        {/* Notifications list */}
-        <div className="w-full lg:w-1/2 h-full overflow-hidden lg:overflow-auto flex flex-col">
-          <h2 className="text-xl font-semibold mb-4">
-            {filterType ? `${filterType.charAt(0).toUpperCase() + filterType.slice(1)} Notifications` : 'All Notifications'}
-          </h2>
-          
-          {error && (
-            <div className="p-4 mb-4 bg-red-50 text-red-500 rounded-md flex items-center gap-2">
-              <AlertCircle className="h-4 w-4" />
-              <p>{error}</p>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-none px-2 py-1 sm:py-2">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 sm:gap-4">
+          {/* Sidebar - Filters */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-sm shadow-sm border border-slate-200 p-6 sticky top-19">
+              <div className="flex items-center gap-2 mb-2">
+                <Filter className="w-5 h-5 text-slate-600" />
+                <h2 className="font-semibold text-slate-900">Filters</h2>
+              </div>
+              
+              <div className="space-y-2">
+                {filters.map(filter => {
+                  const isActive = filterType === filter.value;
+                  return (
+                    <button
+                      key={filter.value}
+                      onClick={() => setFilterType(filter.value as any)}
+                      className={`w-full text-left px-4 py-2 sm:py-3 rounded-sm font-medium text-sm transition-all ${
+                        isActive
+                          ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-500/30'
+                          : 'text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {filter.label}
+                    </button>
+                  );
+                })}
+              </div>
+              
+              <div className="mt-2 sm:mt-4 pt-2 sm:pt-4 border-t border-slate-200">
+                <div className="text-sm text-slate-600">
+                  <span className="font-semibold text-slate-900">{notifications.length}</span> notifications
+                </div>
+              </div>
             </div>
-          )}
+          </div>
           
-          {/* <ScrollArea className="flex-1"> */}
-            {(!notifications || notifications.length === 0) && !loading ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center text-muted-foreground">
-                <Bell className="h-12 w-12 mb-4 opacity-20" />
-                <p>No notifications found</p>
+          {/* Notifications List */}
+          <div className="lg:col-span-2">
+            {error && (
+              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-sm flex items-center gap-3">
+                <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                <p className="text-sm text-red-700 font-medium">{error}</p>
+              </div>
+            )}
+            
+            {!loading && notifications.length === 0 ? (
+              <div className="bg-white rounded-sm shadow-sm border border-slate-200 p-12 text-center">
+                <div className="w-16 h-16 bg-slate-100 rounded-sm flex items-center justify-center mx-auto mb-4">
+                  <Inbox className="w-8 h-8 text-slate-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">No notifications</h3>
+                <p className="text-sm text-slate-500">You're all caught up! Check back later for updates.</p>
               </div>
             ) : (
-              <div className="space-y-3 p-2">
-                {notifications && notifications.map((notification, index) => {
-                  const isLastItem = index === notifications.length - 1;
+              <div className="space-y-1 sm:space-y-3">
+                {notifications.map((notification, index) => {
+                  const config = getNotificationConfig(notification.type);
+                  const isLast = index === notifications.length - 1;
+                  const isSelected = selectedNotification?._id === notification._id;
+                  
                   return (
-                    <Card
+                    <div
                       key={notification._id}
-                      ref={isLastItem ? lastNotificationRef : null}
-                      className={`cursor-pointer transition-all hover:shadow-md 
-                         ${selectedNotification?._id === notification._id ? 'ring-2 ring-blue-500' : ''}`}
+                      ref={isLast ? lastNotificationRef : null}
                       onClick={() => handleNotificationClick(notification)}
+                      className={`bg-white rounded-sm shadow-sm border transition-all duration-200 cursor-pointer ${
+                        isSelected
+                          ? 'border-blue-300 ring-2 ring-blue-100 shadow-md'
+                          : 'border-slate-200 hover:shadow-md hover:border-slate-300'
+                      }`}
                     >
-                      <CardHeader className="py-3 px-4">
-                        <div className="flex justify-between items-start">
-                          <div className="flex items-center gap-2">
-                            {getNotificationIcon(notification.type)}
-                            <CardTitle className="text-base">{notification.title}</CardTitle>
+                      <div className="p-5">
+                        <div className="flex items-start gap-4">
+                          <div className={`flex-shrink-0 w-12 h-12 ${config.iconBg} rounded-sm flex items-center justify-center ${config.text}`}>
+                            {config.icon}
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-3 mb-2">
+                              <h3 className="font-semibold text-slate-900 line-clamp-1">{notification.title}</h3>
+                              <span className={`flex-shrink-0 px-2.5 py-1 text-xs font-medium ${config.text} ${config.bg} rounded-lg`}>
+                                {config.label}
+                              </span>
+                            </div>
+                            
+                            <p className="text-sm text-slate-600 line-clamp-2 mb-3">{notification.description}</p>
+                            
+                            <div className="flex items-center gap-2 text-xs text-slate-500">
+                              <Bell className="w-3.5 h-3.5" />
+                              <span>{formatDate(notification.createdAt)}</span>
+                            </div>
                           </div>
                         </div>
-                      </CardHeader>
-                      <CardContent className="py-0 px-4">
-                        <CardDescription className="line-clamp-2">
-                          {notification.description}
-                        </CardDescription>
-                      </CardContent>
-                      <CardFooter className="py-2 px-4 text-xs text-muted-foreground">
-                        {formatDate(notification.createdAt)}
-                      </CardFooter>
-                    </Card>
+                      </div>
+                    </div>
                   );
                 })}
                 
                 {loading && (
-                  <div className="space-y-2">
-                    {[...Array(3)].map((_, i) => (
-                      <Card key={`skeleton-${i}`}>
-                        <CardHeader className="py-3 px-4">
-                          <div className="flex items-center gap-2">
-                            <Skeleton className="h-6 w-6 rounded-full" />
-                            <Skeleton className="h-4 w-40" />
+                  <div className="space-y-3">
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="bg-white rounded-sm shadow-sm border border-slate-200 p-5 animate-pulse">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 bg-slate-200 rounded-sm"></div>
+                          <div className="flex-1 space-y-3">
+                            <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+                            <div className="h-3 bg-slate-200 rounded w-full"></div>
+                            <div className="h-3 bg-slate-200 rounded w-1/2"></div>
                           </div>
-                        </CardHeader>
-                        <CardContent className="py-0 px-4">
-                          <Skeleton className="h-3 w-full mb-1" />
-                          <Skeleton className="h-3 w-3/4" />
-                        </CardContent>
-                        <CardFooter className="py-2 px-4">
-                          <Skeleton className="h-3 w-24" />
-                        </CardFooter>
-                      </Card>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
                 
-                {!hasMore && notifications && notifications.length > 0 && (
-                  <div className="text-center py-4 text-sm text-muted-foreground">
-                    End of notifications • Page {page} of {totalPages}
+                {!hasMore && notifications.length > 0 && (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-slate-500 font-medium">
+                      You've reached the end • Page {page} of {totalPages}
+                    </p>
                   </div>
                 )}
               </div>
             )}
-          {/* </ScrollArea> */}
-        </div>
-        
-        {/* Notification detail view */}
-        <div className="hidden lg:block lg:w-1/2 border-l p-6 overflow-y-auto">
-          {selectedNotification ? (
-            <div className="animate-in fade-in slide-in-from-right-5">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  {getNotificationIcon(selectedNotification.type)}
-                  <h2 className="text-xl font-semibold">{selectedNotification.title}</h2>
-                </div>
-          
-              </div>
-              
-              <div className="text-sm text-muted-foreground mb-4">
-                {formatDate(selectedNotification.createdAt)}
-              </div>
-              
-              <div className="prose dark:prose-invert max-w-none">
-                <p>{selectedNotification.description}</p>
-              </div>
-              
-              <div className="mt-8 flex justify-end">
-                <Button onClick={() => setSelectedNotification(null)} variant="ghost">
-                  <X className="h-4 w-4 mr-2" />
-                  Close
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
-              <Bell className="h-16 w-16 mb-4 opacity-20" />
-              <p className="text-lg mb-2">Select a notification to view details</p>
-              <p className="text-sm max-w-md">Click on any notification from the list to view its complete details here</p>
-            </div>
-          )}
+          </div>
         </div>
       </main>
       
-      {/* Mobile notification detail dialog */}
-      <Dialog open={!!selectedNotification && window.innerWidth < 1024} onOpenChange={(open) => !open && setSelectedNotification(null)}>
-        {selectedNotification && (
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                {getNotificationIcon(selectedNotification.type)}
-                {selectedNotification.title}
-              </DialogTitle>
-              <DialogDescription>
-                {formatDate(selectedNotification.createdAt)}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="py-2">
-              <p className="text-sm">{selectedNotification.description}</p>
+      {/* Mobile Detail Modal */}
+      {showMobileDetail && selectedNotification && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowMobileDetail(false)}></div>
+          <div className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl animate-in slide-in-from-bottom duration-300">
+            <div className="p-6">
+              <div className="w-12 h-1 bg-slate-300 rounded-full mx-auto mb-6"></div>
+              
+              {(() => {
+                const config = getNotificationConfig(selectedNotification.type);
+                return (
+                  <>
+                    <div className="flex items-start gap-4 mb-6">
+                      <div className={`flex-shrink-0 w-14 h-14 ${config.iconBg} rounded-sm flex items-center justify-center ${config.text}`}>
+                        {config.icon}
+                      </div>
+                      <div className="flex-1">
+                        <span className={`inline-block px-3 py-1 text-xs font-medium ${config.text} ${config.bg} rounded-lg mb-2`}>
+                          {config.label}
+                        </span>
+                        <h2 className="text-xl font-bold text-slate-900 mb-2">{selectedNotification.title}</h2>
+                        <p className="text-sm text-slate-500">{formatDate(selectedNotification.createdAt)}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-6">
+                      <p className="text-slate-700 leading-relaxed">{selectedNotification.description}</p>
+                    </div>
+                    
+                    <button
+                      onClick={() => setShowMobileDetail(false)}
+                      className="w-full py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-sm shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all"
+                    >
+                      Close
+                    </button>
+                  </>
+                );
+              })()}
             </div>
-            <div className="mt-4 flex justify-end">
-           
-              <Button onClick={() => setSelectedNotification(null)} className="flex items-center gap-2">
-                <Check className="h-4 w-4" />
-                Close
-              </Button>
-            </div>
-          </DialogContent>
-        )}
-      </Dialog>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

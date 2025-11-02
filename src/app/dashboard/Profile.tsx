@@ -223,8 +223,8 @@ export default function UserProfileComponent() {
       <div className="container mx-auto ">
         {/* <h1 className="text-3xl font-bold mb-8 text-center sm:text-left">Account Settings</h1> */}
         
-        <Card style={{borderRadius:"0px !important"}} className="shadow-xl border-slate-200 overflow-hidden ">
-          <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-2 sm:py-4 ">
+        <Card style={{borderRadius:"0px !important"}} className="shadow-xl border-slate-200 overflow-hidden rounded-none! gap-1 sm:gap-4">
+          <CardHeader className="bg-gradient-to-r from-slate-700 to-slate-800 text-white py-2  ">
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
               <div className="relative group">
                 <Avatar className="h-28 w-28 border-4 border-white shadow-lg">
@@ -270,7 +270,7 @@ export default function UserProfileComponent() {
                         size="sm" 
                         onClick={handleUpdateName}
                         disabled={isLoading}
-                        className="bg-white text-slate-800 hover:bg-slate-100"
+                        className="bg-white text-slate-800 hover:bg-slate-100 rounded-sm"
                       >
                         {isLoading ? (
                           <span className="flex items-center">
@@ -294,7 +294,7 @@ export default function UserProfileComponent() {
                           setName(userData.name || '');
                           setIsEditingName(false);
                         }}
-                        className="bg-transparent border-white text-white hover:bg-slate-700"
+                        className="bg-transparent border-white text-white hover:bg-slate-700 rounded-sm"
                       >
                         <X className="h-4 w-4 mr-2" />
                         Cancel
@@ -313,7 +313,7 @@ export default function UserProfileComponent() {
                             <Button 
                               variant="ghost" 
                               size="icon" 
-                              className="h-8 w-8 text-white hover:bg-slate-600 hover:text-white" 
+                              className="h-8 w-8 text-white hover:bg-slate-600 hover:text-white rounded-sm"  
                               onClick={() => setIsEditingName(true)}
                             >
                               <Edit className="h-4 w-4" />
@@ -339,7 +339,7 @@ export default function UserProfileComponent() {
             <div className="space-y-8">
               {/* Profile Info Section */}
               <div>
-                <h3 className="text-xl font-semibold mb-4 flex items-center">
+                <h3 className="text-xl font-semibold mb-2 sm:mb-3 flex items-center">
                   <User className="h-5 w-5 mr-2 text-primary" />
                   Personal Information
                 </h3>
@@ -352,7 +352,7 @@ export default function UserProfileComponent() {
                     <Button 
                       variant="outline" 
                       size="sm" 
-                      className="mt-2 sm:mt-0 hover:bg-slate-50 transition-colors"
+                      className="mt-2 sm:mt-0 hover:bg-slate-50 transition-colors rounded-sm!"
                       onClick={() => setIsEditingName(true)}
                     >
                       <Edit className="h-4 w-4 mr-2" />
@@ -360,12 +360,12 @@ export default function UserProfileComponent() {
                     </Button>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-1 sm:pb-2 border-b">
                     <div>
                       <h4 className="text-sm font-medium text-slate-500">Email Address</h4>
                       <p className="mt-1">{userData.email}</p>
                     </div>
-                    <div className="mt-2 sm:mt-0 flex items-center text-sm text-green-600">
+                    <div className="mt-1 sm:mt-0 flex items-center text-sm text-green-600">
                       <Check className="h-4 w-4 mr-1" />
                       Verified
                     </div>
@@ -373,7 +373,7 @@ export default function UserProfileComponent() {
                 </div>
               </div>
 
-              <Separator />
+              {/* <Separator /> */}
               
               {/* Telegram Section */}
               <div>
@@ -382,9 +382,9 @@ export default function UserProfileComponent() {
                   Telegram Connection
                 </h3>
                 
-                <div className="pl-2 sm:pl-5 space-y-4">
+                <div className="space-y-2">
                   {userData.telegram ? (
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 p-4 rounded-lg border">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 p-3 sm:p-4 rounded-sm border">
                       <div className='flex  w-full justify-between'>
                         <div className="flex items-center">
                           <div className="bg-blue-100 p-2 rounded-full mr-3">
@@ -408,7 +408,7 @@ export default function UserProfileComponent() {
                      
                     </div>
                   ) : (
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 p-4 rounded-lg border border-dashed">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 p-3 sm:p-4 rounded-sm border border-dashed">
                       <div className="flex items-center">
                         <div className="bg-slate-100 p-2 rounded-full mr-3">
                           <Phone className="h-5 w-5 text-slate-400" />
@@ -439,7 +439,7 @@ export default function UserProfileComponent() {
                 </div>
               </div>
 
-              <Separator />
+              <Separator className='my-2 sm:my-4'/>
               
               {/* Account Security */}
               <div>
@@ -448,8 +448,8 @@ export default function UserProfileComponent() {
                   Account Security
                 </h3>
                 
-                <div className="pl-7">
-                  <Button variant="outline" onClick={handleResetPass} className="w-full sm:w-auto flex justify-between hover:bg-slate-50 transition-colors cursor-pointer">
+                <div className="sm:pl-7">
+                  <Button variant="outline" onClick={handleResetPass} className="w-full sm:w-auto flex justify-between hover:bg-slate-50 transition-colors cursor-pointer rounded-sm">
                     <span className="flex items-center">
                       <Shield className="h-4 w-4 mr-2" />
                       Change Password
@@ -461,18 +461,18 @@ export default function UserProfileComponent() {
             </div>
           </CardContent>
           
-          <CardFooter className="border-t py-6 px-6 bg-slate-50">
+          <CardFooter className="border-t py-2 sm:py-6 px-3 sm:px-6 bg-slate-50">
             <div className="w-full flex flex-col sm:flex-row sm:justify-between gap-3">
               <Button 
                 variant="outline" 
-                className="hover:bg-slate-100 transition-colors order-2 sm:order-1"
+                className="hover:bg-slate-100 transition-colors order-2 sm:order-1 rounded-sm"
                 onClick={getUser}
               >
                 Cancel
               </Button>
               <Button 
               onClick={handleUpdateProfile}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-colors order-1 sm:order-2"
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 transition-colors order-1 sm:order-2 rounded-sm"
               >
                 Save All Changes
               </Button>
