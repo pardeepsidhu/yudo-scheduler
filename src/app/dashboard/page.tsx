@@ -12,6 +12,7 @@ import { fetchNotifications, fetchUser } from '../api/userApi';
 import { useNavigation } from '../context/ActiveItemContext';
 import  NotificationsPage from './notification-page';
 import { Loader, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 
 export default function Page() {
@@ -48,8 +49,9 @@ export default function Page() {
     
         }
 
-      } catch (err) {
+      } catch (err:any) {
         console.error("Error fetching user:", err);
+        toast.error(err.message)
       }
       finally{
         setWaiting(false)
