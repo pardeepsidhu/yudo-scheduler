@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/navbar";
-import { NavigationProvider } from "./context/ActiveItemContext";
 import { Toaster } from "react-hot-toast"; // ✅ Import Toaster
 
 export const metadata: Metadata = {
@@ -63,10 +62,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body cz-shortcut-listen="true" className="antialiased">
-        <NavigationProvider defaultActiveItem="dashboard">
           <Navbar />
           {children}
-
           {/* ✅ Add React Hot Toast globally */}
           <Toaster
             position="top-right"
@@ -95,7 +92,6 @@ export default function RootLayout({
               },
             }}
           />
-        </NavigationProvider>
       </body>
     </html>
   );

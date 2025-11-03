@@ -33,7 +33,7 @@ const cn = (...classes) => {
 };
 
 // ListItem component for Navigation Menu
-const ListItem = React.forwardRef(({ className, title, children, icon: Icon, description, badge, isActive, onClick }, ref) => {
+const ListItem = React.forwardRef(({ className  , title, children, icon: Icon, description, badge, isActive, onClick } , ref) => {
   return (
     <li className="list-none" onClick={() => onClick && onClick(title)}>
       <NavigationMenuLink asChild>
@@ -85,7 +85,6 @@ const ProfessionalNavbar = ({
   // State for mobile menu
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const {activeItem, setActiveItem} = useNavigation();
   const [userName,setUserName]=useState("User");
   const [userEmail,setUserEmail]=useState("user@example.com")
   const [userImage,setUserImage]=useState("")
@@ -146,11 +145,7 @@ const ProfessionalNavbar = ({
 
 
 
-  // Handle dashboard item click
-  const handleDashboardItemClick = (title:string) => {
-    setActiveItem(title.toLowerCase());
-    router.push('/dashboard');
-  };
+ 
 
   // Check for mobile screen size
   useEffect(() => {
@@ -168,10 +163,10 @@ const ProfessionalNavbar = ({
 
   const dashboardItems = [
     {
-      title: "Dashboard",
-      href: "/dashboard",
-      description: "Get a complete overview of your tasks, schedules, and performance.",
-      icon: LayoutDashboard,
+      title: "Profile",
+      href: "/profile",
+      description: "Get .user pofile , linked accounts",
+      icon: Users2,
     },
     {
       title: "Tasks",
@@ -205,9 +200,13 @@ const ProfessionalNavbar = ({
     },
   ];
 
+  if (pathName !== "/" && pathName !== "/about") {
+  // do something only when it's NOT / or /about
+  return<></>
+}
+
   
-  return pathName ==="/dashboard"?<></>:
-    <>
+  return <>
       {/* Main Navbar */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-teal-100 shadow-sm">
         <div className="container mx-auto px-4">
@@ -230,7 +229,6 @@ const ProfessionalNavbar = ({
                         "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
                       )}
                       onClick={()=>{
-                        setActiveItem("home");
                         router.push("/");
                       }}
                     >
@@ -258,7 +256,7 @@ const ProfessionalNavbar = ({
                             key={item.title}
                             title={item.title}
                             icon={item.icon}
-                            onClick={handleDashboardItemClick}
+                            onClick={()=>router.push(item?.title?.toLowerCase())}
                           >
                             {item.description}
                           </ListItem>
@@ -279,7 +277,6 @@ const ProfessionalNavbar = ({
                         "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
                       )}
                       onClick={()=>{
-                        // setActiveItem("profile"); 
                         router.push("/login");
                       }}
                     >
@@ -302,7 +299,6 @@ const ProfessionalNavbar = ({
                         "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
                       )}
                       onClick={()=>{
-                        setActiveItem("profile"); 
                         router.push("/dashboard");
                       }}
                     >
@@ -325,7 +321,6 @@ const ProfessionalNavbar = ({
                         "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
                       )}
                       onClick={()=>{
-                        setActiveItem("about");
                         router.push("/about");
                       }}
                     >
@@ -364,7 +359,6 @@ const ProfessionalNavbar = ({
                     <DropdownMenuItem 
                       className="cursor-pointer"
                       onClick={() =>{ 
-                        setActiveItem("profile"); 
                         router.push("/dashboard");
                       }}
                     >
@@ -425,7 +419,6 @@ const ProfessionalNavbar = ({
                                 "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
                             )}
                             onClick={() => {
-                              setActiveItem(item.id);
                               
                               // Add routing behavior similar to desktop
                               if (item.id === "home") {

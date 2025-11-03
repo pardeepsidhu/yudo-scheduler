@@ -105,12 +105,11 @@ const Logo = ({ collapsed = false }) => (
 );
 
 const ResponsiveNav: React.FC<ResponsiveNavProps> = ({ 
-  userName, 
+  userName , 
   userEmail ,
   userImage ,
   onLogout,
   activeItem,
-  setActiveItem
 }) => {
   // State management
   const [collapsed, setCollapsed] = useState<boolean>(true);
@@ -120,7 +119,6 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
 
   // Menu items
   const menuItems: MenuItem[] = [
-    { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
     { id: "timesheet", label: "Timesheet", icon: Calendar },
     { id: "tasks", label: "Tasks", icon: CheckSquare },
     { id: "reminders", label: "Reminders", icon: Clock },
@@ -250,7 +248,7 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
                       active={activeItem === item.id}
                       isMobile={true}
                       onClick={() => {
-                        setActiveItem(item.id);
+                        router.push(`/${item.id}`)
                         setMobileMenuOpen(false);
                       }}
                     />
@@ -350,7 +348,7 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
               label={item.label}
               active={activeItem === item.id}
               collapsed={collapsed}
-              onClick={() => setActiveItem(item.id)}
+              onClick={() => router.push(`/${item.id}`)}
             />
           ))}
 
