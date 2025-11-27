@@ -1,6 +1,6 @@
 // components/TaskDialog.tsx
 import { useState, useEffect } from 'react';
-import { getTaskById, updateTask } from '../api/taskApi';
+import { getTaskById, updateTask } from '../../api/taskApi';
 import { formatDistance, format } from 'date-fns';
 import { toast } from 'sonner';
 import { 

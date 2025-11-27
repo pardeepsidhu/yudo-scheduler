@@ -3,8 +3,8 @@ import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { Calendar, ChevronLeft, ChevronRight, Download, RefreshCw, Loader2 } from 'lucide-react';
-import { getTaskByTimeFrames } from '../api/taskApi';
+import { Calendar, ChevronLeft, ChevronRight, Download, RefreshCw, Loader2, Loader } from 'lucide-react';
+import { getTaskByTimeFrames } from '../../api/taskApi';
 
 interface TimeEntry {
   stated: string;
@@ -307,11 +307,11 @@ const TimesheetAnalytics = () => {
   }, [timeframe, currentDate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 pt-0 sm:pt-2 p-2 ">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 pt-0  ">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white shadow-lg rounded-sm overflow-hidden border border-slate-200 mb-2 ">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-4 sm:py-6">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-4 ">
             <div className="flex flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-sm flex items-center justify-center">
@@ -421,14 +421,14 @@ const TimesheetAnalytics = () => {
         )}
 
         {isLoading ? (
-          <div className="flex flex-col justify-center items-center h-64 bg-white rounded-sm shadow-sm">
-            <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
-            <span className="text-slate-600 font-medium">Loading analytics...</span>
-          </div>
+          <div className="flex flex-col justify-center items-center py-20">
+                <Loader className="w-10 h-10 text-blue-600 animate-spin mb-4" />
+                <span className="text-slate-600 font-medium">Loading Analytics...</span>
+              </div>
         ) : (
           <>
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-1  mb-2 ">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-1  mb-2 px-2 ">
               <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-sm sm:rounded-sm p-4 sm:p-6 text-white shadow-lg">
                 <h3 className="text-xs sm:text-sm font-medium mb-1 text-blue-100">Total Hours</h3>
                 <p className="text-2xl sm:text-3xl font-bold">{Math.round((totalTime / 60) * 10) / 10}</p>
@@ -459,7 +459,7 @@ const TimesheetAnalytics = () => {
             </div>
 
             {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2  mb-2 ">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-2  mb-2 px-2 ">
               <div className="bg-white rounded-sm sm:rounded-sm p-2 sm:p-6 shadow-sm border border-slate-200 lg:col-span-2">
                 <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">Hours Logged by Day</h3>
                 <div className="h-64 sm:h-72">
@@ -504,7 +504,7 @@ const TimesheetAnalytics = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 mb-2 ">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 mb-2 px-2">
               <div className="bg-white rounded-sm sm:rounded-sm p-2 sm:p-6 shadow-sm border border-slate-200">
                 <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">Task Trend</h3>
                 <div className="h-64 sm:h-72">
@@ -545,7 +545,7 @@ const TimesheetAnalytics = () => {
             </div>
 
             {/* Recent Tasks */}
-            <div className="bg-white rounded-sm sm:rounded-sm p-4 sm:p-6 shadow-sm border border-slate-200">
+            <div className="bg-white  p-4 sm:p-6 shadow-sm border border-slate-200">
               <h3 className="text-base sm:text-lg font-semibold text-slate-900 mb-4">Recent Tasks</h3>
               <div className="overflow-x-auto">
                 <table className="w-full">

@@ -72,13 +72,13 @@ function FloatingBlob({
         }}
       >
         <div
-          style={{ width: size, height: size }}
+          style={{ width: size, height: size ,opacity}}
           className={cn(
             'rounded-full opacity-30',
             colorMap[color],
             blur
           )}
-          style={{ opacity }}
+          // style={{ opacity }}
         />
       </motion.div>
     </motion.div>

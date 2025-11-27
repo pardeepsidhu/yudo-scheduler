@@ -9,7 +9,7 @@ import {
   Loader,
   AlertCircle
 } from 'lucide-react';
-import { getTaskByTimeFrames } from '../api/taskApi';
+import { getTaskByTimeFrames } from '../../api/taskApi';
 
 interface TimeEntry {
   stated: string;

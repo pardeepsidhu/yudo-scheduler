@@ -8,7 +8,7 @@ import { CalendarIcon, Clock, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 // API imports
-import { createTask, deleteTask, TaskPriority, TaskStatus } from '../api/taskApi';
+import { createTask, deleteTask, TaskPriority, TaskStatus } from '../../api/taskApi';
 
 // UI Components
 import { Button } from '@/components/ui/button';

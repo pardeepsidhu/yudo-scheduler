@@ -63,6 +63,7 @@ export default function RootLayout({
     <html lang="en">
       <body cz-shortcut-listen="true" className="antialiased">
           <Navbar />
+            <div className="h-18 bg-red lg:hidden" />
           {children}
           {/* ✅ Add React Hot Toast globally */}
           <Toaster

@@ -41,7 +41,7 @@ import {
   CalendarDays,
 } from "lucide-react"
 import { format } from "date-fns"
-import { generateAIContent } from "../api/reminderService"
+import { generateAIContent } from "../../api/reminderService"
 // Types
 interface Reminder {
   status: string;
@@ -98,6 +98,7 @@ export default function RemindersComponent() {
   // Fetch reminders from API
   const fetchReminders = async (reset = false) => {
     setIsLoading(true)
+    setInitialLoading(true)
     if (reset) {
       setPage(1)
       setReminders([])
@@ -108,7 +109,7 @@ export default function RemindersComponent() {
       const currentPage = reset ? 1 : page
 
       // Import API functions dynamically
-      const { getAllReminders } = await import("../api/reminderService")
+      const { getAllReminders } = await import("../../api/reminderService")
 
       const result: any = await getAllReminders(token, currentPage, pageSize, activeTab)
 
@@ -151,7 +152,7 @@ export default function RemindersComponent() {
       const token = getToken()
 
       // Import API functions dynamically
-      const { scheduleEmail } = await import("../api/reminderService")
+      const { scheduleEmail } = await import("../../api/reminderService")
 
       const result: any = await scheduleEmail(newReminder, token, setAiPrompt)
 
@@ -187,7 +188,7 @@ export default function RemindersComponent() {
       const token = getToken()
 
       // Import API functions dynamically
-      const { deleteReminder } = await import("../api/reminderService")
+      const { deleteReminder } = await import("../../api/reminderService")
 
       const result: any = await deleteReminder(deleteReminderData.id, token)
 
@@ -248,14 +249,14 @@ export default function RemindersComponent() {
   }
 
   return (
-    <div className="container mx-auto border-1">
+    <div className="container mx-auto ">
   {/* Header with title and new reminder button */}
-  <div className="py-2 sm:py-6 mb-2 px-4 rounded-b-none border-1 bg-white flex-col sm:flex-row justify-between items-center hidden md:flex">
+  <div className="py-2 sm:py-5 mb-2 px-4 rounded-b-none border-1 bg-gradient-to-r from-blue-600 to-indigo-600 flex-col sm:flex-row justify-between items-center hidden md:flex">
     <div className="flex items-center gap-2 mb-4 sm:mb-0">
-      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-sm flex items-center justify-center">
+      <div className="w-10 h-10 bg-white/20 rounded-sm flex items-center justify-center">
         <Bell className="h-5 w-5 text-white" />
       </div>
-      <h1 className="text-xl sm:text-2xl font-bold text-gray-900">My Reminders</h1>
+      <h1 className="text-xl sm:text-2xl font-bold text-white">My Reminders</h1>
       {!initialLoading && reminders.length > 0 && (
         <Badge variant="secondary" className="ml-2 bg-blue-50 text-blue-700 font-semibold border-blue-200">
           {reminders.length} of {total}
@@ -263,12 +264,12 @@ export default function RemindersComponent() {
       )}
     </div>
     <div className="flex gap-3">
-      <Button onClick={handleCreateReminder} className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md">
+      <Button onClick={handleCreateReminder} className="flex items-center gap-2 px-4 py-2.5 bg-white text-blue-600 rounded-sm hover:bg-blue-50 transition-all font-bold">
         <Plus className="mr-2 h-4 w-4" /> New Reminder
       </Button>
       <button
         onClick={handleRefresh}
-        className="p-2 text-gray-600 hover:bg-gray-100 rounded-full transition-all"
+        className="p-2 text-white hover:bg-gray-100 rounded-full transition-all"
         title="Refresh"
         disabled={isLoading}
       >
@@ -294,7 +295,7 @@ export default function RemindersComponent() {
   )}
 
   {/* Main card with reminder list */}
-  <Card className="border shadow-lg rounded-t-none py-2 py-4 gap-1 sm:gap-3 bg-white">
+  <Card className="border shadow-lg rounded-t-none py-2 py-4 gap-1 sm:gap-3 bg-white min-h-screen">
     <CardHeader className="pb-1 sm:pb-3 space-y-4 px-2 sm-px-6 gap-none gap-0">
       <div className="flex justify-between items-center md:hidden">
         <div className="flex items-center gap-3">

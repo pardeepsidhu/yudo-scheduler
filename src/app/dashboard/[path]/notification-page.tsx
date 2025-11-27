@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell, MessageSquare, ShieldAlert, Check, X, RefreshCw, AlertCircle, FileText, ChevronDown, Filter, CheckCheck, Inbox } from "lucide-react";
-import { fetchNotifications } from '../api/userApi';
+import { fetchNotifications } from '../../api/userApi';
 
 
 interface Notification {

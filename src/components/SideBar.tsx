@@ -1,8 +1,7 @@
 'use client'
 import React, { useState, useEffect } from "react";
-import { Calendar, LayoutDashboard, Clock, Bell, Users, ChevronRight, ChevronLeft, LogOut, PieChart, CheckSquare, Menu, X, Home, Info } from "lucide-react";
+import { Calendar, LayoutDashboard, Clock, Bell, Users, ChevronRight, ChevronLeft, LogOut, PieChart, CheckSquare, Menu, Home, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import LogoutConfirmation from './logout';
@@ -49,20 +48,21 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
 }) => {
   if (isMobile) {
     return (
-      <Button
-        variant="ghost"
-        size="default"
+      <button
         className={cn(
-          "w-full justify-start mb-2 relative",
-          active ? "bg-gradient-to-r from-teal-500/10 to-emerald-500/10 text-teal-600" : 
-          "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+          "w-full flex items-center px-4 py-3 mb-1 relative rounded-sm transition-all duration-200 font-medium text-sm",
+          active 
+            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md" 
+            : "text-slate-700 hover:bg-slate-100 hover:text-blue-600"
         )}
         onClick={onClick}
       >
-        <Icon className="h-5 w-5 mr-3 " />
+        <Icon className="h-5 w-5 mr-3 flex-shrink-0" strokeWidth={active ? 2.5 : 2} />
         <span>{label}</span>
-        {active && <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-teal-500 to-emerald-500 rounded-r-md" />}
-      </Button>
+        {active && (
+          <div className="absolute right-3 w-1.5 h-1.5 bg-white rounded-full"></div>
+        )}
+      </button>
     );
   }
 
@@ -70,39 +70,31 @@ const SidebarItem: React.FC<SidebarItemProps> = ({
     <TooltipProvider delayDuration={0}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size={collapsed ? "icon" : "default"}
+          <button
             className={cn(
-              "w-full justify-start mb-1 relative",
-              active ? "bg-gradient-to-r from-teal-500/10 to-emerald-500/10 text-teal-600 hover:from-teal-500/20 hover:to-emerald-500/20 pl-1" : 
-              "text-gray-600 hover:text-teal-600 hover:bg-teal-50"
+              "w-full flex items-center transition-all duration-200 font-medium text-sm rounded-sm relative group",
+              collapsed ? "justify-center p-3" : "px-4 py-3",
+              active 
+                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md" 
+                : "text-slate-700 hover:bg-slate-100 hover:text-blue-600"
             )}
             onClick={onClick}
           >
-            <Icon className={cn("h-5 w-5", collapsed ? "" : "mr-3 ")} />
-            {!collapsed && <span>{label}</span>}
-            {active && <div className="absolute -left-1 top-0 bottom-0 w-1 bg-gradient-to-b from-teal-500 to-emerald-500 rounded-r-md" />}
-          </Button>
+            <Icon className={cn("h-5 w-5 flex-shrink-0", !collapsed && "mr-3")} strokeWidth={active ? 2.5 : 2} />
+            {!collapsed && <span className="truncate">{label}</span>}
+            {active && !collapsed && (
+              <div className="absolute right-3 w-1.5 h-1.5 bg-white rounded-full"></div>
+            )}
+            {active && collapsed && (
+              <div className="absolute right-1 w-1 h-1 bg-white rounded-full"></div>
+            )}
+          </button>
         </TooltipTrigger>
-        {collapsed && <TooltipContent side="right">{label}</TooltipContent>}
+        {collapsed && <TooltipContent side="right" className="font-medium">{label}</TooltipContent>}
       </Tooltip>
     </TooltipProvider>
   );
 };
-
-const Logo = ({ collapsed = false }) => (
-  <div className="flex items-center">
-    <div className="h-8 w-8 bg-[#5F61C4] rounded-md flex items-center justify-center shadow-sm">
-      <Calendar className="h-5 w-5 text-white" />
-    </div>
-    {!collapsed && (
-      <span className="ml-2 font-bold text-gray-800">
-        YUDO <span className="text-teal-600">Scheduler</span>
-      </span>
-    )}
-  </div>
-);
 
 const ResponsiveNav: React.FC<ResponsiveNavProps> = ({ 
   userName , 
@@ -112,7 +104,7 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
   activeItem,
 }) => {
   // State management
-  const [collapsed, setCollapsed] = useState<boolean>(true);
+  const [collapsed, setCollapsed] = useState<boolean>(false);
   const [isMobile, setIsMobile] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const router = useRouter()
@@ -133,7 +125,6 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
     if (onLogout) {
       onLogout();
     } else {
-      // Default redirect to login page
       window.location.href = '/login';
     }
   };
@@ -156,28 +147,28 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
   const MobileLogoutButton = () => (
     <LogoutConfirmation 
       onLogoutConfirmed={handleLogoutSuccess}
-      buttonClassName="w-full justify-start text-gray-600 hover:text-rose-600 hover:bg-rose-50"
+      buttonClassName="w-full flex items-center px-4 py-3 rounded-sm text-slate-700 hover:bg-red-50 hover:text-red-600 transition-all font-medium text-sm"
       buttonContent={
         <>
-          <LogOut className="h-5 w-5 mr-3" />
+          <LogOut className="h-5 w-5 mr-3 flex-shrink-0" strokeWidth={2} />
           <span>Logout</span>
         </>
       }
     />
   );
 
-  // Custom logout button for desktop (considering collapsed state)
+  // Custom logout button for desktop
   const DesktopLogoutButton = () => (
     <LogoutConfirmation 
       onLogoutConfirmed={handleLogoutSuccess}
       buttonClassName={cn(
-        "w-full justify-start text-gray-600 hover:text-rose-600 hover:bg-rose-50",
-        collapsed ? "flex items-center justify-center" : ""
+        "w-full flex items-start transition-all duration-200 font-medium text-sm rounded-sm text-slate-700 hover:bg-red-50 hover:text-red-600",
+        collapsed ? "justify-center p-3" : "px-4 py-3"
       )}
       buttonContent={
         <>
-          <LogOut className={cn("h-5 w-5", collapsed ? "" : "mr-3")} />
-          {!collapsed && <span>Logout</span>}
+          <LogOut className={cn("h-5 w-5 flex-shrink-0", !collapsed && "mr-3")} strokeWidth={2} />
+          {!collapsed && <span className="truncate">Logout</span>}
         </>
       }
       tooltipContent={collapsed ? "Logout" : undefined}
@@ -186,59 +177,54 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
 
   // Mobile navbar component
   const MobileNavbar = () => (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-teal-100 shadow-sm">
-      <div className="flex items-center justify-between px-4 py-3">
-      <div className="h-9 overflow-hidden ">
-             <Image alt="Yudo Scheduler" src={"/logo.png"} className="relative bottom-[36px]" height={110} width={110} />
-             </div>
-        <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8 border-2 border-teal-100">
-            <AvatarImage src={userImage} alt={userName} />
-            <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-500 text-white">
-              {userName?.charAt(0).toUpperCase() || "U"}
-            </AvatarFallback>
-          </Avatar>
-          
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild>
-              <Button variant="ghost" size="icon" className="text-gray-600">
-                <Menu className="h-6 w-6" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="w-[260px] p-0">
-              <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between p-4 border-b border-teal-100">
-                <div className="h-10 overflow-hidden">
-             <Image alt="Yudo Scheduler" src={"/logo.png"} className="relative bottom-[44px] right-[10px]" height={110} width={130} />
-             </div>
-                  {/* <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(false)}>
-                    <X className="h-5 w-5 text-gray-600" />
-                  </Button> */}
-                </div>
-                
-                <div className="flex items-center p-4 border-b border-teal-100">
-                  <Avatar className="h-10 w-10 border-2 border-teal-100">
-                    <AvatarImage src={userImage} alt={userName} />
-                    <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-500 text-white">
-                      {userName?.charAt(0).toUpperCase() || "U"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="ml-3 overflow-hidden">
-                    <p className="font-medium text-gray-800 truncate">{userName}</p>
-                    <p className="text-xs text-gray-500 truncate">{userEmail}</p>
+    <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 shadow-lg">
+      <div className="flex items-center justify-between px-4 py-3.5">
+        <div className="flex items-center gap-2.5">
+          <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-sm flex items-center justify-center shadow-md">
+            <Calendar className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="font-bold text-slate-900 text-base leading-none">YUDO Scheduler</h1>
+            <p className="text-xs text-slate-500 leading-none mt-0.5">Task Management</p>
+          </div>
+        </div>
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <button className="p-2 text-slate-700 hover:bg-slate-100 rounded-sm transition-colors">
+              <Menu className="h-6 w-6" strokeWidth={2} />
+            </button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[300px] p-0 border-slate-200">
+            <div className="flex flex-col h-full bg-white">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 shadow-lg">
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 bg-white/20 backdrop-blur-sm rounded-sm flex items-center justify-center shadow-md">
+                    <Calendar className="h-7 w-7 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-white text-lg leading-none">YUDO Scheduler</h2>
+                    <p className="text-blue-100 text-sm leading-none mt-1">Task Management System</p>
                   </div>
                 </div>
-                
-                <nav className="flex-1 overflow-y-auto p-4">
-              <SidebarItem
-              key={"home"}
-              icon={Home}
-              label={"Home"}
-              active={false}
-              isMobile={true}
-              collapsed={collapsed}
-              onClick={() =>router.push("/")}
-            />
+              </div>
+              
+              {/* Navigation */}
+              <nav className="flex-1 overflow-y-auto p-4 bg-slate-50/50">
+                <div className="space-y-1">
+                  <SidebarItem
+                    key={"home"}
+                    icon={Home}
+                    label={"Home"}
+                    active={activeItem === "home"}
+                    isMobile={true}
+                    onClick={() => {
+                      router.push("/");
+                      setMobileMenuOpen(false);
+                    }}
+                  />
+
+                  <div className="h-px bg-slate-200 my-3"></div>
 
                   {menuItems.map((item) => (
                     <SidebarItem
@@ -248,30 +234,35 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
                       active={activeItem === item.id}
                       isMobile={true}
                       onClick={() => {
-                        router.push(`/${item.id}`)
+                        router.push(`/dashboard/${item.id}`)
                         setMobileMenuOpen(false);
                       }}
                     />
                   ))}
 
-            <SidebarItem
-              key={"about"}
-              isMobile={true}
-              icon={Info}
-              label={"About"}
-              active={false}
-              collapsed={collapsed}
-              onClick={() =>router.push("/about")}
-            />
-                </nav>
-                
-                <div className="p-4 border-t border-teal-100">
-                  <MobileLogoutButton />
+                  <div className="h-px bg-slate-200 my-3"></div>
+
+                  <SidebarItem
+                    key={"about"}
+                    isMobile={true}
+                    icon={Info}
+                    label={"About"}
+                    active={activeItem === "about"}
+                    onClick={() => {
+                      router.push("/about");
+                      setMobileMenuOpen(false);
+                    }}
+                  />
                 </div>
+              </nav>
+              
+              {/* Logout */}
+              <div className="p-4 w-[fit-content] border-t border-slate-200 bg-white">
+                <MobileLogoutButton />
               </div>
-            </SheetContent>
-          </Sheet>
-        </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </div>
   );
@@ -280,66 +271,82 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
   const DesktopSidebar = () => (
     <div 
       className={cn(
-        "hidden lg:flex h-screen flex-col transition-all duration-300 border-r border-teal-100 shadow-sm",
-        collapsed ? "w-20" : "w-64"
+        "hidden lg:flex h-screen flex-col transition-all duration-300 ease-in-out border-r border-slate-200 shadow-xl bg-white ",
+        collapsed ? "w-[80px]" : "min-w-[280px]"
       )}
     >
-      {/* Logo and Collapse Button */}
-      <div className={cn(
-        "flex items-center border-b border-teal-100",
-        collapsed ? "justify-center p-4" : "justify-between p-4"
-      )}>
-        {!collapsed ? (
-          <div className="h-10 overflow-hidden">
-             <Image alt="Yudo Scheduler" src={"/logo.png"} className="relative bottom-[44px] right-[10px]" height={110} width={130} />
-             </div>
-        ) : (
-          <Logo collapsed={true} />
-        )}
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => setCollapsed(!collapsed)}
-          className="text-gray-500 hover:bg-teal-50"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-        </Button>
-      </div>
+      {/* Logo Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg relative">
+        <div className={cn(
+          "flex items-center transition-all duration-300",
+          collapsed ? "justify-center p-4" : "justify-between px-6 py-5"
+        )}>
+          {!collapsed ? (
+            <>
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 bg-white/20 backdrop-blur-sm rounded-sm flex items-center justify-center shadow-lg">
+                <Calendar className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h2 className="font-bold text-white text-base leading-none">YUDO Scheduler</h2>
+                <p className="text-blue-100 text-xs leading-none mt-1">Task Management</p>
+              </div>
+            </div>
+            <button
+            onClick={() => setCollapsed(!collapsed)}
+            className={cn(
+              "text-white hover:bg-white/20 rounded-sm transition-all p-2"
+            )}
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <ChevronRight size={16} strokeWidth={3} /> : <ChevronLeft size={18} strokeWidth={2.5} />}
+          </button>
+          </>
+          ) : (
+            <>
+            <div className="relative">
+  <div className="h-8 w-8 bg-white/20 backdrop-blur-sm rounded-sm flex items-center justify-center shadow-lg">
+    <Calendar className="h-6 w-6 text-white" />
+  </div>
 
-      {/* User Profile */}
-      <div className={cn(
-        "flex items-center border-b border-teal-100 p-4",
-        collapsed ? "justify-center" : ""
-      )}>
-        <Avatar className="h-9 w-9 border-2 border-teal-100">
-          <AvatarImage src={userImage} alt={userName} />
-          <AvatarFallback className="bg-gradient-to-br from-teal-500 to-emerald-500 text-white">
-            {userName?.charAt(0).toUpperCase() || "U"}
-          </AvatarFallback>
-        </Avatar>
-        {!collapsed && (
-          <div className="ml-3 overflow-hidden">
-            <p className="text-sm font-medium text-gray-800 truncate">{userName}</p>
-            <p className="text-xs text-gray-500 truncate">{userEmail}</p>
-          </div>
-        )}
+  <button
+    onClick={() => setCollapsed(!collapsed)}
+    aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+    className={cn(
+      " rounded-sm transition-all p-0",
+      "absolute top-1/2 -translate-y-1/2",         // vertically centered
+      collapsed
+        ? "right-[-28px] h-8 w-8  text-white  flex items-center justify-center rounded-full"
+        : "right-0"                                // normal state
+    )}
+  >
+    {collapsed ? (
+      <ChevronRight size={18} strokeWidth={2.5} />
+    ) : (
+      <ChevronLeft size={18} strokeWidth={2.5} />
+    )}
+  </button>
+</div>
+
+          </>
+          )}
+          
+        </div>
       </div>
 
       {/* Navigation Menu */}
-      <div className="flex-1 overflow-y-auto p-3">
-        <nav className="space-y-1 ">
-                 
-            <SidebarItem
-              key={"home"}
-              icon={Home}
-              label={"Home"}
-              active={false}
-              collapsed={collapsed}
-              onClick={() =>router.push("/")}
-            />
+      <div className="flex-1 overflow-y-auto bg-gradient-to-b from-slate-50 to-white">
+        <nav className={cn("space-y-1 transition-all duration-300", collapsed ? "p-3" : "p-4")}>
+          <SidebarItem
+            key={"home"}
+            icon={Home}
+            label={"Home"}
+            active={activeItem === "home"}
+            collapsed={collapsed}
+            onClick={() => router.push("/")}
+          />
 
-    
+          <div className={cn("bg-slate-200 my-3 transition-all", collapsed ? "h-px" : "h-px")}></div>
 
           {menuItems.map((item) => (
             <SidebarItem
@@ -348,36 +355,43 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
               label={item.label}
               active={activeItem === item.id}
               collapsed={collapsed}
-              onClick={() => router.push(`/${item.id}`)}
+              onClick={() => router.push(`/dashboard/${item.id}`)}
             />
           ))}
 
-            <SidebarItem
-              key={"about"}
-              icon={Info}
-              label={"About"}
-              active={false}
-              collapsed={collapsed}
-              onClick={() =>router.push("/about")}
-            />
+          <div className={cn("bg-slate-200 my-3 transition-all", collapsed ? "h-px" : "h-px")}></div>
+
+          <SidebarItem
+            key={"about"}
+            icon={Info}
+            label={"About"}
+            active={activeItem === "about"}
+            collapsed={collapsed}
+            onClick={() => router.push("/about")}
+          />
         </nav>
       </div>
 
       {/* Logout Button */}
-      <div className="p-3 border-t border-teal-100">
+      <div className={cn("border-t border-slate-200 bg-white w-[fit-content] flex justify-start shadow-inner transition-all duration-300", collapsed ? "p-3" : "p-4")}>
         <TooltipProvider delayDuration={0}>
           <DesktopLogoutButton />
         </TooltipProvider>
       </div>
+
+      {/* Bottom Accent */}
+      <div className="h-1 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
     </div>
   );
 
   return (
     <>
+     
       {isMobile ? <MobileNavbar /> : <DesktopSidebar />}
       
-      {/* Add padding to main content area when mobile navbar is present */}
-      {isMobile && <div className="h-14"></div>}
+      {/* Spacer for content - IMPORTANT for layout */}
+       {/* <div className={cn("hidden lg:block transition-all duration-300", collapsed ? "w-[80px]" : "w-[280px]")}></div> */}
+     
     </>
   );
 };

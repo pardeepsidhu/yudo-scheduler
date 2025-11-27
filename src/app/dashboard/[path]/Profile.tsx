@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useState } from 'react';
 import { User, Phone, Camera, Save, Mail, Edit, Check, X, AlertCircle, ChevronRight, Shield, Loader } from 'lucide-react';
 
@@ -15,7 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { fetchUser, sendRestPassLink, sendTelegramLink, updateProfile } from '../api/userApi';
+import { fetchUser, sendRestPassLink, sendTelegramLink, updateProfile } from '../../api/userApi';
 import toast from 'react-hot-toast';
 
 
