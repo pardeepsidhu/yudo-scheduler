@@ -22,7 +22,7 @@ const QuickLogin = () => {
   useEffect(() => {
     if (!isClient) return;
     
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e:any) => {
       setMousePosition({
         x: e.clientX,
         y: e.clientY
@@ -39,16 +39,16 @@ const QuickLogin = () => {
     
     try {
       const urlParams = new URLSearchParams(window.location.search);
-      const tokenParam = urlParams.get('token');
+      const tokenParam:any = urlParams.get('token');
       setToken(tokenParam);
       
       if (!tokenParam) {
-        setError("No login token found in URL");
+        toast.error("No login token found in URL");
         setLoading(false);
       }
     } catch (err) {
       console.error("Error parsing URL parameters:", err);
-      setError("Invalid URL parameters");
+      toast.error("Invalid URL parameters");
       setLoading(false);
     }
   }, [isClient]);
@@ -74,9 +74,9 @@ const QuickLogin = () => {
         setTimeout(() => {
           window.location.href = "/dashboard";
         }, 1500);
-      } catch (error) {
+      } catch (error:any) {
         console.error("Login error:", error);
-        setError(error.message || "Something went wrong. Please try again.");
+        toast.error(error.message || "Something went wrong. Please try again.");
         toast.error(error.message || "Authentication failed");
       } finally {
         setLoading(false);

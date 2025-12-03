@@ -189,3 +189,141 @@ export async function fetchNotifications(options?: {
   return result
 }
 
+
+export const sendOtp = async (email, password, setMessage, setReceivedOtp, setOtpSent, setOtpTimer, setWaiting) => {
+  try {
+    setWaiting(true);
+    // Replace with your actual API call
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/user/sendotp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      setReceivedOtp(data.otp);
+      setOtpSent(true);
+      setOtpTimer(60); // 60 second timer
+      setMessage.succes("OTP sent to your email");
+    } else {
+      setMessage.error(data.error || "Failed to send OTP");
+    }
+  } catch (error) {
+    setMessage.error("An error occurred while sending OTP");
+  } finally {
+    setWaiting(false);
+  }
+};
+
+
+
+export const verifyOtp = async (email, otp, password, setMessage, navigate, setWaiting, setUser) => {
+  try {
+    setWaiting(true);
+    // Replace with your actual API call
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/user/verifyotp`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, otp, password })
+    });
+    
+    const data = await response.json();
+    
+ 
+    if (response.ok && !data?.error) {
+      localStorage.setItem("user", JSON.stringify(data));
+      setUser(data.user);
+      navigate("/dashboard/profile");
+    } else {
+      setMessage.error(data.error || "OTP verification failed");
+    }
+  } catch (error) {
+    setMessage.error("An error occurred during verification");
+  } finally {
+    setWaiting(false);
+  }
+};
+
+
+
+export const handleResetPassword =async(setWaiting,password,setMessage,navigate)=>{
+    try {
+      setWaiting(true);
+      // Replace with your actual API call
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/user/reset?resetId=${resetId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({password })
+      });
+      
+      const data = await response.json();
+      if (response.ok) {
+        setMessage.success("password changed login please")
+        navigate("/login");
+      } else {
+        setMessage.error(data.error || "Authentication failed");
+      }
+    } catch (error) {
+      setMessage.error("An error occurred during resent password");
+    } finally {
+      setWaiting(false);
+    }
+  }
+
+
+export const handleSignIn = async (email, password, setMessage, e, navigate, setWaiting, setUser) => {
+  try {
+    setWaiting(true);
+    // Replace with your actual API call
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/user/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    
+    const data = await response.json();
+    
+    if (response.ok) {
+      setMessage.success("Login successfuly !")
+      localStorage.setItem("user", JSON.stringify(data));
+      setUser(data.user);
+      navigate("/dashboard/profile");
+    } else {
+      setMessage.error(data.error || "Authentication failed");
+    }
+  } catch (error) {
+    setMessage.error("An error occurred during sign in");
+  } finally {
+    setWaiting(false);
+  }
+};
+
+export const handleQuickLogin = async(setMessage,email,setWaiting)=>{
+    if(!email){
+      setMessage.error("Please fill email to get quick link")
+    }
+    else{
+      try {
+        setWaiting(true);
+   
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/user/sendQuickLogin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({email })
+        });
+        
+       let data = await response.json()
+        if (response.ok) {
+          setMessage.success("Link sent successfuly please check inbox")
+        } else {
+          setMessage.error("An error occurred while sending quick link");
+        }
+      } catch (error) {
+        setMessage.error("An error occurred while sending quick link");
+      } finally {
+        setWaiting(false);
+      }
+    }
+  }

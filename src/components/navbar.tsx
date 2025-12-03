@@ -276,7 +276,7 @@ const ProfessionalNavbar = ({
                         variant="ghost"
                         size="sm"
                         className="text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-sm font-medium transition-all"
-                        onClick={() => router.push("/profile")}
+                        onClick={() => router.push("/dashboard/profile")}
                       >
                         <Users className="h-4 w-4 mr-2" />
                         <span>Profile</span>
@@ -330,7 +330,7 @@ const ProfessionalNavbar = ({
                     <DropdownMenuSeparator className="bg-slate-200" />
                     <DropdownMenuItem 
                       className="cursor-pointer rounded-sm hover:bg-slate-50 font-medium"
-                      onClick={() => router.push("/profile")}
+                      onClick={() => router.push("/dashboard/profile")}
                     >
                       <Users className="h-4 w-4 mr-2" />
                       <span>Profile</span>

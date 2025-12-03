@@ -103,27 +103,27 @@ export const TimeSheet = () => {
     <section id='time-management' className="bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
       {/* Hero Section */}
       <div className="container mx-auto px-4 overflow-hidden">
-        <div className="py-24 relative">
+        <div className="py-3 sm:py-15 relative">
         
-          <div className="absolute top-20 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
+          <div className="absolute top-50 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 right-10 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
           
           <motion.div 
-            className="text-center mb-16 relative z-10"
+            className="text-center sm:mb-0 relative z-10"
             initial={{ opacity: 0, y: -20 }}
             animate={isVisible ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
           >
             <Badge className="mb-4 px-4 py-1 bg-primary/10 text-primary border-primary/20 text-sm font-medium">Time Management Reimagined</Badge>
             <motion.h1 
-              className="text-5xl md:text-6xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600"
+              className="text-3xl md:text-6xl font-bold mb-2 sm:mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600"
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
               About Yudo <AuroraText>Scheduler</AuroraText> 
             </motion.h1>
             <motion.p 
-              className="text-xl md:text-2xl max-w-3xl mx-auto text-slate-600 dark:text-slate-300 leading-relaxed"
+              className="text-sm md:text-2xl max-w-3xl mx-auto text-slate-600 dark:text-slate-300 leading-relaxed"
               initial={{ opacity: 0 }}
               animate={isVisible ? { opacity: 1 } : {}}
               transition={{ duration: 0.8, delay: 0.3 }}
@@ -136,7 +136,7 @@ export const TimeSheet = () => {
         {/* Main Info Section with Image */}
 
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-16 mb-32">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10 mb-5">
           <motion.div 
             className="flex items-center justify-center"
             initial={{ opacity: 0, x: -50 }}
@@ -183,16 +183,16 @@ export const TimeSheet = () => {
             animate={isVisible ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.7, delay: 0.4 }}
           >
-            <h2 className="text-4xl font-bold mb-8 relative">
+            <h2 className="text-2xl sm:text-4xl font-bold mb-4 sm:mb-2 relative">
               Your Time. <AuroraText>Optimized.</AuroraText> 
               <div className="h-1 w-20 bg-primary mt-4 rounded-full"></div>
             </h2>
             
-            <p className="text-lg mb-6 text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p className="text-md sm:text-lg mb-2 sm:mb-2 text-slate-600 dark:text-slate-300 leading-relaxed">
               Born from the need for better time management solutions, Yudo Scheduler helps professionals from all industries track their time with precision and ease.
             </p>
             
-            <ul className="space-y-4 mb-8">
+            <ul className="space-y-2 mb-4 sm:mb-2">
               {[
                 "Increase billing accuracy by up to 25%",
                 "Reduce administrative overhead by automating time tracking",
@@ -214,7 +214,7 @@ export const TimeSheet = () => {
               ))}
             </ul>
             
-            <p className="text-lg mb-8 text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p className="text-lg mb-4 text-slate-600 dark:text-slate-300 leading-relaxed">
               Whether you're a freelancer billing clients, a team manager overseeing projects, or simply someone looking to improve productivity, our intuitive interface and powerful features help you make every minute count.
             </p>
             
@@ -235,7 +235,7 @@ export const TimeSheet = () => {
     
         <div 
           ref={statsRef}
-          className="py-16 mb-24 bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl overflow-hidden relative shadow-xl"
+          className="py-16 mb-5 bg-gradient-to-r from-slate-900 to-slate-800 rounded-3xl overflow-hidden relative shadow-xl"
         >
           <div className="absolute inset-0 bg-primary/5 background-pattern opacity-10"></div>
           <div className="container mx-auto px-6">
@@ -271,20 +271,20 @@ export const TimeSheet = () => {
         
         {/* Features Section */}
         <motion.div
-          className="mb-32"
+          className="mb-5"
           variants={containerVariants}
           initial="hidden"
           animate={isVisible ? "visible" : "hidden"}
         >
-          <div className="text-center mb-16">
+          <div className="text-center mb-5 sm:mb-8">
             <Badge className="mb-3 px-4 py-1 bg-blue-500/10 text-blue-500 border-blue-500/20 text-sm font-medium">Core Functionality</Badge>
-            <h2 className="text-4xl font-bold mb-4">Key Features</h2>
+            <h2 className="text-2xl sm:text-4xl font-bold mb-2">Key Features</h2>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
               Everything you need for complete time management in one intuitive platform
             </p>
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {features.map((feature, index) => (
               <motion.div key={index} variants={itemVariants}>
                 <Card className="h-full hover:shadow-xl transition-all duration-300 border-slate-200 dark:border-slate-700 overflow-hidden group">
@@ -307,16 +307,16 @@ export const TimeSheet = () => {
         </motion.div>
         
         {/* Testimonials */}
-        <div id='customer' className="mb-32">
-          <div className="text-center mb-16">
+        <div id='customer' className="mb-5">
+          <div className="text-center mb-5 sm:mb-8">
             <Badge className="mb-3 px-4 py-1 bg-green-500/10 text-green-500 border-green-500/20 text-sm font-medium">Customer Stories</Badge>
-            <h2 className="text-4xl font-bold mb-4">What Our <AuroraText>Users</AuroraText> Say</h2>
-            <p className="text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+            <h2 className="text-4xl font-bold mb-2">What Our <AuroraText>Users</AuroraText> Say</h2>
+            <p className="text-sm sm:text-xl text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
               Join thousands of satisfied professionals who have transformed their productivity
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {testimonials.map((testimonial, index) => (
               <motion.div 
                 key={index}
@@ -348,7 +348,7 @@ export const TimeSheet = () => {
         
         {/* CTA Section */}
         <motion.div 
-          className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-12 relative overflow-hidden mb-20"
+          className="bg-gradient-to-br from-slate-900 to-slate-800 text-white rounded-2xl p-6 sm:p-12 relative overflow-hidden mb-20"
           initial={{ opacity: 0, y: 40 }}
           animate={isVisible ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.7, delay: 0.2 }}
@@ -362,13 +362,13 @@ export const TimeSheet = () => {
           <div className="relative z-10 flex flex-col md:flex-row items-center">
             <div className="md:w-2/3 mb-10 md:mb-0 md:pr-12">
               <Badge className="mb-6 px-4 py-1 bg-white/10 text-white border-white/20 text-sm font-medium">Get Started Today</Badge>
-              <h2 className="text-4xl font-bold mb-6">Ready to Optimize Your Time?</h2>
-              <p className="text-xl mb-8 text-slate-300 leading-relaxed">
+              <h2 className="text-2xl sm:text-4xl font-bold mb-2 ">Ready to Optimize Your Time?</h2>
+              <p className="text-sm sm:text-xl mb-4 text-slate-300 leading-relaxed">
                 Join thousands of professionals who have transformed their productivity with Yudo Scheduler. Start your journey to better time management today.
               </p>
               <div className="flex flex-wrap gap-4">
                 <motion.button 
-                onClick={()=>router.push('/dashboard')}
+                onClick={()=>router.push('/dashboard/profile')}
                   className="bg-primary hover:bg-primary/90 text-white px-8 py-4 rounded-lg font-medium flex items-center gap-2 shadow-lg shadow-primary/30"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -377,8 +377,8 @@ export const TimeSheet = () => {
                   <ArrowRight className="h-5 w-5" />
                 </motion.button>
                 <motion.button 
-                onClick={()=>router.push('/dashboard')}
-                  className="bg-white/10 hover:bg-white/15 border border-white/20 text-white px-8 py-4 rounded-lg font-medium flex items-center gap-2 backdrop-blur-sm"
+                onClick={()=>router.push('/dashboard/profile')}
+                  className="hidden bg-white/10 hover:bg-white/15 border border-white/20 text-white px-8 py-4 rounded-lg font-medium sm:flex items-center gap-2 backdrop-blur-sm"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >

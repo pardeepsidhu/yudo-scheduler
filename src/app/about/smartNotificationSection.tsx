@@ -103,7 +103,7 @@ const NotificationCard: React.FC<NotificationCardProps> = ({
           >
             <Button 
               variant="ghost" 
-              onClick={()=>router.push('/dashboard')}
+              onClick={()=>router.push('/dashboard/profile')}
               size="sm"
               className={`text-${color}-600 hover:text-${color}-800 hover:bg-${color}-50 group flex items-center gap-1`}
             >
@@ -140,16 +140,16 @@ export function NotificationSection() {
   const router =useRouter()
   
   return (
-    <section id='notifications' className="py-10 bg-gradient-to-b from-white to-gray-50 overflow-hidden relative">
+    <section id='notifications' className="py-2 sm:py-2 bg-gradient-to-b from-white to-gray-50 overflow-hidden relative">
       {/* Background Decorative Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-0 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-20"></div>
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-100 rounded-full blur-3xl opacity-20"></div>
       </div>
       
-      <div className="container mx-auto px-4 relative z-10">
+      <div className="container mx-auto px-2 relative z-10">
         <motion.div 
-          className="text-center mb-16"
+          className="text-center mb-4 sm:mb-16"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -159,7 +159,7 @@ export function NotificationSection() {
             Smart Notifications
           </Badge>
           <motion.h2 
-            className="text-4xl md:text-5xl font-bold text-gray-900 mb-5 leading-tight"
+            className="text-3xl md:text-5xl font-bold text-gray-900 mb-5 leading-tight"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -177,7 +177,7 @@ export function NotificationSection() {
             </span>
           </motion.h2>
           <motion.p 
-            className="text-gray-600 max-w-2xl mx-auto text-lg"
+            className="text-gray-600 max-w-2xl mx-auto text-sm  sm:text-lg"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -188,7 +188,7 @@ export function NotificationSection() {
           </motion.p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-6 mt-2 sm:mt-9">
           <NotificationCard
             title="In-App Alerts"
             description="Get instant notifications directly within the Yudo-Scheduler , Get all login , authentication ,welcome and security alert within Yudo-Schdeuler."
@@ -199,7 +199,7 @@ export function NotificationSection() {
           />
           <NotificationCard
             title="Email Updates"
-            description="Receive detailed summaries of predefined reminders , Never miss important events. keep you life organized and be updated with feature events."
+            description="Receive detailed summaries of reminders , Never miss important events. keep you life organized and be updated with feature events."
             icon={<Mail className="text-green-600" size={24} />}
             imageSrc="/about/email-notification.jpg"
        
@@ -216,14 +216,14 @@ export function NotificationSection() {
         </div>
 
         <motion.div 
-          className="mt-20 text-center"
+          className="mt-4 sm:mt-10 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <motion.h3 
-            className="text-2xl md:text-3xl font-bold text-gray-800 mb-8"
+            className="text-xl md:text-3xl font-bold text-gray-800 mb-4 sm:mb-6"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -232,7 +232,7 @@ export function NotificationSection() {
             Customize Your Notification Experience
           </motion.h3>
           
-          <div className="flex flex-wrap justify-center gap-4 mb-10">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-5">
             <FeatureBadge color="green">
               <div className="flex items-center gap-2">
                 <Star size={16} />
@@ -263,10 +263,11 @@ export function NotificationSection() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             transition={{ duration: 0.2 }}
+            className='mb-3'
           >
             <Button 
               size="lg" 
-              onClick={()=>router.push('/dashboard')}
+              onClick={()=>router.push('/dashboard/profile')}
               className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white font-medium px-8 py-6 shadow-lg hover:shadow-xl rounded-lg transition-all duration-300"
             >
               Explore All Features

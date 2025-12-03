@@ -154,6 +154,7 @@ export default function RemindersComponent() {
       // Import API functions dynamically
       const { scheduleEmail } = await import("../../api/reminderService")
 
+      // console.log("JDjf",newReminder)
       const result: any = await scheduleEmail(newReminder, token, setAiPrompt)
 
       if (result.error) {

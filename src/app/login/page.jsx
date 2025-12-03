@@ -10,88 +10,15 @@ import {
   AlertDescription 
 } from "@/components/ui/alert";
 import { useRouter } from "next/router";
+import { toast } from "react-hot-toast";
+import { handleQuickLogin, handleResetPassword, handleSignIn, sendOtp, verifyOtp } from "../api/userApi";
 
 // Mock API functions (replace with your actual API calls)
-const handleSignIn = async (email, password, setMessage, e, navigate, setWaiting, setUser) => {
-  try {
-    setWaiting(true);
-    // Replace with your actual API call
-    const response = await fetch('https://yudo-reminder-backend.onrender.com/api/v1/user/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    
-    const data = await response.json();
-    
-    if (response.ok) {
-      setMessage("Login successfuly !")
-      localStorage.setItem("user", JSON.stringify(data));
-      setUser(data.user);
-      navigate("/dashboard");
-    } else {
-      setMessage(data.error || "Authentication failed");
-    }
-  } catch (error) {
-    setMessage("An error occurred during sign in");
-  } finally {
-    setWaiting(false);
-  }
-};
 
-const sendOtp = async (email, password, setMessage, setReceivedOtp, setOtpSent, setOtpTimer, setWaiting) => {
-  try {
-    setWaiting(true);
-    // Replace with your actual API call
-    const response = await fetch('https://yudo-reminder-backend.onrender.com/api/v1/user/sendotp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    
-    const data = await response.json();
-    
-    if (response.ok) {
-      setReceivedOtp(data.otp);
-      setOtpSent(true);
-      setOtpTimer(60); // 60 second timer
-      setMessage("OTP sent to your email");
-    } else {
-      setMessage(data.error || "Failed to send OTP");
-    }
-  } catch (error) {
-    setMessage("An error occurred while sending OTP");
-  } finally {
-    setWaiting(false);
-  }
-};
 
-const verifyOtp = async (email, otp, password, setMessage, navigate, setWaiting, setUser) => {
-  try {
-    setWaiting(true);
-    // Replace with your actual API call
-    const response = await fetch('https://yudo-reminder-backend.onrender.com/api/v1/user/verifyotp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, otp, password })
-    });
-    
-    const data = await response.json();
-    
- 
-    if (response.ok) {
-      localStorage.setItem("user", JSON.stringify(data));
-      setUser(data.user);
-      navigate("/dashboard");
-    } else {
-      setMessage(data.error || "OTP verification failed");
-    }
-  } catch (error) {
-    setMessage("An error occurred during verification");
-  } finally {
-    setWaiting(false);
-  }
-};
+
+
+
 
 
 const AuthPage = () => {
@@ -157,37 +84,37 @@ const AuthPage = () => {
   const handleSendOtp = () => {
     // Form validation
     if (!email || !password || !confirmPassword) {
-      setMessage("Please enter all required fields");
+      toast.error("Please enter all required fields");
       return;
     }
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
-      setMessage("Please enter a valid email address");
+      toast.error("Please enter a valid email address");
       return;
     }
 
     if (password.length < 8) {
-      setMessage("Password must have at least 8 characters");
+      toast.error("Password must have at least 8 characters");
       return;
     }
 
     if (password !== confirmPassword) {
-      setMessage("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
-    sendOtp(email, password, setMessage, setReceivedOtp, setOtpSent, setOtpTimer, setWaiting);
+    sendOtp(email, password, toast, setReceivedOtp, setOtpSent, setOtpTimer, setWaiting);
   };
 
   const handleVerifyOtp = (e) => {
     e.preventDefault();
     const otpString = otp.join("");
     if (otpString.length !== 4) {
-      setMessage("Please enter the complete 4-digit OTP");
+      toast.error("Please enter the complete 4-digit OTP");
       return;
     }
-    verifyOtp(email, otpString, password, setMessage, navigate, setWaiting, setUser);
+    verifyOtp(email, otpString, password, toast, navigate, setWaiting, setUser);
   };
 
   const handleLogin = (e) => {
@@ -195,17 +122,17 @@ const AuthPage = () => {
     
     // Form validation
     if (!email || !password) {
-      setMessage("Please enter your email and password");
+      toast.error("Please enter your email and password");
       return;
     }
 
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(email)) {
-      setMessage("Please enter a valid email address");
+      toast.error("Please enter a valid email address");
       return;
     }
 
-    handleSignIn(email, password, setMessage, e, navigate, setWaiting, setUser);
+    handleSignIn(email, password, toast, e, navigate, setWaiting, setUser);
   };
 
   const resetForm = () => {
@@ -218,58 +145,8 @@ const AuthPage = () => {
     setMessage("");
   };
 
-  const handleResetPassword =async()=>{
-    try {
-      setWaiting(true);
-      // Replace with your actual API call
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/user/reset?resetId=${resetId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({password })
-      });
-      
-      const data = await response.json();
-      if (response.ok) {
-        setMessage("password changed login please")
-        navigate("/login");
-      } else {
-        setMessage(data.error || "Authentication failed");
-      }
-    } catch (error) {
-      setMessage("An error occurred during resent password");
-    } finally {
-      setWaiting(false);
-    }
-  }
+ 
 
-  const handleQuickLogin = async()=>{
-    if(!email){
-      setMessage("Please fill email to get quick link")
-    }
-    else{
-      setMessage("")
-      try {
-        setWaiting(true);
-   
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/user/sendQuickLogin`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({email })
-        });
-        
-       let data = await response.json()
-        if (response.ok) {
-          setMessage("Link sent successfuly please check inbox")
-        } else {
-          setMessage("An error occurred while sending quick link");
-        }
-      } catch (error) {
-        setMessage("An error occurred while sending quick link");
-      } finally {
-        setWaiting(false);
-      }
-    }
-  }
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-teal-50 to-emerald-50 flex items-center justify-center p-4">
     <div className="w-full max-w-6xl flex flex-col md:flex-row items-center gap-8 relative">
@@ -343,7 +220,7 @@ const AuthPage = () => {
           {resetId ? (
             <div className="space-y-5">
               <h3 className="text-lg font-semibold text-center text-gray-800">Reset Your Password</h3>
-              <form className="space-y-5" onSubmit={handleResetPassword}>
+              <form className="space-y-5" onSubmit={async ()=>await handleResetPassword(setWaiting,password,toast,navigate)}>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">New Password</label>
                   <div className="flex items-center space-x-2 border border-slate-200 bg-white rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-teal-500 focus-within:border-teal-500 transition-all">
@@ -456,7 +333,7 @@ const AuthPage = () => {
                   
                   <div className="flex items-center">
                   
-                    <p onClick={handleQuickLogin} className="ml-2 text-sm  flex gap-2 text-[forestgreen] cursor-pointer">
+                    <p onClick={async()=>await handleQuickLogin(toast,email,setWaiting)} className="ml-2 text-sm  flex gap-2 text-[forestgreen] cursor-pointer">
                     <MailCheck height={18} width={18} /> Request Quick Loign Link
                     </p>
                   </div>

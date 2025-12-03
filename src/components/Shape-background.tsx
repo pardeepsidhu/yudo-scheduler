@@ -51,10 +51,10 @@ function FloatingCard({
                     repeat: Number.POSITIVE_INFINITY,
                     ease: "easeInOut",
                 }}
-                className="bg-white rounded-sm shadow-xl border border-slate-200 p-4 backdrop-blur-sm"
+                className="bg-white rounded-xl shadow-xl border border-slate-200 p-4 backdrop-blur-sm"
             >
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-sm bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-md">
+                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-md">
                         <Icon className="h-5 w-5 text-white" strokeWidth={2.5} />
                     </div>
                     <div>
@@ -105,7 +105,7 @@ function StatsCard({
                     ease: "easeInOut",
                     delay: delay,
                 }}
-                className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-sm shadow-xl p-4 min-w-[140px]"
+                className="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-xl p-4 min-w-[140px]"
             >
                 <p className="text-3xl font-bold text-white mb-1">{value}</p>
                 <p className="text-xs text-blue-100 font-medium">{label}</p>
@@ -150,7 +150,7 @@ export default function HeroGeometric({
     };
 
     return (
-        <div id="overview" className="relative min-h-[calc(100vh-4rem)] w-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+        <div id="overview" className="relative min-h-[calc(70vh-4rem)] w-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
             {/* Gradient Overlay */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-100/20 via-transparent to-indigo-100/20" />
             
@@ -195,7 +195,7 @@ export default function HeroGeometric({
             />
 
             {/* Main Content */}
-            <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+            <div className="relative z-10 container mx-auto px-1 sm:px-6 lg:px-8 py-2 sm:py-16 lg:py-20">
                 <div className="max-w-5xl mx-auto">
                     {/* Badge */}
                     <motion.div
@@ -203,10 +203,10 @@ export default function HeroGeometric({
                         variants={fadeUpVariants}
                         initial="hidden"
                         animate="visible"
-                        className="flex justify-center mb-6 sm:mb-8"
+                        className="flex justify-center mb-4 sm:mb-8"
                     >
-                        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-sm bg-white border border-slate-200 shadow-md">
-                            <div className="h-6 w-6 rounded-sm bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
+                        <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-white border border-slate-200 shadow-md">
+                            <div className="h-6 w-6 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
                                 <Calendar className="h-3.5 w-3.5 text-white" />
                             </div>
                             <span className="text-sm font-semibold text-slate-900 tracking-wide">
@@ -222,10 +222,10 @@ export default function HeroGeometric({
                         variants={fadeUpVariants}
                         initial="hidden"
                         animate="visible"
-                        className="text-center mb-6 sm:mb-8"
+                        className="text-center mb- sm:mb-8"
                     >
-                        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight leading-[1.1] sm:leading-[1.1]">
-                            <span className="block text-slate-900 mb-2 sm:mb-3">
+                        <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight leading-[1.1] sm:leading-[1.1]">
+                            <span className="block text-slate-900 mb-0 sm:mb-3">
                                 {title1}
                             </span>
                             <span className="block bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600">
@@ -240,9 +240,9 @@ export default function HeroGeometric({
                         variants={fadeUpVariants}
                         initial="hidden"
                         animate="visible"
-                        className="text-center mb-8 sm:mb-10 lg:mb-12"
+                        className="text-center mb-4 sm:mb-10 lg:mb-12"
                     >
-                        <p className="text-base sm:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto px-4 sm:px-6">
+                        <p className="text-sm sm:text-lg lg:text-xl text-slate-600 leading-relaxed max-w-3xl mx-auto px-4 sm:px-6">
                             Yudo Scheduler helps professionals stay organized, manage priorities, and never miss important tasks or events. 
                             Transform your productivity with intelligent time management.
                         </p>
@@ -254,14 +254,14 @@ export default function HeroGeometric({
                         variants={buttonVariants}
                         initial="hidden"
                         animate="visible"
-                        className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 px-4"
+                        className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 px-4"
                     >
-                        <button className="group w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-sm shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2">
+                        <button className="group w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-sm sm:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2">
                             <span>Get Started Free</span>
                             <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" strokeWidth={2.5} />
                         </button>
                         
-                        <button className="group w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-slate-900 font-semibold rounded-sm shadow-md hover:shadow-lg border border-slate-200 transition-all duration-300 flex items-center justify-center gap-2">
+                        <button className="group w-full sm:w-auto px-8 py-4 bg-white hover:bg-slate-50 text-slate-900 font-semibold rounded-sm sm:rounded-xl shadow-md hover:shadow-lg border border-slate-200 transition-all duration-300 flex items-center justify-center gap-2">
                             <TrendingUp className="h-5 w-5 text-blue-600" strokeWidth={2.5} />
                             <span>View Demo</span>
                         </button>
@@ -272,11 +272,11 @@ export default function HeroGeometric({
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8, delay: 1.2 }}
-                        className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 mt-10 sm:mt-12 lg:mt-16 px-4"
+                        className="flex flex-wrap items-center justify-center gap-2 sm:gap-4 mt-3 sm:mt-12 lg:mt-12 "
                     >
                         {[
-                            { icon: CheckSquare, text: "Task Management" },
-                            { icon: Calendar, text: "Smart Scheduling" },
+                            { icon: CheckSquare, text: "Manage Task" },
+                            { icon: Calendar, text: "Scheduling" },
                             { icon: Clock, text: "Time Tracking" },
                             { icon: TrendingUp, text: "Analytics" }
                         ].map((feature, index) => (
@@ -285,7 +285,7 @@ export default function HeroGeometric({
                                 initial={{ opacity: 0, scale: 0.8 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 transition={{ duration: 0.4, delay: 1.3 + index * 0.1 }}
-                                className="flex items-center gap-2 px-4 py-2 bg-white rounded-sm border border-slate-200 shadow-sm hover:shadow-md transition-shadow"
+                                className="flex items-center gap-2 px-4 py-2 bg-white rounded-sm sm:rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow"
                             >
                                 <feature.icon className="h-4 w-4 text-blue-600" strokeWidth={2.5} />
                                 <span className="text-sm font-medium text-slate-700">{feature.text}</span>

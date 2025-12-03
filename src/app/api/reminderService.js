@@ -59,6 +59,7 @@ export const getAllReminders = async (token, page, pageSize, status = 'all') => 
   export const scheduleEmail = async (emailDetails, token,setAIPrompt) => {
     try {
       let t =JSON.parse(token);
+      // console.log("JFg",emailDetails.scheduledTime)
       const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/email/schedule`, {
         method: "POST",
         headers: {
