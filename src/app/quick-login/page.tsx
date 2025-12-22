@@ -72,7 +72,7 @@ const QuickLogin = () => {
         
         // Redirect after short delay to show success state
         setTimeout(() => {
-          window.location.href = "/dashboard";
+          window.location.href = "/dashboard/profile";
         }, 1500);
       } catch (error:any) {
         console.error("Login error:", error);
