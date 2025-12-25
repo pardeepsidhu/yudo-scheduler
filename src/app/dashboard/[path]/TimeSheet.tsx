@@ -1,3 +1,4 @@
+'use client'
 import { useState, useEffect } from 'react';
 import {
   Calendar,
@@ -627,7 +628,7 @@ const ProfessionalTimesheet = () => {
                   {/* Completed */}
                   <div className="flex flex-col items-start justify-center p-4 rounded-sm bg-gradient-to-br from-green-50 to-green-100 border border-green-200 shadow-inner">
                     <p className="text-xs font-semibold text-green-700 uppercase tracking-wide">
-                      Completed
+                      Done
                     </p>
                     <p className="text-3xl font-bold text-green-900 mt-1">
                       {tasksData.stats.done}

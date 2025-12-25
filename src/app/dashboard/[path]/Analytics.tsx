@@ -1,3 +1,4 @@
+"use client"
 import { useState, useEffect } from 'react';
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,

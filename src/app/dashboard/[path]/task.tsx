@@ -80,7 +80,7 @@ export default function TaskDashboard() {
   const confirmDelete = async () => {
     setWaiting(true);
     try {
-      let result = await deleteTask(deleteTaskData._id);
+      let result:any = await deleteTask(deleteTaskData._id);
       if (result.error) {
         setError(result.error || "some error accured while deleting");
       }
@@ -357,7 +357,7 @@ export default function TaskDashboard() {
         <div className="grid gap-0 p-1 md:p-2 sm:gap-0 md:grid-cols-2 lg:grid-cols-3">
           {loading && tasks.length === 0 ? (
             Array.from({ length: 6 }).map((_, index) => (
-              <Card key={`skeleton-${index}`} className="shadow-md rounded-sm overflow-hidden border border-slate-200">
+              <Card key={`skeleton-${index}`} className="shadow-md rounded-sm overflow-hidden border border-2 border-gray-200">
                 <CardHeader className="bg-slate-50 pb-3">
                   <Skeleton className="h-6 w-4/5 mb-2 rounded-sm" />
                   <Skeleton className="h-4 w-1/2 rounded-sm" />
@@ -376,9 +376,9 @@ export default function TaskDashboard() {
               <Card
                 key={task._id}
                 onClick={() => handleViewTask(task)}
-                className="md:shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer bg-white md:border border-slate-200 hover:border-blue-400 rounded-sm overflow-hidden group m-1"
+                className="md:shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer bg-white md:border border-slate-200 hover:border-blue-400 rounded-sm overflow-hidden group m-1 gap-1 py-4"
               >
-                <CardHeader className="pb-3 bg-slate-50 border-b border-slate-100">
+                <CardHeader className="py-2 bg-slate-50 border-b border-slate-100">
                   <div className="flex justify-between items-start mb-2">
                     <CardTitle className="line-clamp-1 text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors pr-2">
                       {task.title}
@@ -485,12 +485,12 @@ export default function TaskDashboard() {
           </div>
         )}
 
-        <CreateTaskDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen} />
-        <TaskDialog taskId={selectedTask?._id} open={isTaskDialogOpen} onOpenChange={setIsTaskDialogOpen} />
+        <CreateTaskDialog open={isCreateDialogOpen} loadTasks={loadTasks} onOpenChange={setIsCreateDialogOpen} />
+        <TaskDialog taskId={selectedTask?._id} loadTasks={loadTasks}  open={isTaskDialogOpen} onOpenChange={setIsTaskDialogOpen} />
 
         {/* Delete Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-          <DialogContent className="rounded-sm border border-slate-200">
+          <DialogContent className="rounded-sm border gap-0 border-slate-200">
             <DialogHeader>
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-red-100 rounded-sm flex items-center justify-center">
@@ -499,14 +499,14 @@ export default function TaskDashboard() {
                 <DialogTitle className="text-xl font-bold text-slate-900">Delete Task</DialogTitle>
               </div>
             </DialogHeader>
-            <div className="py-4">
-              <p className="text-slate-700 mb-3">Are you sure you want to delete this task?</p>
+            <div className="pb-2">
+              <p className="text-slate-700 mb-1">Are you sure you want to delete this task?</p>
               {deleteTaskData && (
-                <div className="bg-slate-50 rounded-sm p-3 mb-4 border border-slate-200">
+                <div className="bg-slate-50 rounded-sm p-3 py-2 mb-2 border border-slate-200">
                   <p className="font-semibold text-slate-900">{deleteTaskData?.title}</p>
                 </div>
               )}
-              <div className="p-3 bg-red-50 border-l-4 border-red-500 rounded-sm">
+              <div className="p-3 py-2 bg-red-50 border-l-4 border-red-500 rounded-sm">
                 <p className="text-sm text-red-700 flex items-center gap-2">
                   <AlertCircle size={14} />
                   This action cannot be undone.

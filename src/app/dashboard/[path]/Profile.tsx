@@ -180,7 +180,7 @@ export default function UserProfileComponent() {
   ) : (
     <div className="min-h-screen w-full bg-gradient-to-b from-slate-50 to-slate-100">
       <div className="container mx-auto">
-        <Card style={{ borderRadius: "0px !important" }} className="shadow-xl border-slate-200 overflow-hidden rounded-none! gap-1 sm:gap-4">
+        <Card style={{ borderRadius: "0px !important" }} className="shadow-xl border-slate-200 overflow-hidden rounded-none! gap-1 sm:gap-4 pt-0">
           <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white py-2">
             <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6">
               <div className="relative group">

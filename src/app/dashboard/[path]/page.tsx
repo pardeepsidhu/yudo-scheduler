@@ -1,4 +1,4 @@
-'use client'
+// 'use client'
 import React from 'react';
 import RemindersPage from './reminder';
 import TaskDashboard from './task';
@@ -9,29 +9,25 @@ import NotificationsPage from './notification-page';
 
 
 
-export default function Page({ params }: { params: { path: string } }) {
-  const p = params.path.toLowerCase();
+export default async function Page({ params }: { params: Promise<{ path: string }> }) {
+  const { path } = await params;
+  const p = path.toLowerCase();
 
   switch (p) {
     case "profile":
       return <UserProfileComponent />;
-
     case "tasks":
       return <TaskDashboard />;
-
     case "reminders":
       return <RemindersPage />;
-
     case "analytics":
       return <Analytics />;
-
     case "notifications":
       return <NotificationsPage />;
-
     case "timesheet":
       return <ProfessionalTimesheet />;
-
     default:
       return <div>404 Not Found</div>;
   }
 }
+
