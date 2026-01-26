@@ -3,7 +3,7 @@
 import Sidebar from "@/components/SideBar";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { fetchUser, fetchNotifications } from "../api/userApi";
+import { fetchUser } from "../api/userApi";
 import { Loader } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -15,12 +15,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [waiting, setWaiting] = useState(true);
   const [activeItem, setActiveItem] = useState("");
 
-  // Fetch user once
+  // Fetch user once 
   useEffect(() => {
     const loadUser = async () => {
       try {
         const result = await fetchUser();
-        await fetchNotifications();
+        // await fetchNotifications();
 
         if (result.error) router.push("/login");
         else setUser(result);
