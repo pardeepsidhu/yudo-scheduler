@@ -189,201 +189,205 @@ const AuthPage = () => {
 
   return (
     <div className="flex h-screen w-full overflow-hidden font-sans">
-      <div className="relative flex w-full flex-col bg-slate-50 px-6 py-6 md:w-[480px] md:shrink-0 lg:px-16 overflow-y-auto">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-30"
-          style={{
-            backgroundImage: "radial-gradient(circle, #94a3b8 1px, transparent 1px)",
-            backgroundSize: "28px 28px",
-          }}
-        />
+      <div className="relative flex w-full flex-col overflow-hidden bg-slate-50  md:w-[480px] md:shrink-0 p-1">
+  <div className="relative h-full w-full  border border-teal-200/70 bg-white/40 p-[6px] overflow-hidden">
+    <div className="relative h-full w-full  border border-emerald-300/70 bg-slate-50 overflow-y-auto">
+      <div
+        className="pointer-events-none absolute inset-0 opacity-30"
+        style={{
+          backgroundImage: "radial-gradient(circle, #94a3b8 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+        }}
+      />
+      
+      <div className="relative z-10 w-full max-w-sm mx-auto px-6 py-6">
+        <Banner message={message} />
 
-        <div className="relative z-10 w-full max-w-sm mx-auto">
-          <Banner message={message} />
+        {resetId ? (
+          <div className="space-y-5">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900">Set new password</h2>
+              <p className="mt-1 text-sm text-slate-500">Choose something strong and memorable.</p>
+            </div>
 
-          {resetId ? (
-            <div className="space-y-5">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900">Set new password</h2>
-                <p className="mt-1 text-sm text-slate-500">Choose something strong and memorable.</p>
+            <form
+              className=""
+              onSubmit={async (e) => {
+                e.preventDefault();
+                await handleResetPassword(setWaiting, password, toast, navigate);
+              }}
+            >
+              <Field label="New password" icon={LockIcon} hint="At least 8 characters">
+                <Input type="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} />
+              </Field>
+              <Field label="Confirm password" icon={ShieldCheck}>
+                <Input type="password" placeholder="••••••••" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
+              </Field>
+              <Button type="submit" disabled={waiting} className="w-full mt-2">
+                {waiting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Please wait…</> : "Reset password"}
+              </Button>
+            </form>
+
+            <div className="text-center">
+              <Button variant="link" onClick={() => (window.location.href = window.location.pathname)}>
+                ← Back to login
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-5">
+            <div className="flex items-center gap-3 shrink-0">
+              <div className="flex h-12 w-12 items-center justify-center rounded-[4px] bg-[linear-gradient(135deg,_#00d1b0_0%,_#00c0a2_50%,_#00a88d_100%)] backdrop-blur-sm">
+                <Calendar className="h-5 w-5 text-white" />
               </div>
+              <div>
+                <h2 className="text-2xl font-bold green-text">
+                  {tab === "login" ? "Welcome back" : "Create account"}
+                </h2>
+                <p className="mt-1 text-sm green-text">
+                  {tab === "login" ? "Sign in to your workspace." : "Start your free account today."}
+                </p>
+              </div>
+            </div>
 
-              <form
-                className=""
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  await handleResetPassword(setWaiting, password, toast, navigate);
-                }}
-              >
-                <Field label="New password" icon={LockIcon} hint="At least 8 characters">
+            <div className="flex rounded-xl bg-slate-100 p-1">
+              {["login", "signup"].map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setTab(t)}
+                  className={`flex-1 rounded-lg py-2 text-sm font-semibold capitalize transition-all duration-200
+                ${tab === t ? "bg-white green-text shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+
+            {tab === "login" && (
+              <form className="space-y-4" onSubmit={handleLogin}>
+                <Field label="Email" icon={MailIcon}>
+                  <Input type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
+                </Field>
+
+                <Field label="Password" icon={LockIcon}>
                   <Input type="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} />
                 </Field>
-                <Field label="Confirm password" icon={ShieldCheck}>
-                  <Input type="password" placeholder="••••••••" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
-                </Field>
-                <Button type="submit" disabled={waiting} className="w-full mt-2">
-                  {waiting ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Please wait…</> : "Reset password"}
+
+                <button
+                  type="button"
+                  onClick={async () => await handleQuickLogin(toast, email, setWaiting)}
+                  className="flex items-center gap-1.5 text-xs font-medium text-teal-600 hover:text-teal-800 transition-colors"
+                >
+                  <MailCheck className="h-3.5 w-3.5" />
+                  Request quick login link
+                </button>
+
+                <Button type="submit" disabled={waiting} className="yudo-btn">
+                  {waiting
+                    ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing in…</>
+                    : <>Sign in <ArrowRight className="ml-1.5 h-4 w-4" /></>}
                 </Button>
               </form>
+            )}
 
-              <div className="text-center">
-                <Button variant="link" onClick={() => (window.location.href = window.location.pathname)}>
-                  ← Back to login
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-5">
-              <div className="flex items-center gap-3 shrink-0">
-                <div className="flex h-12 w-12 items-center justify-center rounded-[4px] bg-[linear-gradient(135deg,_#00d1b0_0%,_#00c0a2_50%,_#00a88d_100%)] backdrop-blur-sm">
-                  <Calendar className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold green-text">
-                    {tab === "login" ? "Welcome back" : "Create account"}
-                  </h2>
-                  <p className="mt-1 text-sm green-text">
-                    {tab === "login" ? "Sign in to your workspace." : "Start your free account today."}
-                  </p>
-                </div>
-              </div>
+            {tab === "signup" && (
+              <form className="space-y-4" onSubmit={handleVerifyOtp}>
+                <Field label="Email" icon={MailIcon}>
+                  <Input type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={otpSent} />
+                </Field>
 
-              <div className="flex rounded-xl bg-slate-100 p-1">
-                {["login", "signup"].map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => setTab(t)}
-                    className={`flex-1 rounded-lg py-2 text-sm font-semibold capitalize transition-all duration-200
-                  ${tab === t ? "bg-white green-text shadow-sm" : "text-slate-500 hover:text-slate-700"}`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
+                <Field label="Password" icon={LockIcon} hint="At least 8 characters">
+                  <Input type="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={otpSent} />
+                </Field>
 
-              {tab === "login" && (
-                <form className="space-y-4" onSubmit={handleLogin}>
-                  <Field label="Email" icon={MailIcon}>
-                    <Input type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} />
-                  </Field>
+                <Field key={'Confirm password'} label="Confirm password" icon={ShieldCheck}>
+                  <Input type="password" placeholder="••••••••" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={otpSent} />
+                </Field>
 
-                  <Field label="Password" icon={LockIcon}>
-                    <Input type="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} />
-                  </Field>
+                {otpSent && (
+                  <div className="space-y-3 rounded-2xl border border-teal-100 bg-teal-50/60 p-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-widest text-teal-700">Verification code</p>
+                      <p className="text-xs text-slate-500 mt-0.5">Check your email for a 4-digit code.</p>
+                    </div>
+                    <OtpRow otp={otp} handleOtpChange={handleOtpChange} />
+                    <div className="flex items-center justify-between">
+                      <button
+                        type="button"
+                        onClick={handleSendOtp}
+                        disabled={otpTimer > 0}
+                        className="text-xs font-medium text-teal-600 hover:text-teal-800 disabled:text-slate-400 transition-colors"
+                      >
+                        {otpTimer > 0 ? `Resend in ${otpTimer}s` : "Resend code"}
+                      </button>
+                      <button type="button" onClick={resetForm} className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
+                        Reset form
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-                  <button
-                    type="button"
-                    onClick={async () => await handleQuickLogin(toast, email, setWaiting)}
-                    className="flex items-center gap-1.5 text-xs font-medium text-teal-600 hover:text-teal-800 transition-colors"
-                  >
-                    <MailCheck className="h-3.5 w-3.5" />
-                    Request quick login link
-                  </button>
-
-                  <Button type="submit" disabled={waiting} className="yudo-btn">
-                    {waiting
-                      ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing in…</>
-                      : <>Sign in <ArrowRight className="ml-1.5 h-4 w-4" /></>}
-                  </Button>
-                </form>
-              )}
-
-              {tab === "signup" && (
-                <form className="space-y-4" onSubmit={handleVerifyOtp}>
-                  <Field label="Email" icon={MailIcon}>
-                    <Input type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} disabled={otpSent} />
-                  </Field>
-
-                  <Field label="Password" icon={LockIcon} hint="At least 8 characters">
-                    <Input type="password" placeholder="••••••••" required value={password} onChange={(e) => setPassword(e.target.value)} disabled={otpSent} />
-                  </Field>
-
-                  <Field key={'Confirm password'} label="Confirm password" icon={ShieldCheck}>
-                    <Input type="password" placeholder="••••••••" required value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={otpSent} />
-                  </Field>
-
-                  {otpSent && (
-                    <div className="space-y-3 rounded-2xl border border-teal-100 bg-teal-50/60 p-4">
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-widest text-teal-700">Verification code</p>
-                        <p className="text-xs text-slate-500 mt-0.5">Check your email for a 4-digit code.</p>
-                      </div>
-                      <OtpRow otp={otp} handleOtpChange={handleOtpChange} />
-                      <div className="flex items-center justify-between">
-                        <button
+                <div className="flex gap-2 pt-1">
+                  {!otpSent ? (
+                    <>
+                      <div className="w-1/2">
+                        <Button
                           type="button"
                           onClick={handleSendOtp}
-                          disabled={otpTimer > 0}
-                          className="text-xs font-medium text-teal-600 hover:text-teal-800 disabled:text-slate-400 transition-colors"
+                          disabled={waiting}
+                          className="yudo-btn w-full"
                         >
-                          {otpTimer > 0 ? `Resend in ${otpTimer}s` : "Resend code"}
-                        </button>
-                        <button type="button" onClick={resetForm} className="text-xs text-slate-400 hover:text-slate-600 transition-colors">
-                          Reset form
-                        </button>
+                          {waiting ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Sending…
+                            </>
+                          ) : (
+                            "Send OTP"
+                          )}
+                        </Button>
                       </div>
-                    </div>
+
+                      <div className="w-1/2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={resetForm}
+                          className="w-full min-w-0 yudo-btn-sec"
+                        >
+                          Reset
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <Button
+                      type="submit"
+                      disabled={waiting || (otp ?? []).join("").length !== 4}
+                      className="w-full"
+                    >
+                      {waiting ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Creating account…
+                        </>
+                      ) : (
+                        <>
+                          Create account
+                          <ArrowRight className="ml-1.5 h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
                   )}
-
-                  <div className="flex gap-2 pt-1">
-                    {!otpSent ? (
-                      <>
-                        <div className="w-1/2">
-                          <Button
-                            type="button"
-                            onClick={handleSendOtp}
-                            disabled={waiting}
-                            className="yudo-btn w-full"
-                          >
-                            {waiting ? (
-                              <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Sending…
-                              </>
-                            ) : (
-                              "Send OTP"
-                            )}
-                          </Button>
-                        </div>
-
-                        <div className="w-1/2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={resetForm}
-                            className="w-full min-w-0 yudo-btn-sec"
-                          >
-                            Reset
-                          </Button>
-                        </div>
-                      </>
-                    ) : (
-                      <Button
-                        type="submit"
-                        disabled={waiting || (otp ?? []).join("").length !== 4}
-                        className="w-full"
-                      >
-                        {waiting ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Creating account…
-                          </>
-                        ) : (
-                          <>
-                            Create account
-                            <ArrowRight className="ml-1.5 h-4 w-4" />
-                          </>
-                        )}
-                      </Button>
-                    )}
-                  </div>
-                </form>
-              )}
-            </div>
-          )}
-        </div>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
       </div>
+    </div>
+  </div>
+</div>
 
       <div className="relative hidden flex-1 flex-col overflow-hidden bg-gradient-to-br from-teal-600 via-teal-500 to-emerald-500 p-8 md:flex lg:p-12">
         <div className="pointer-events-none absolute -top-24 -right-24 h-96 w-96 rounded-full bg-white/10" />
