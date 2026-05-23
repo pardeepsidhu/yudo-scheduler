@@ -22,8 +22,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         const result = await fetchUser();
         // await fetchNotifications();
 
-        if (result.error) router.push("/login");
-        else setUser(result);
+        // if (result.error) router.push("/login");
+        // else setUser(result);
       } catch (err: any) {
         toast.error(err.message);
       } finally {
