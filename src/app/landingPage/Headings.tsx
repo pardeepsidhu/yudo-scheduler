@@ -161,74 +161,7 @@ const ProfessionalScheduler = () => {
         }
       `}</style>
 
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4 sm:px-6 lg:px-8 py-4 sm:py-19">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 -left-48 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-          <div className="absolute top-1/3 -right-48 w-96 h-96 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-        </div>
-
-        <div className="relative z-10 max-w-7xl mx-auto">
-          <div className="text-center mb-2 sm:mb-8 md:mb-8">
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 border border-indigo-200 mb-2 sm:mb-4 animate-pulse-slow">
-              <Sparkles className="w-4 h-4 text-indigo-600 mr-2" />
-              <span className="text-sm font-semibold text-indigo-700">Trusted by 50,000+ Professionals</span>
-            </div>
-            
-            <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-3 sm:mb-4 leading-tight">
-              <span className="block text-slate-900">Master Your Time.</span>
-              <span className="block gradient-text">Multiply Your Results.</span>
-            </h1>
-            
-            <p className="text-md sm:text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto mb-4 sm:mb-6 px-4">
-              The intelligent scheduling platform that transforms chaos into clarity, helping teams achieve <span className="font-semibold text-indigo-600">3.5x more</span> in less time.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center items-center mb-6  sm:mb-12">
-              <button className="group relative px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all duration-300 w-full sm:w-auto">
-                <span className="relative z-10 flex items-center justify-center">
-                  Start Free Trial
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              </button>
-              
-              <button className="px-8 py-4 bg-white text-slate-700 font-semibold rounded-xl border-2 border-slate-200 hover:border-indigo-300 hover:text-indigo-600 transition-all duration-300 w-full sm:w-auto">
-                Watch Demo
-              </button>
-            </div>
-            
-            <div className="flex flex-wrap justify-center gap-4 md:gap-8 text-sm text-slate-600">
-              {features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2">
-                  <div className="p-1.5 bg-indigo-100 rounded-full text-indigo-600">
-                    {feature.icon}
-                  </div>
-                  <span className="font-medium">{feature.text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Hero Image with 3D effect */}
-          <div className="relative max-w-5xl mx-auto px-4">
-            <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur-2xl opacity-30 group-hover:opacity-50 transition duration-500"></div>
-              <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200">
-                <div className="aspect-video bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
-                  <img 
-                    src="/h1.jpg" 
-                    alt="Yudo Scheduler Dashboard"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+     
 
       {/* Features Section */}
       <section className="py-10 md:py-24 px-4 sm:px-6 lg:px-8 relative">
@@ -253,7 +186,7 @@ const ProfessionalScheduler = () => {
                 Don't just manage your tasks—master them. With our enterprise-grade scheduler, you'll transform how you work, collaborate, and achieve your goals.
               </p>
 
-              <div className="space-y-4 mb-5  sm:mb-2">
+              <div className="space-y-4 mb-8  sm:mb-2">
                 {[
                   "AI-powered time management recommendations",
                   "Seamless integration with your existing tools",
