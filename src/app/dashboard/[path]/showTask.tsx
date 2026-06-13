@@ -55,11 +55,11 @@ import { Separator } from '@radix-ui/react-select';
 interface TimeEntry {
   stated: Date;
   ended?: Date;
-  _id?: string;
+  id?: string;
 }
 
 interface Task {
-  _id: string;
+  id: string;
   title: string;
   description: string;
   status: 'pending' | 'to do' | 'in progress' | 'done';
@@ -130,7 +130,7 @@ export function TaskDialog({
             const currentTimer = result.task.time.find((t: TimeEntry) => t.stated && !t.ended);
             if (currentTimer) {
               setIsTimerRunning(true);
-              setCurrentTimeId(currentTimer._id || null);
+              setCurrentTimeId(currentTimer.id || null);
             } else {
               setIsTimerRunning(false);
               setCurrentTimeId(null);
@@ -166,7 +166,7 @@ export function TaskDialog({
         time: [...task.time, { stated: now }]
       };
 
-      const result = await updateTask(task._id, updatedTask);
+      const result = await updateTask(task.id, updatedTask);
 
       if (result.success) {
         setTask(result.task);
@@ -228,7 +228,7 @@ export function TaskDialog({
         return entry;
       });
 
-      const result = await updateTask(task._id, {
+      const result = await updateTask(task.id, {
         time: updatedTime
       });
 
@@ -263,7 +263,7 @@ export function TaskDialog({
       if (hasChanges) {
         setIsLoading(true);
         try {
-          const result = await updateTask(task._id, editedTask);
+          const result = await updateTask(task.id, editedTask);
 
           if (result.success) {
             toast.success("Task updated successfully");
@@ -382,7 +382,7 @@ export function TaskDialog({
               {editMode ? (
                 <Button
                   onClick={async () => {
-                    await updateTask(task._id, editedTask);
+                    await updateTask(task.id, editedTask);
                     setEditMode(false);
                     loadTasks();
                   }}

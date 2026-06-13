@@ -6,7 +6,7 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, XAxis, YAxis, CartesianG
 import { getAllReminders } from '../../api/reminderService';
 
 interface Email {
-    _id: string;
+    id: string;
     to: string;
     subject: string;
     body: string;

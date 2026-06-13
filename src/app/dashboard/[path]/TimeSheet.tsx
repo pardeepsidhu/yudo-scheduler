@@ -18,7 +18,7 @@ interface TimeEntry {
 }
 
 interface Task {
-  _id: string;
+  id: string;
   title: string;
   description?: string;
   status: 'pending' | 'to do' | 'in progress' | 'done';
@@ -444,7 +444,7 @@ const ProfessionalTimesheet = () => {
       <div className="max-w-7xl mx-auto">
         <div className="bg-white shadow-lg  overflow-hidden border border-slate-200">
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 sm:p-4">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 sm:p-[7px]">
             <div className="flex flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-sm flex items-center justify-center">
@@ -742,7 +742,7 @@ const ProfessionalTimesheet = () => {
                               const endTime = new Date(task.timeEntry.ended);
 
                               return (
-                                <tr key={`${task._id}-${idx}`} className="hover:bg-gray-50 transition-colors">
+                                <tr key={`${task.id}-${idx}`} className="hover:bg-gray-50 transition-colors">
                                   <td className="px-4 sm:px-6 py-3 sm:py-4">
                                     <div className="flex flex-col">
                                       <div className="text-sm font-medium text-gray-900">{task.title}</div>

@@ -159,10 +159,10 @@ button{
   gap: 0.5rem;
   width: 100%;
   padding: 1.3rem 1.4rem;
-  border: 1px solid rgba(13, 148, 136, 0.12);
+  border: 1px solid rgba(58, 65, 229, 0.12);
   border-radius: 0.5rem;
-  background: linear-gradient(135deg, #f8fffe 0%, #ecfdf5 100%);
-  color: #0f766e;
+  background: linear-gradient(135deg, #f5f7ff 0%, #eef1ff 100%);
+  color: #3A41E5;
   font-size: 0.95rem;
   font-weight: 600;
   line-height: 1;
@@ -174,30 +174,35 @@ button{
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }
 
+
 .yudo-btn::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top right, rgba(45, 212, 191, 0.22), transparent 45%);
+  background: radial-gradient(circle at top right, rgba(88, 101, 242, 0.22), transparent 45%);
   pointer-events: none;
 }
 
+
 .yudo-btn:hover {
   transform: translateY(-2px);
-  border-color: rgba(13, 148, 136, 0.22);
+  border-color: rgba(58, 65, 229, 0.22);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
-  color: #115e59;
+  color: #2F36C7;
 }
+
 
 .yudo-btn:active {
   transform: translateY(0);
   box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
 }
 
+
 .yudo-btn:focus-visible {
-  outline: 2px solid rgba(13, 148, 136, 0.35);
+  outline: 2px solid rgba(58, 65, 229, 0.35);
   outline-offset: 3px;
 }
+
 
 
 
@@ -211,17 +216,19 @@ button{
   width: 100%;
   padding: 1.3rem 1.4rem;
 
+
   border-radius: 0.5rem;
-  background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+  background: linear-gradient(135deg, #3A41E5 0%, #5865F2 100%);
   color: #ffffff;
   font-size: 0.95rem;
   font-weight: 600;
   line-height: 1;
-  box-shadow: 0 8px 18px rgba(15, 118, 110, 0.28);
+  box-shadow: 0 8px 18px rgba(58, 65, 229, 0.28);
   cursor: pointer;
   overflow: hidden;
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
 }
+
 
 .yudo-btn-sec::before {
   content: "";
@@ -231,23 +238,62 @@ button{
   pointer-events: none;
 }
 
+
 .yudo-btn-sec:hover {
   transform: translateY(-2px);
-  background: linear-gradient(135deg, #115e59 0%, #0f9f8f 100%);
-  box-shadow: 0 12px 24px rgba(15, 118, 110, 0.34);
+  background: linear-gradient(135deg, #2F36C7 0%, #4C54EA 100%);
+  box-shadow: 0 12px 24px rgba(58, 65, 229, 0.34);
 }
+
 
 .yudo-btn-sec:active {
   transform: translateY(0);
-  box-shadow: 0 6px 14px rgba(15, 118, 110, 0.24);
+  box-shadow: 0 6px 14px rgba(58, 65, 229, 0.24);
 }
 
+
 .yudo-btn-sec:focus-visible {
+
 
   outline-offset: 3px;
 }
 
-
 .green-text{
   color: #115E59;
+}
+
+
+
+/* Thin themed scrollbar */
+
+* {
+  scrollbar-width:thin;
+  scrollbar-color: rgba(58, 65, 229, 0.35) transparent;
+}
+
+/* Chrome, Edge, Safari */
+*::-webkit-scrollbar {
+  width: 1px;
+  height: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(
+    to bottom,
+    rgba(58, 65, 229, 0.18),
+    rgba(58, 65, 229, 0.45)
+  );
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(
+    to bottom,
+    rgba(58, 65, 229, 0.28),
+    rgba(58, 65, 229, 0.65)
+  );
 }

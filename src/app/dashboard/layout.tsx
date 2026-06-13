@@ -49,6 +49,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
+    <>
+  <div className="h-16 flex md:hidden"/>
     <div className="flex h-screen overflow-hidden">
       <Sidebar
         activeItem={activeItem}
@@ -62,5 +64,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {children}
       </div>
     </div>
+      </>
   );
 }

@@ -47,7 +47,7 @@ import { generateAIContent } from "../../api/reminderService"
 // Types
 interface Reminder {
   status: string;
-  _id: string;
+  id: string;
   to: string;
   subject: string;
   body: string;
@@ -254,7 +254,7 @@ export default function RemindersComponent() {
   return (
     <div className="container mx-auto ">
       {/* Header with title and new reminder button */}
-      <div className="py-2 sm:py-5 mb-2 px-4 rounded-b-none border-1 bg-gradient-to-r from-blue-600 to-indigo-600 flex-col sm:flex-row justify-between items-center hidden md:flex">
+      <div className="py-2 sm mb-2 px-4 sm:p-[13px] rounded-b-none border-1 bg-gradient-to-r from-blue-600 to-indigo-600 flex-col sm:flex-row justify-between items-center hidden md:flex">
         <div className="flex items-center gap-2 mb-4 sm:mb-0">
           <div className="w-10 h-10 bg-white/20 rounded-sm flex items-center justify-center">
             <Bell className="h-5 w-5 text-white" />
@@ -387,7 +387,7 @@ export default function RemindersComponent() {
                   const formatted = formatDateTime(reminder.scheduleTime)
 
                   return (
-                    <div key={reminder._id} className="py-0 sm:py-4">
+                    <div key={reminder.id} className="py-0 sm:py-4">
                       <div
                         className="group flex flex-col rounded-sm p-1 py-2 sm:p-4 transition-all hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 cursor-pointer border border-transparent hover:border-blue-200"
                         onClick={() => handleViewReminder(reminder)}

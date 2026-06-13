@@ -5,7 +5,7 @@ import { fetchNotifications } from '../../api/userApi';
 
 
 interface Notification {
-  _id: string;
+  id: string;
   title: string;
   createdAt: string;
   type: 'form' | 'auth' | 'telegram' | 'yudo';
@@ -204,7 +204,7 @@ export default function FullscreenNotificationCenter() {
       </div>
       
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 backdrop-blur-sm bg-white/80">
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 backdrop-blur-sm bg-white/80 p-[1px]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-3">
@@ -291,11 +291,11 @@ export default function FullscreenNotificationCenter() {
                 {notifications.map((notification, index) => {
                   const config = getNotificationConfig(notification.type);
                   const isLast = index === notifications.length - 1;
-                  const isSelected = selectedNotification?._id === notification._id;
+                  const isSelected = selectedNotification?.id === notification.id;
                   
                   return (
                     <div
-                      key={notification._id}
+                      key={notification.id}
                       ref={isLast ? lastNotificationRef : null}
                       onClick={() => handleNotificationClick(notification)}
                       className={`bg-white rounded-sm shadow-sm border transition-all duration-200 cursor-pointer ${

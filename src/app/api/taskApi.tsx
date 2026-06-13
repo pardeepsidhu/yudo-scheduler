@@ -10,11 +10,11 @@ export type TaskPriority = 'high' | 'normal' | 'low';
 export interface TimeEntry {
   started: Date;
   ended?: Date;
-  _id?: string;
+  id?: string;
 }
 
 export interface TaskData {
-  _id: string;
+  id: string;
   user: string;
   title: string;
   description: string;
@@ -27,7 +27,7 @@ export interface TaskData {
 }
 
 export interface Task {
-  _id: string;
+  id: string;
   title: string;
   description: string;
   status: TaskStatus;
@@ -114,7 +114,7 @@ export async function fetchTaskById(id: string): Promise<TaskData> {
   return await response.json();
 }
 
-export async function createTask(task: Omit<TaskData, '_id' | 'user' | 'createdAt' | 'updatedAt'>): Promise<{message: string; task: TaskData}> {
+export async function createTask(task: Omit<TaskData, 'id' | 'user' | 'createdAt' | 'updatedAt'>): Promise<{message: string; task: TaskData}> {
   const token = getAuthToken();
   if (!token) {
     throw new Error('Authentication token not found');

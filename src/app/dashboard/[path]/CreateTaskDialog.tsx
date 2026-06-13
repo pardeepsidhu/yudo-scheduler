@@ -107,7 +107,7 @@ export function CreateTaskDialog({
         formattedData.estimatedTime = estimated;
       }
       
-      if (isEditMode && taskToEdit?._id) {
+      if (isEditMode && taskToEdit?.id) {
         // Handle edit
         await createTask(formattedData);
         loadTasks()
@@ -130,10 +130,10 @@ export function CreateTaskDialog({
   };
 
   const handleDelete = async () => {
-    if (!taskToEdit?._id) return;
+    if (!taskToEdit?.id) return;
     
     try {
-      await deleteTask(taskToEdit._id);
+      await deleteTask(taskToEdit.id);
       loadTasks()
     //   toast({
     //     title: "Task deleted",
