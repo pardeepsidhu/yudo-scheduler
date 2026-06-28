@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/navbar";
 import { Toaster } from "react-hot-toast"; // ✅ Import Toaster
+import { RhaenyraChat } from "@/components/AiChatBot";
 
 export const metadata: Metadata = {
   title: "Yudo Scheduler | Professional Task & Time Management Solution",
@@ -93,6 +94,7 @@ export default function RootLayout({
               },
             }}
           />
+          <RhaenyraChat />
       </body>
     </html>
   );
