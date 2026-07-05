@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/navbar";
 import { Toaster } from "react-hot-toast"; // ✅ Import Toaster
 import { RhaenyraChat } from "@/components/AiChatBot";
+import { AuthChecker } from "@/components/AuthChecker";
 
 export const metadata: Metadata = {
   title: "Yudo Scheduler | Professional Task & Time Management Solution",
@@ -64,6 +65,7 @@ export default function RootLayout({
     <html lang="en">
       <body cz-shortcut-listen="true" className="antialiased">
           <Navbar />
+          {/* <AuthChecker /> */}
             {/* <div className="h-18 bg-red lg:hidden" /> */}
           {children}
           {/* ✅ Add React Hot Toast globally */}
