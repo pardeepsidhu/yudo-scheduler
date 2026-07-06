@@ -389,6 +389,7 @@ export default function RoutineManager() {
   };
 
   return (
+    <>
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
       <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
         {toasts.map(t => <Toast key={t.id} message={t.message} type={t.type} onClose={() => removeToast(t.id)} />)}
@@ -511,14 +512,14 @@ export default function RoutineManager() {
       )}
 
       {taskFormFor && (
-        <TaskFormModal
-          draft={taskDraft}
-          setDraft={setTaskDraft}
-          isEditing={!!editingTask}
-          onCancel={() => setTaskFormFor(null)}
-          onSave={saveTask}
-        />
-      )}
+  <TaskFormModal
+    draft={taskDraft}
+    setDraft={setTaskDraft}
+    isEditing={!!editingTask}
+    onCancel={() => setTaskFormFor(null)}
+    onSave={saveTask}
+  />
+)}
 
       {reminderFormFor && (
         <ReminderFormModal
@@ -530,6 +531,10 @@ export default function RoutineManager() {
         />
       )}
     </div>
+
+
+    
+    </>
   );
 }
 
