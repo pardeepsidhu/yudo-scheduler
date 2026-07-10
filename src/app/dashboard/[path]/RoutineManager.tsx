@@ -1,9 +1,9 @@
-"use client"
-import { useState, useMemo } from "react";
+"use client";
+import { useState, useMemo, useEffect, useRef, useCallback } from "react";
 import {
   Bell, Filter, Check, AlertCircle, Inbox, Plus, X, Clock, Calendar,
-  Repeat, MapPin, FileText, ChevronRight, Trash2, Archive, Search,
-  Sparkles, BellRing, Mail, ListChecks, Pencil, Send, Loader2
+  Repeat, MapPin, ChevronRight, Trash2, Archive, Search,
+  BellRing, Mail, ListChecks, Pencil, Loader2, Link2, CalendarRange,
 } from "lucide-react";
 
 /* ============================================================================
@@ -20,62 +20,97 @@ type TaskStatus = "pending" | "to do" | "in progress" | "done";
 type TaskPriority = "high" | "normal" | "low";
 
 type ReminderStatus = "pending" | "sent" | "failed";
+type Timeframe = "week" | "month" | "all";
 
-interface RoutineTask {
-  id: string;
-  routineId: string;
-  title: string;
-  description: string;
-  status: TaskStatus;
-  estimatedTime: string | null; // ISO date
-  time: string[]; // e.g. ["09:00", "10:30"]
-  priority: TaskPriority;
+export interface RoutineReminder {
+  routineId: number;
+  emailId: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
-interface RoutineReminder {
-  id: string;
-  routineId: string;
+export interface RoutineTask {
+  routineId: number;
+  taskId: number;
+}
+
+export interface Email {
+  id: number;
   to: string;
   subject: string;
   body: string;
-  scheduleTime: string; // ISO datetime
-  status: ReminderStatus;
+  scheduleTime: string;
+  jobId: string | null;
+  status: "pending" | "sent" | "failed";
+  createdAt?: string;
+  updatedAt?: string;
+  RoutineReminder?: RoutineReminder;
 }
 
-interface Routine {
-  id: string;
-  user: number;
+export interface TaskTimeEntry {
+  stated?: string;
+  started?: string;
+  ended?: string;
+}
+
+export interface Task {
+  id: number;
   title: string;
   description: string;
-  category: string;
+  status: TaskStatus;
+  estimatedTime: string | null;
+  time: TaskTimeEntry[] | string[];
+  priority: TaskPriority;
+  RoutineTask?: RoutineTask;
+}
+
+export interface Routine {
+  id: number;
+  userId: number;
+  title: string;
+  description: string | null;
+  category: string | null;
   priority: RoutinePriority;
-  color: string;
-  icon: string;
+  color: string | null;
+  icon: string | null;
   repeatType: RepeatType;
-  weeklyDays: number[];
-  monthDay: number | null;
-  customInterval: number | null;
-  customUnit: CustomUnit | null;
+  repeatConfig: {
+    days?: number[];
+    day?: number;
+    interval?: number;
+    unit?: CustomUnit;
+  } | null;
   dateMode: DateMode;
   startDate: string;
   endDate: string | null;
-  repeatUntil: string | null;
   skipDates: string[];
   allDay: boolean;
   startTime: string | null;
   endTime: string | null;
   estimatedMinutes: number | null;
-  location: string;
-  notes: string;
+  location: string | null;
+  notes: string | null;
   tags: string[];
   status: RoutineStatus;
-  tasks: RoutineTask[];
-  reminders: RoutineReminder[];
+  createdAt: string;
+  updatedAt: string;
+  Emails: Email[];
+  Tasks: Task[];
+}
+
+export interface GetRoutinesResponse {
+  routines: Routine[];
+  total: number;
+  limit: number;
+  skip: number;
+  hasMore: boolean;
 }
 
 /* ============================================================================
    Constants
    ============================================================================ */
+
+const API_BASE = "http://localhost:5001/api/v1";
 
 const CATEGORIES = ["Study", "Work", "Health", "Gym", "Meeting", "Coding", "Travel", "Shopping", "Meditation", "Reading", "Family", "Custom"];
 
@@ -117,14 +152,14 @@ const ROUTINE_COLORS = [
 const ICONS = ["💻", "📚", "🏃", "🍽", "🛏", "🚗", "📞", "🎮", "🧘", "👨‍👩‍👧", "🛒", "✨"];
 const REPEAT_TYPES: RepeatType[] = ["once", "daily", "weekly", "monthly", "yearly", "custom"];
 const DAY_LABELS = ["S", "M", "T", "W", "T", "F", "S"];
+const PAGE_LIMIT = 10;
 
 const todayISO = () => new Date().toISOString().slice(0, 10);
-const uid = () => Math.random().toString(36).slice(2, 10);
-const colorCfg = (c: string) => ROUTINE_COLORS.find(x => x.value === c) || ROUTINE_COLORS[0];
+const colorCfg = (c: string | null) => ROUTINE_COLORS.find(x => x.value === c) || ROUTINE_COLORS[0];
 const routinePriorityCfg = (p: RoutinePriority) => ROUTINE_PRIORITIES.find(x => x.value === p)!;
-const taskPriorityCfg = (p: TaskPriority) => TASK_PRIORITIES.find(x => x.value === p)!;
-const taskStatusCfg = (s: TaskStatus) => TASK_STATUSES.find(x => x.value === s)!;
-const reminderStatusCfg = (s: ReminderStatus) => REMINDER_STATUSES.find(x => x.value === s)!;
+const taskPriorityCfg = (p: TaskPriority) => TASK_PRIORITIES.find(x => x.value === p) || TASK_PRIORITIES[1];
+const taskStatusCfg = (s: TaskStatus) => TASK_STATUSES.find(x => x.value === s) || TASK_STATUSES[0];
+const reminderStatusCfg = (s: ReminderStatus) => REMINDER_STATUSES.find(x => x.value === s) || REMINDER_STATUSES[0];
 
 function formatTime12(t: string | null) {
   if (!t) return "";
@@ -138,53 +173,156 @@ function formatDateShort(iso: string | null) {
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(new Date(iso));
 }
 function repeatSummary(r: Routine) {
+  const cfg = r.repeatConfig || {};
   if (r.repeatType === "once") return `One time • ${formatDateShort(r.startDate)}`;
   if (r.repeatType === "daily") return "Every day";
-  if (r.repeatType === "weekly") return `Weekly • ${r.weeklyDays.map(d => DAY_LABELS[d]).join(" ")}`;
-  if (r.repeatType === "monthly") return `Monthly • day ${r.monthDay}`;
+  if (r.repeatType === "weekly") return `Weekly • ${(cfg.days || []).map(d => DAY_LABELS[d]).join(" ") || "no days set"}`;
+  if (r.repeatType === "monthly") return `Monthly • day ${cfg.day ?? "—"}`;
   if (r.repeatType === "yearly") return "Yearly";
-  return `Every ${r.customInterval} ${r.customUnit}`;
+  return `Every ${cfg.interval ?? 1} ${cfg.unit ?? "days"}`;
 }
 
 /* ============================================================================
-   Seed data (stand-in for GET /routines?include=tasks,reminders)
+   API layer
    ============================================================================ */
 
-function seedRoutines(): Routine[] {
-  const r1Id = uid(), r2Id = uid();
-  return [
-    {
-      id: r1Id, user: 1, title: "DSA Practice", description: "Two problems from the current sheet.",
-      category: "Coding", priority: "high", color: "Blue", icon: "💻",
-      repeatType: "weekly", weeklyDays: [1, 2, 3, 4, 5], monthDay: null, customInterval: null, customUnit: null,
-      dateMode: "forever", startDate: todayISO(), endDate: null, repeatUntil: null, skipDates: [],
-      allDay: false, startTime: "20:00", endTime: "21:30", estimatedMinutes: 90,
-      location: "Home", notes: "Focus on graphs this week.", tags: ["#DSA", "#Revision"], status: "active",
-      tasks: [
-        { id: uid(), routineId: r1Id, title: "Solve 2 graph problems", description: "LeetCode medium level", status: "in progress", estimatedTime: todayISO(), time: ["20:00", "21:00"], priority: "high" },
-        { id: uid(), routineId: r1Id, title: "Review yesterday's mistakes", description: "Go through notes", status: "pending", estimatedTime: todayISO(), time: ["21:00", "21:30"], priority: "normal" },
-      ],
-      reminders: [
-        { id: uid(), routineId: r1Id, to: "me@example.com", subject: "DSA Practice starting soon", body: "Time to solve today's problems.", scheduleTime: new Date(Date.now() + 30 * 60000).toISOString(), status: "pending" },
-      ],
-    },
-    {
-      id: r2Id, user: 1, title: "Exam: Operating Systems", description: "Semester exam.",
-      category: "Study", priority: "critical", color: "Orange", icon: "📚",
-      repeatType: "once", weeklyDays: [], monthDay: null, customInterval: null, customUnit: null,
-      dateMode: "single", startDate: todayISO(), endDate: null, repeatUntil: null, skipDates: [],
-      allDay: false, startTime: "09:00", endTime: "12:00", estimatedMinutes: 180,
-      location: "Library", notes: "Bring calculator & ID card.", tags: ["#Exam", "#Urgent"], status: "active",
-      tasks: [
-        { id: uid(), routineId: r2Id, title: "Revise Chapter 5 - Deadlocks", description: "", status: "done", estimatedTime: todayISO(), time: ["06:00", "07:00"], priority: "high" },
-        { id: uid(), routineId: r2Id, title: "Solve last year's paper", description: "", status: "to do", estimatedTime: todayISO(), time: ["07:00", "08:30"], priority: "high" },
-      ],
-      reminders: [
-        { id: uid(), routineId: r2Id, to: "me@example.com", subject: "Exam tomorrow", body: "OS exam is scheduled for tomorrow 9 AM.", scheduleTime: new Date(Date.now() + 86400000).toISOString(), status: "pending" },
-        { id: uid(), routineId: r2Id, to: "me@example.com", subject: "Exam in 1 hour", body: "Don't forget your ID card.", scheduleTime: new Date().toISOString(), status: "sent" },
-      ],
-    },
-  ];
+function authHeaders() {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  return { "Content-Type": "application/json", "auth-token": user?.token || "" };
+}
+
+async function apiRequest(path: string, method: string = "GET", body?: any) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    method,
+    headers: authHeaders(),
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data?.message || `Request failed (${res.status})`);
+  return data;
+}
+
+/* ---- GET /api/v1/routine ---- */
+type GetRoutinesParams = {
+  page?: number;
+  limit?: number;
+  skip?: number;
+  priority?: RoutinePriority;
+  status?: RoutineStatus;
+  repeatType?: RepeatType;
+  category?: string;
+  search?: string;
+  startDate?: string;
+  endDate?: string;
+};
+
+export async function getRoutines(params: GetRoutinesParams = {}): Promise<GetRoutinesResponse> {
+  const query = new URLSearchParams();
+  query.set("page", String(params.page ?? 1));
+  query.set("limit", String(params.limit ?? PAGE_LIMIT));
+  query.set("skip", String(params.skip ?? 0));
+  if (params.priority) query.set("priority", params.priority);
+  if (params.status) query.set("status", params.status);
+  if (params.repeatType) query.set("repeatType", params.repeatType);
+  if (params.category) query.set("category", params.category);
+  if (params.search) query.set("search", params.search);
+  if (params.startDate) query.set("startDate", params.startDate);
+  if (params.endDate) query.set("endDate", params.endDate);
+  return apiRequest(`/routine?${query.toString()}`, "GET");
+}
+
+/* ---- POST /api/v1/routine ---- */
+export async function createRoutine(payload: Partial<Routine>) {
+  return apiRequest("/routine", "POST", payload);
+}
+
+/* ---- POST /api/v1/routine/tasks — attach an existing task to a routine ---- */
+export async function attachTaskToRoutine(routineId: number, taskId: number) {
+  return apiRequest("/routine/tasks", "POST", { routineId, taskId });
+}
+
+/* ---- POST /api/v1/routine/reminders — attach an existing email/reminder to a routine ---- */
+export async function attachReminderToRoutine(routineId: number, emailId: number) {
+  return apiRequest("/routine/reminders", "POST", { routineId, emailId });
+}
+
+/* ---- GET /api/v1/email/getall — used by the "select a reminder" picker ---- */
+type GetEmailsParams = { limit?: number; skip?: number; status?: "pending" | "sent" };
+
+export async function getEmails(params: GetEmailsParams = {}): Promise<{ emails: Email[]; total?: number; hasMore?: boolean }> {
+  const query = new URLSearchParams();
+  query.set("limit", String(params.limit ?? PAGE_LIMIT));
+  query.set("skip", String(params.skip ?? 0));
+  if (params.status) query.set("status", params.status);
+  const data = await apiRequest(`/email/getall?${query.toString()}`, "GET");
+  // Response shape isn't fully specified beyond EmailListResponse, so read defensively.
+  const emails: Email[] = data?.emails || data?.data || data?.results || [];
+  return { emails, total: data?.total, hasMore: data?.hasMore };
+}
+
+/* ---- GET /api/v1/task/timeframe/{timeframe} — used by the "select a task" picker ---- */
+type GetTasksByTimeframeParams = { limit?: number; page?: number; startDate?: string; endDate?: string };
+
+export async function getTasksByTimeframe(timeframe: Timeframe, params: GetTasksByTimeframeParams = {}): Promise<{ tasks: Task[]; total?: number; hasMore?: boolean }> {
+  const query = new URLSearchParams();
+  query.set("limit", String(params.limit ?? PAGE_LIMIT));
+  query.set("page", String(params.page ?? 1));
+  if (params.startDate) query.set("startDate", params.startDate);
+  if (params.endDate) query.set("endDate", params.endDate);
+  const data = await apiRequest(`/task/timeframe/${timeframe}?${query.toString()}`, "GET");
+  const tasks: Task[] = data?.tasks || data?.data || data?.results || [];
+  return { tasks, total: data?.total, hasMore: data?.hasMore };
+}
+
+/* ============================================================================
+   Dummy APIs — no endpoint exists yet for these actions in the shared spec.
+   Swap these out once the backend adds real routes; UI code already calls
+   them by name so only the internals below need to change.
+   ============================================================================ */
+
+async function dummyUpdateRoutine(id: number, payload: Partial<Routine>) {
+  await new Promise(r => setTimeout(r, 350));
+  return { routine: { ...payload, id } };
+}
+async function dummyDeleteRoutine(id: number) {
+  await new Promise(r => setTimeout(r, 250));
+  return { success: true };
+}
+async function dummyArchiveRoutine(id: number) {
+  await new Promise(r => setTimeout(r, 250));
+  return { success: true };
+}
+async function dummyDetachTask(routineId: number, taskId: number) {
+  await new Promise(r => setTimeout(r, 250));
+  return { success: true };
+}
+async function dummyDetachReminder(routineId: number, emailId: number) {
+  await new Promise(r => setTimeout(r, 250));
+  return { success: true };
+}
+async function dummyUpdateTaskStatus(taskId: number, status: TaskStatus) {
+  await new Promise(r => setTimeout(r, 200));
+  return { success: true };
+}
+
+/* ============================================================================
+   Small helpers
+   ============================================================================ */
+
+const uid = () => Math.floor(Math.random() * 1_000_000_000);
+
+/** Attaches an infinite-scroll listener to a scrollable container. */
+function useInfiniteScroll(containerRef: React.RefObject<HTMLDivElement>, onLoadMore: () => void, hasMore: boolean, loading: boolean) {
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const handler = () => {
+      if (loading || !hasMore) return;
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 96) onLoadMore();
+    };
+    el.addEventListener("scroll", handler);
+    return () => el.removeEventListener("scroll", handler);
+  }, [containerRef, onLoadMore, hasMore, loading]);
 }
 
 /* ============================================================================
@@ -213,327 +351,350 @@ function Toast({ message, type, onClose }: { message: string; type: "success" | 
    ============================================================================ */
 
 export default function RoutineManager() {
-  const [routines, setRoutines] = useState<Routine[]>(seedRoutines());
-  const [toasts, setToasts] = useState<{ id: string; message: string; type: "success" | "error" | "info" }[]>([]);
+  /* ---------- routines list (infinite scroll) ---------- */
+  const [routines, setRoutines] = useState<Routine[]>([]);
+  const [routinesSkip, setRoutinesSkip] = useState(0);
+  const [routinesHasMore, setRoutinesHasMore] = useState(true);
+  const [routinesLoading, setRoutinesLoading] = useState(false);
+  const [routinesError, setRoutinesError] = useState("");
+  const routineListRef = useRef<HTMLDivElement>(null);
+
+  const [toasts, setToasts] = useState<{ id: number; message: string; type: "success" | "error" | "info" }[]>([]);
   const [showRoutineForm, setShowRoutineForm] = useState(false);
-  const [editingRoutineId, setEditingRoutineId] = useState<string | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [editingRoutineId, setEditingRoutineId] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
+
   const [search, setSearch] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
-  const [filterPriority, setFilterPriority] = useState("");
-  const [taskFormFor, setTaskFormFor] = useState<string | null>(null); // routineId
-  const [editingTask, setEditingTask] = useState<{ routineId: string; task: RoutineTask } | null>(null);
-  const [reminderFormFor, setReminderFormFor] = useState<string | null>(null);
-  const [editingReminder, setEditingReminder] = useState<{ routineId: string; reminder: RoutineReminder } | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [filterPriority, setFilterPriority] = useState<RoutinePriority | "">("");
+  const [filterStatus, setFilterStatus] = useState<RoutineStatus | "">("active");
+
+  const [taskPickerFor, setTaskPickerFor] = useState<number | null>(null);
+  const [reminderPickerFor, setReminderPickerFor] = useState<number | null>(null);
 
   const showToast = (message: string, type: "success" | "error" | "info" = "info") => {
     const id = uid();
     setToasts(prev => [...prev, { id, message, type }]);
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3200);
   };
-  const removeToast = (id: string) => setToasts(prev => prev.filter(t => t.id !== id));
+  const removeToast = (id: number) => setToasts(prev => prev.filter(t => t.id !== id));
 
-  /* ---------------- stats ---------------- */
+  /* ---------------- fetch routines (resets on filter change, appends on scroll) ---------------- */
+  const fetchRoutines = useCallback(async (reset: boolean) => {
+    try {
+      setRoutinesLoading(true);
+      setRoutinesError("");
+      const currentSkip = reset ? 0 : routinesSkip;
+      const data = await getRoutines({
+        limit: PAGE_LIMIT,
+        skip: currentSkip,
+        search: search || undefined,
+        category: filterCategory || undefined,
+        priority: (filterPriority as RoutinePriority) || undefined,
+        status: (filterStatus as RoutineStatus) || undefined,
+      });
+      const fetched = data?.routines || [];
+      setRoutines(prev => (reset ? fetched : [...prev, ...fetched]));
+      setRoutinesSkip(currentSkip + fetched.length);
+      setRoutinesHasMore(!!data?.hasMore);
+    } catch (error: any) {
+      setRoutinesError(error?.message || "Failed to fetch routines");
+      showToast(error?.message || "Failed to fetch routines", "error");
+    } finally {
+      setRoutinesLoading(false);
+    }
+  }, [routinesSkip, search, filterCategory, filterPriority, filterStatus]);
+
+  // Reset + refetch whenever filters change
+  useEffect(() => {
+    fetchRoutines(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, filterCategory, filterPriority, filterStatus]);
+
+  useInfiniteScroll(routineListRef, () => fetchRoutines(false), routinesHasMore, routinesLoading);
+
+  /* ---------------- stats (based on currently loaded routines) ---------------- */
   const stats = useMemo(() => {
     const active = routines.filter(r => r.status === "active");
-    const allTasks = routines.flatMap(r => r.tasks);
+    const allTasks = routines.flatMap(r => r.Tasks || []);
     const doneTasks = allTasks.filter(t => t.status === "done");
-    const pendingReminders = routines.flatMap(r => r.reminders).filter(rm => rm.status === "pending");
+    const pendingReminders = routines.flatMap(r => r.Emails || []).filter(e => e.status === "pending");
     return { active: active.length, totalTasks: allTasks.length, doneTasks: doneTasks.length, pendingReminders: pendingReminders.length };
   }, [routines]);
 
-  /* ---------------- filtering ---------------- */
-  const filteredRoutines = useMemo(() => {
-    return routines.filter(r => {
-      if (r.status === "archived") return false;
-      if (filterCategory && r.category !== filterCategory) return false;
-      if (filterPriority && r.priority !== filterPriority) return false;
-      if (search) {
-        const q = search.toLowerCase();
-        const hay = [r.title, r.category, r.description, ...r.tags].join(" ").toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      return true;
-    });
-  }, [routines, filterCategory, filterPriority, search]);
-
-  /* ---------------- routine CRUD ----------------
-     Swap the setRoutines(...) calls below for real API calls, e.g.:
-     await fetch("/api/routines", { method: "POST", body: JSON.stringify(data) })
-  */
-  const emptyRoutineDraft = (): Omit<Routine, "id" | "user"> => ({
+  /* ---------------- routine create/edit ---------------- */
+  const emptyRoutineDraft = (): Partial<Routine> => ({
     title: "", description: "", category: "Study", priority: "medium", color: "Blue", icon: "📚",
-    repeatType: "daily", weeklyDays: [1, 2, 3, 4, 5], monthDay: 1, customInterval: 1, customUnit: "days",
-    dateMode: "forever", startDate: todayISO(), endDate: null, repeatUntil: null, skipDates: [],
+    repeatType: "daily", repeatConfig: { days: [1, 2, 3, 4, 5] },
+    dateMode: "forever", startDate: todayISO(), endDate: null, skipDates: [],
     allDay: false, startTime: "09:00", endTime: "10:00", estimatedMinutes: 60,
     location: "", notes: "", tags: [], status: "active",
-    tasks: [], reminders: [],
   });
-  const [routineDraft, setRoutineDraft] = useState(emptyRoutineDraft());
+  const [routineDraft, setRoutineDraft] = useState<Partial<Routine>>(emptyRoutineDraft());
 
   const openNewRoutineForm = () => { setEditingRoutineId(null); setRoutineDraft(emptyRoutineDraft()); setShowRoutineForm(true); };
-  const openEditRoutineForm = (r: Routine) => {
-    setEditingRoutineId(r.id);
-    setRoutineDraft({ ...r, tasks: r.tasks.map(t => ({ ...t })), reminders: r.reminders.map(rm => ({ ...rm })) });
-    setShowRoutineForm(true);
-  };
+  const openEditRoutineForm = (r: Routine) => { setEditingRoutineId(r.id); setRoutineDraft({ ...r }); setShowRoutineForm(true); };
 
   const saveRoutine = async () => {
-    if (!routineDraft.title.trim()) { showToast("Title is required", "error"); return; }
+    if (!routineDraft.title?.trim()) { showToast("Title is required", "error"); return; }
     setSaving(true);
     try {
-      // await fetch(editingRoutineId ? `/api/routines/${editingRoutineId}` : "/api/routines", {
-      //   method: editingRoutineId ? "PUT" : "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify(routineDraft), // backend fans this out into Routine + Task[] + Reminder[] rows
-      // });
       if (editingRoutineId) {
-        const rId = editingRoutineId;
-        setRoutines(prev => prev.map(r => (r.id === rId ? {
-          ...r,
-          ...routineDraft,
-          tasks: routineDraft.tasks.map(t => ({ ...t, id: t.id || uid(), routineId: rId })),
-          reminders: routineDraft.reminders.map(rm => ({ ...rm, id: rm.id || uid(), routineId: rId })),
-        } : r)));
+        // No PUT /routine/:id in the current spec — dummy call until backend adds it.
+        await dummyUpdateRoutine(editingRoutineId, routineDraft);
+        setRoutines(prev => prev.map(r => (r.id === editingRoutineId ? { ...r, ...routineDraft } as Routine : r)));
         showToast("Routine updated", "success");
       } else {
-        const newId = uid();
-        setRoutines(prev => [{
-          ...routineDraft,
-          id: newId,
-          user: 1,
-          tasks: routineDraft.tasks.map(t => ({ ...t, id: t.id || uid(), routineId: newId })),
-          reminders: routineDraft.reminders.map(rm => ({ ...rm, id: rm.id || uid(), routineId: newId })),
-        }, ...prev]);
-        showToast(`Routine created with ${routineDraft.tasks.length} task(s) and ${routineDraft.reminders.length} reminder(s)`, "success");
+        const data = await createRoutine(routineDraft);
+        const created: Routine = { ...(data?.routine || data?.data || data), Tasks: [], Emails: [] } as Routine;
+        setRoutines(prev => [created, ...prev]);
+        showToast("Routine created — add tasks & reminders below", "success");
+        // Jump straight into the new routine so the user can attach existing tasks/reminders.
+        setExpandedId(created.id);
       }
       setShowRoutineForm(false);
-    } catch {
-      showToast("Something went wrong saving the routine", "error");
+    } catch (error: any) {
+      showToast(error?.message || "Something went wrong saving the routine", "error");
     } finally {
       setSaving(false);
     }
   };
-  const deleteRoutine = (id: string) => { setRoutines(prev => prev.filter(r => r.id !== id)); showToast("Routine deleted", "info"); };
-  const archiveRoutine = (id: string) => { setRoutines(prev => prev.map(r => (r.id === id ? { ...r, status: "archived" } : r))); showToast("Routine archived", "info"); };
 
-  /* ---------------- task CRUD (nested under a routine) ---------------- */
-  const emptyTaskDraft = (routineId: string): Omit<RoutineTask, "id"> => ({
-    routineId: routineId, title: "", description: "", status: "pending", estimatedTime: todayISO(), time: ["09:00", "10:00"], priority: "normal",
-  });
-  const [taskDraft, setTaskDraft] = useState<Omit<RoutineTask, "id">>(emptyTaskDraft(""));
-
-  const openNewTaskForm = (routineId: string) => { setEditingTask(null); setTaskDraft(emptyTaskDraft(routineId)); setTaskFormFor(routineId); };
-  const openEditTaskForm = (routineId: string, task: RoutineTask) => { setEditingTask({ routineId, task }); setTaskDraft({ ...task }); setTaskFormFor(routineId); };
-
-  const saveTask = () => {
-    if (!taskDraft.title.trim()) { showToast("Task title is required", "error"); return; }
-    setRoutines(prev => prev.map(r => {
-      if (r.id !== taskFormFor) return r;
-      if (editingTask) {
-        return { ...r, tasks: r.tasks.map(t => (t.id === editingTask.task.id ? { ...t, ...taskDraft } : t)) };
-      }
-      return { ...r, tasks: [...r.tasks, { ...taskDraft, id: uid() }] };
-    }));
-    showToast(editingTask ? "Task updated" : "Task added", "success");
-    setTaskFormFor(null);
+  const deleteRoutine = async (id: number) => {
+    try {
+      await dummyDeleteRoutine(id); // no DELETE /routine/:id in the spec yet
+      setRoutines(prev => prev.filter(r => r.id !== id));
+      showToast("Routine deleted", "info");
+    } catch {
+      showToast("Failed to delete routine", "error");
+    }
   };
-  const deleteTask = (routineId: string, taskId: string) => {
-    setRoutines(prev => prev.map(r => (r.id === routineId ? { ...r, tasks: r.tasks.filter(t => t.id !== taskId) } : r)));
-    showToast("Task deleted", "info");
+  const archiveRoutine = async (id: number) => {
+    try {
+      await dummyArchiveRoutine(id); // no archive endpoint in the spec yet
+      setRoutines(prev => prev.map(r => (r.id === id ? { ...r, status: "archived" } : r)));
+      showToast("Routine archived", "info");
+    } catch {
+      showToast("Failed to archive routine", "error");
+    }
   };
-  const cycleTaskStatus = (routineId: string, taskId: string) => {
+
+  /* ---------------- attach existing task / reminder to a routine ---------------- */
+  const handleAttachTask = async (routineId: number, task: Task) => {
+    try {
+      await attachTaskToRoutine(routineId, task.id);
+      setRoutines(prev => prev.map(r => (r.id === routineId ? { ...r, Tasks: [...(r.Tasks || []), task] } : r)));
+      showToast("Task attached to routine", "success");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to attach task", "error");
+    } finally {
+      setTaskPickerFor(null);
+    }
+  };
+  const handleAttachReminder = async (routineId: number, email: Email) => {
+    try {
+      await attachReminderToRoutine(routineId, email.id);
+      setRoutines(prev => prev.map(r => (r.id === routineId ? { ...r, Emails: [...(r.Emails || []), email] } : r)));
+      showToast("Reminder attached to routine", "success");
+    } catch (error: any) {
+      showToast(error?.message || "Failed to attach reminder", "error");
+    } finally {
+      setReminderPickerFor(null);
+    }
+  };
+  const handleDetachTask = async (routineId: number, taskId: number) => {
+    try {
+      await dummyDetachTask(routineId, taskId); // no DELETE /routine/tasks in the spec yet
+      setRoutines(prev => prev.map(r => (r.id === routineId ? { ...r, Tasks: r.Tasks.filter(t => t.id !== taskId) } : r)));
+      showToast("Task removed from routine", "info");
+    } catch {
+      showToast("Failed to remove task", "error");
+    }
+  };
+  const handleDetachReminder = async (routineId: number, emailId: number) => {
+    try {
+      await dummyDetachReminder(routineId, emailId); // no DELETE /routine/reminders in the spec yet
+      setRoutines(prev => prev.map(r => (r.id === routineId ? { ...r, Emails: r.Emails.filter(e => e.id !== emailId) } : r)));
+      showToast("Reminder removed from routine", "info");
+    } catch {
+      showToast("Failed to remove reminder", "error");
+    }
+  };
+  const cycleTaskStatus = async (routineId: number, task: Task) => {
     const order: TaskStatus[] = ["pending", "to do", "in progress", "done"];
-    setRoutines(prev => prev.map(r => {
-      if (r.id !== routineId) return r;
-      return {
-        ...r,
-        tasks: r.tasks.map(t => {
-          if (t.id !== taskId) return t;
-          const next = order[(order.indexOf(t.status) + 1) % order.length];
-          return { ...t, status: next };
-        }),
-      };
-    }));
+    const next = order[(order.indexOf(task.status) + 1) % order.length];
+    try {
+      await dummyUpdateTaskStatus(task.id, next); // no PATCH /task/:id status endpoint in the spec yet
+      setRoutines(prev => prev.map(r => {
+        if (r.id !== routineId) return r;
+        return { ...r, Tasks: r.Tasks.map(t => (t.id === task.id ? { ...t, status: next } : t)) };
+      }));
+    } catch {
+      showToast("Failed to update task status", "error");
+    }
   };
 
-  /* ---------------- reminder CRUD (nested under a routine) ---------------- */
-  const emptyReminderDraft = (routineId: string): Omit<RoutineReminder, "id"> => ({
-    routineId: routineId, to: "", subject: "", body: "", scheduleTime: new Date().toISOString().slice(0, 16), status: "pending",
-  });
-  const [reminderDraft, setReminderDraft] = useState<Omit<RoutineReminder, "id">>(emptyReminderDraft(""));
-
-  const openNewReminderForm = (routineId: string) => { setEditingReminder(null); setReminderDraft(emptyReminderDraft(routineId)); setReminderFormFor(routineId); };
-  const openEditReminderForm = (routineId: string, reminder: RoutineReminder) => {
-    setEditingReminder({ routineId, reminder });
-    setReminderDraft({ ...reminder, scheduleTime: reminder.scheduleTime.slice(0, 16) });
-    setReminderFormFor(routineId);
-  };
-
-  const saveReminder = () => {
-    if (!reminderDraft.to.trim() || !reminderDraft.subject.trim()) { showToast("Recipient and subject are required", "error"); return; }
-    setRoutines(prev => prev.map(r => {
-      if (r.id !== reminderFormFor) return r;
-      if (editingReminder) {
-        return { ...r, reminders: r.reminders.map(rm => (rm.id === editingReminder.reminder.id ? { ...rm, ...reminderDraft } : rm)) };
-      }
-      return { ...r, reminders: [...r.reminders, { ...reminderDraft, id: uid() }] };
-    }));
-    showToast(editingReminder ? "Reminder updated" : "Reminder scheduled", "success");
-    setReminderFormFor(null);
-  };
-  const deleteReminder = (routineId: string, reminderId: string) => {
-    setRoutines(prev => prev.map(r => (r.id === routineId ? { ...r, reminders: r.reminders.filter(rm => rm.id !== reminderId) } : r)));
-    showToast("Reminder removed", "info");
-  };
+  const activeRoutines = routines.filter(r => r.status !== "archived" || filterStatus === "archived");
 
   return (
     <>
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
-      <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
-        {toasts.map(t => <Toast key={t.id} message={t.message} type={t.type} onClose={() => removeToast(t.id)} />)}
-      </div>
-
-      {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 backdrop-blur-sm bg-white/80">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-sm flex items-center justify-center shadow-lg">
-                <Calendar className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-slate-900">Routines</h1>
-                <p className="text-xs text-slate-500">Each routine groups its own tasks and reminders</p>
-              </div>
-            </div>
-            <button
-              onClick={openNewRoutineForm}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-sm shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">New Routine</span>
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4">
-        {/* Stats bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-          <StatCard label="Active Routines" value={stats.active} icon={<Repeat className="w-4 h-4" />} />
-          <StatCard label="Total Tasks" value={stats.totalTasks} icon={<ListChecks className="w-4 h-4" />} />
-          <StatCard label="Tasks Done" value={stats.doneTasks} icon={<Check className="w-4 h-4" />} />
-          <StatCard label="Pending Reminders" value={stats.pendingReminders} icon={<BellRing className="w-4 h-4" />} />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+        <div className="fixed top-4 right-4 z-50 space-y-2 max-w-sm">
+          {toasts.map(t => <Toast key={t.id} message={t.message} type={t.type} onClose={() => removeToast(t.id)} />)}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-4">
-            <div className="bg-white rounded-sm shadow-sm border border-slate-200 p-5">
-              <div className="relative mb-4">
-                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  value={search}
-                  onChange={e => setSearch(e.target.value)}
-                  placeholder="Search routines, tags..."
-                  className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
-                />
-              </div>
-              <div className="flex items-center gap-2 mb-2">
-                <Filter className="w-4 h-4 text-slate-600" />
-                <h2 className="font-semibold text-slate-900 text-sm">Filters</h2>
-              </div>
-              <label className="text-xs font-medium text-slate-500">Category</label>
-              <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="w-full mt-1 mb-3 px-3 py-2 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
-                <option value="">All Categories</option>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-              <label className="text-xs font-medium text-slate-500">Priority</label>
-              <select value={filterPriority} onChange={e => setFilterPriority(e.target.value)} className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
-                <option value="">All Priorities</option>
-                {ROUTINE_PRIORITIES.map(p => <option key={p.value} value={p.value} className="capitalize">{p.value}</option>)}
-              </select>
-              {(filterCategory || filterPriority || search) && (
-                <button onClick={() => { setFilterCategory(""); setFilterPriority(""); setSearch(""); }} className="w-full mt-3 text-xs font-medium text-blue-600 hover:text-blue-700">
-                  Clear all filters
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* Routine list */}
-          <div className="lg:col-span-2 space-y-3">
-            {filteredRoutines.length === 0 ? (
-              <div className="bg-white rounded-sm shadow-sm border border-slate-200 p-12 text-center">
-                <div className="w-16 h-16 bg-slate-100 rounded-sm flex items-center justify-center mx-auto mb-4">
-                  <Inbox className="w-8 h-8 text-slate-400" />
+        {/* Header */}
+        <header className="bg-white border-b border-slate-200 sticky top-0 z-40 backdrop-blur-sm bg-white/80">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-sm flex items-center justify-center shadow-lg">
+                  <Calendar className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-slate-900 mb-2">No routines match</h3>
-                <p className="text-sm text-slate-500 mb-4">Try adjusting your filters, or create a new routine.</p>
-                <button onClick={openNewRoutineForm} className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-sm shadow-lg shadow-blue-500/30">
-                  Create Routine
-                </button>
+                <div>
+                  <h1 className="text-xl font-bold text-slate-900">Routines</h1>
+                  <p className="text-xs text-slate-500">Attach existing tasks &amp; reminders to each routine</p>
+                </div>
               </div>
-            ) : (
-              filteredRoutines.map(routine => (
-                <RoutineCard
-                  key={routine.id}
-                  routine={routine}
-                  expanded={expandedId === routine.id}
-                  onToggleExpand={() => setExpandedId(expandedId === routine.id ? null : routine.id)}
-                  onEdit={() => openEditRoutineForm(routine)}
-                  onArchive={() => archiveRoutine(routine.id)}
-                  onDelete={() => deleteRoutine(routine.id)}
-                  onAddTask={() => openNewTaskForm(routine.id)}
-                  onEditTask={(t) => openEditTaskForm(routine.id, t)}
-                  onDeleteTask={(taskId) => deleteTask(routine.id, taskId)}
-                  onCycleTaskStatus={(taskId) => cycleTaskStatus(routine.id, taskId)}
-                  onAddReminder={() => openNewReminderForm(routine.id)}
-                  onEditReminder={(rm) => openEditReminderForm(routine.id, rm)}
-                  onDeleteReminder={(rmId) => deleteReminder(routine.id, rmId)}
-                />
-              ))
-            )}
+              <button
+                onClick={openNewRoutineForm}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-sm shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all"
+              >
+                <Plus className="w-4 h-4" />
+                <span className="hidden sm:inline">New Routine</span>
+              </button>
+            </div>
           </div>
-        </div>
-      </main>
+        </header>
 
-      {showRoutineForm && (
-        <RoutineFormModal
-          draft={routineDraft}
-          setDraft={setRoutineDraft}
-          isEditing={!!editingRoutineId}
-          saving={saving}
-          onCancel={() => setShowRoutineForm(false)}
-          onSave={saveRoutine}
-        />
-      )}
+        <main className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-4">
+          {/* Stats bar */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+            <StatCard label="Active Routines (loaded)" value={stats.active} icon={<Repeat className="w-4 h-4" />} />
+            <StatCard label="Total Tasks (loaded)" value={stats.totalTasks} icon={<ListChecks className="w-4 h-4" />} />
+            <StatCard label="Tasks Done (loaded)" value={stats.doneTasks} icon={<Check className="w-4 h-4" />} />
+            <StatCard label="Pending Reminders (loaded)" value={stats.pendingReminders} icon={<BellRing className="w-4 h-4" />} />
+          </div>
 
-      {taskFormFor && (
-  <TaskFormModal
-    draft={taskDraft}
-    setDraft={setTaskDraft}
-    isEditing={!!editingTask}
-    onCancel={() => setTaskFormFor(null)}
-    onSave={saveTask}
-  />
-)}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Sidebar */}
+            <div className="lg:col-span-1 space-y-4">
+              <div className="bg-white rounded-sm shadow-sm border border-slate-200 p-5">
+                <div className="relative mb-4">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Search routines, tags..."
+                    className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200"
+                  />
+                </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Filter className="w-4 h-4 text-slate-600" />
+                  <h2 className="font-semibold text-slate-900 text-sm">Filters</h2>
+                </div>
+                <label className="text-xs font-medium text-slate-500">Category</label>
+                <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="w-full mt-1 mb-3 px-3 py-2 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
+                  <option value="">All Categories</option>
+                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+                <label className="text-xs font-medium text-slate-500">Priority</label>
+                <select value={filterPriority} onChange={e => setFilterPriority(e.target.value as RoutinePriority | "")} className="w-full mt-1 mb-3 px-3 py-2 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
+                  <option value="">All Priorities</option>
+                  {ROUTINE_PRIORITIES.map(p => <option key={p.value} value={p.value} className="capitalize">{p.value}</option>)}
+                </select>
+                <label className="text-xs font-medium text-slate-500">Status</label>
+                <select value={filterStatus} onChange={e => setFilterStatus(e.target.value as RoutineStatus | "")} className="w-full mt-1 px-3 py-2 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
+                  <option value="active">Active</option>
+                  <option value="paused">Paused</option>
+                  <option value="archived">Archived</option>
+                  <option value="">All Statuses</option>
+                </select>
+                {(filterCategory || filterPriority || search || filterStatus !== "active") && (
+                  <button onClick={() => { setFilterCategory(""); setFilterPriority(""); setSearch(""); setFilterStatus("active"); }} className="w-full mt-3 text-xs font-medium text-blue-600 hover:text-blue-700">
+                    Clear all filters
+                  </button>
+                )}
+              </div>
+            </div>
 
-      {reminderFormFor && (
-        <ReminderFormModal
-          draft={reminderDraft}
-          setDraft={setReminderDraft}
-          isEditing={!!editingReminder}
-          onCancel={() => setReminderFormFor(null)}
-          onSave={saveReminder}
-        />
-      )}
-    </div>
+            {/* Routine list — infinite scroll */}
+            <div className="lg:col-span-2">
+              <div ref={routineListRef} className="space-y-3 max-h-[calc(100vh-220px)] overflow-y-auto pr-1">
+                {activeRoutines.length === 0 && !routinesLoading ? (
+                  <div className="bg-white rounded-sm shadow-sm border border-slate-200 p-12 text-center">
+                    <div className="w-16 h-16 bg-slate-100 rounded-sm flex items-center justify-center mx-auto mb-4">
+                      <Inbox className="w-8 h-8 text-slate-400" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-slate-900 mb-2">No routines match</h3>
+                    <p className="text-sm text-slate-500 mb-4">Try adjusting your filters, or create a new routine.</p>
+                    <button onClick={openNewRoutineForm} className="px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-sm shadow-lg shadow-blue-500/30">
+                      Create Routine
+                    </button>
+                  </div>
+                ) : (
+                  activeRoutines.map(routine => (
+                    <RoutineCard
+                      key={routine.id}
+                      routine={routine}
+                      expanded={expandedId === routine.id}
+                      onToggleExpand={() => setExpandedId(expandedId === routine.id ? null : routine.id)}
+                      onEdit={() => openEditRoutineForm(routine)}
+                      onArchive={() => archiveRoutine(routine.id)}
+                      onDelete={() => deleteRoutine(routine.id)}
+                      onOpenTaskPicker={() => setTaskPickerFor(routine.id)}
+                      onOpenReminderPicker={() => setReminderPickerFor(routine.id)}
+                      onDetachTask={(taskId) => handleDetachTask(routine.id, taskId)}
+                      onDetachReminder={(emailId) => handleDetachReminder(routine.id, emailId)}
+                      onCycleTaskStatus={(task) => cycleTaskStatus(routine.id, task)}
+                    />
+                  ))
+                )}
 
+                {routinesLoading && (
+                  <div className="flex items-center justify-center gap-2 py-4 text-sm text-slate-500">
+                    <Loader2 className="w-4 h-4 animate-spin" /> Loading routines…
+                  </div>
+                )}
+                {!routinesHasMore && activeRoutines.length > 0 && (
+                  <p className="text-center text-xs text-slate-400 py-2">You&apos;ve reached the end of the list.</p>
+                )}
+                {routinesError && (
+                  <p className="text-center text-xs text-red-500 py-2">{routinesError}</p>
+                )}
+              </div>
+            </div>
+          </div>
+        </main>
 
-    
+        {showRoutineForm && (
+          <RoutineFormModal
+            draft={routineDraft}
+            setDraft={setRoutineDraft}
+            isEditing={!!editingRoutineId}
+            saving={saving}
+            onCancel={() => setShowRoutineForm(false)}
+            onSave={saveRoutine}
+          />
+        )}
+
+        {taskPickerFor !== null && (
+          <SelectTaskModal
+            excludeIds={(routines.find(r => r.id === taskPickerFor)?.Tasks || []).map(t => t.id)}
+            onClose={() => setTaskPickerFor(null)}
+            onSelect={(task) => handleAttachTask(taskPickerFor, task)}
+          />
+        )}
+
+        {reminderPickerFor !== null && (
+          <SelectReminderModal
+            excludeIds={(routines.find(r => r.id === reminderPickerFor)?.Emails || []).map(e => e.id)}
+            onClose={() => setReminderPickerFor(null)}
+            onSelect={(email) => handleAttachReminder(reminderPickerFor, email)}
+          />
+        )}
+      </div>
     </>
   );
 }
@@ -557,8 +718,7 @@ function StatCard({ label, value, icon }: { label: string; value: number | strin
 
 function RoutineCard({
   routine, expanded, onToggleExpand, onEdit, onArchive, onDelete,
-  onAddTask, onEditTask, onDeleteTask, onCycleTaskStatus,
-  onAddReminder, onEditReminder, onDeleteReminder,
+  onOpenTaskPicker, onOpenReminderPicker, onDetachTask, onDetachReminder, onCycleTaskStatus,
 }: {
   routine: Routine;
   expanded: boolean;
@@ -566,18 +726,18 @@ function RoutineCard({
   onEdit: () => void;
   onArchive: () => void;
   onDelete: () => void;
-  onAddTask: () => void;
-  onEditTask: (t: RoutineTask) => void;
-  onDeleteTask: (taskId: string) => void;
-  onCycleTaskStatus: (taskId: string) => void;
-  onAddReminder: () => void;
-  onEditReminder: (rm: RoutineReminder) => void;
-  onDeleteReminder: (rmId: string) => void;
+  onOpenTaskPicker: () => void;
+  onOpenReminderPicker: () => void;
+  onDetachTask: (taskId: number) => void;
+  onDetachReminder: (emailId: number) => void;
+  onCycleTaskStatus: (task: Task) => void;
 }) {
   const color = colorCfg(routine.color);
   const priority = routinePriorityCfg(routine.priority);
-  const doneCount = routine.tasks.filter(t => t.status === "done").length;
-  const progressPct = routine.tasks.length ? Math.round((doneCount / routine.tasks.length) * 100) : 0;
+  const tasks = routine.Tasks || [];
+  const emails = routine.Emails || [];
+  const doneCount = tasks.filter(t => t.status === "done").length;
+  const progressPct = tasks.length ? Math.round((doneCount / tasks.length) * 100) : 0;
 
   return (
     <div className={`bg-white rounded-sm shadow-sm border transition-all ${expanded ? "border-blue-300 ring-2 ring-blue-100" : "border-slate-200 hover:border-slate-300"}`}>
@@ -603,13 +763,13 @@ function RoutineCard({
               {routine.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" />{routine.location}</span>}
             </div>
             <div className="flex flex-wrap gap-1.5 mb-3">
-              <span className={`px-2 py-0.5 text-[11px] font-medium rounded-md ${color.soft} ${color.text}`}>{routine.category}</span>
-              {routine.tags.map(tag => <span key={tag} className="px-2 py-0.5 text-[11px] font-medium rounded-md bg-slate-100 text-slate-600">{tag}</span>)}
+              {routine.category && <span className={`px-2 py-0.5 text-[11px] font-medium rounded-md ${color.soft} ${color.text}`}>{routine.category}</span>}
+              {(routine.tags || []).map(tag => <span key={tag} className="px-2 py-0.5 text-[11px] font-medium rounded-md bg-slate-100 text-slate-600">{tag}</span>)}
               <span className="px-2 py-0.5 text-[11px] font-medium rounded-md bg-slate-100 text-slate-500 flex items-center gap-1">
-                <ListChecks className="w-3 h-3" />{routine.tasks.length} tasks
+                <ListChecks className="w-3 h-3" />{tasks.length} tasks
               </span>
               <span className="px-2 py-0.5 text-[11px] font-medium rounded-md bg-slate-100 text-slate-500 flex items-center gap-1">
-                <Mail className="w-3 h-3" />{routine.reminders.length} reminders
+                <Mail className="w-3 h-3" />{emails.length} reminders
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -645,19 +805,19 @@ function RoutineCard({
               <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-1.5">
                 <ListChecks className="w-3.5 h-3.5" />Tasks
               </h4>
-              <button onClick={(e) => { e.stopPropagation(); onAddTask(); }} className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700">
-                <Plus className="w-3.5 h-3.5" />Add Task
+              <button onClick={(e) => { e.stopPropagation(); onOpenTaskPicker(); }} className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700">
+                <Link2 className="w-3.5 h-3.5" />Attach Task
               </button>
             </div>
             <div className="space-y-1.5">
-              {routine.tasks.length === 0 && <p className="text-sm text-slate-400 italic">No tasks yet.</p>}
-              {routine.tasks.map(task => {
+              {tasks.length === 0 && <p className="text-sm text-slate-400 italic">No tasks attached yet.</p>}
+              {tasks.map(task => {
                 const tp = taskPriorityCfg(task.priority);
                 const ts = taskStatusCfg(task.status);
                 return (
                   <div key={task.id} className="flex items-center gap-3 px-3 py-2 rounded-sm border border-slate-200">
                     <button
-                      onClick={(e) => { e.stopPropagation(); onCycleTaskStatus(task.id); }}
+                      onClick={(e) => { e.stopPropagation(); onCycleTaskStatus(task); }}
                       className={`flex-shrink-0 px-2 py-1 text-[11px] font-medium rounded-md capitalize ${ts.bg} ${ts.text} hover:opacity-75`}
                       title="Click to advance status"
                     >
@@ -665,11 +825,12 @@ function RoutineCard({
                     </button>
                     <div className="flex-1 min-w-0">
                       <p className={`text-sm font-medium truncate ${task.status === "done" ? "line-through text-slate-400" : "text-slate-700"}`}>{task.title}</p>
-                      {task.time?.length === 2 && <p className="text-xs text-slate-400">{formatTime12(task.time[0])} – {formatTime12(task.time[1])}</p>}
+                      {Array.isArray(task.time) && task.time.length === 2 && typeof task.time[0] === "string" && (
+                        <p className="text-xs text-slate-400">{formatTime12(task.time[0] as string)} – {formatTime12(task.time[1] as string)}</p>
+                      )}
                     </div>
                     <span className={`flex-shrink-0 px-2 py-0.5 text-[11px] font-medium rounded-md capitalize ${tp.bg} ${tp.text}`}>{task.priority}</span>
-                    <button onClick={(e) => { e.stopPropagation(); onEditTask(task); }} className="p-1 text-slate-400 hover:text-blue-600"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button onClick={(e) => { e.stopPropagation(); onDeleteTask(task.id); }} className="p-1 text-slate-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <button onClick={(e) => { e.stopPropagation(); onDetachTask(task.id); }} className="p-1 text-slate-400 hover:text-red-600" title="Remove from routine"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 );
               })}
@@ -682,24 +843,23 @@ function RoutineCard({
               <h4 className="text-xs font-semibold uppercase tracking-wide text-slate-500 flex items-center gap-1.5">
                 <BellRing className="w-3.5 h-3.5" />Reminders
               </h4>
-              <button onClick={(e) => { e.stopPropagation(); onAddReminder(); }} className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700">
-                <Plus className="w-3.5 h-3.5" />Add Reminder
+              <button onClick={(e) => { e.stopPropagation(); onOpenReminderPicker(); }} className="flex items-center gap-1 text-xs font-semibold text-blue-600 hover:text-blue-700">
+                <Link2 className="w-3.5 h-3.5" />Attach Reminder
               </button>
             </div>
             <div className="space-y-1.5">
-              {routine.reminders.length === 0 && <p className="text-sm text-slate-400 italic">No reminders scheduled.</p>}
-              {routine.reminders.map(rm => {
-                const rs = reminderStatusCfg(rm.status);
+              {emails.length === 0 && <p className="text-sm text-slate-400 italic">No reminders attached yet.</p>}
+              {emails.map(email => {
+                const rs = reminderStatusCfg(email.status);
                 return (
-                  <div key={rm.id} className="flex items-center gap-3 px-3 py-2 rounded-sm border border-slate-200">
+                  <div key={email.id} className="flex items-center gap-3 px-3 py-2 rounded-sm border border-slate-200">
                     <Mail className="w-4 h-4 text-slate-400 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-700 truncate">{rm.subject}</p>
-                      <p className="text-xs text-slate-400 truncate">to {rm.to} • {new Date(rm.scheduleTime).toLocaleString()}</p>
+                      <p className="text-sm font-medium text-slate-700 truncate">{email.subject}</p>
+                      <p className="text-xs text-slate-400 truncate">to {email.to} • {new Date(email.scheduleTime).toLocaleString()}</p>
                     </div>
-                    <span className={`flex-shrink-0 px-2 py-0.5 text-[11px] font-medium rounded-md capitalize ${rs.bg} ${rs.text}`}>{rm.status}</span>
-                    <button onClick={(e) => { e.stopPropagation(); onEditReminder(rm); }} className="p-1 text-slate-400 hover:text-blue-600"><Pencil className="w-3.5 h-3.5" /></button>
-                    <button onClick={(e) => { e.stopPropagation(); onDeleteReminder(rm.id); }} className="p-1 text-slate-400 hover:text-red-600"><Trash2 className="w-3.5 h-3.5" /></button>
+                    <span className={`flex-shrink-0 px-2 py-0.5 text-[11px] font-medium rounded-md capitalize ${rs.bg} ${rs.text}`}>{email.status}</span>
+                    <button onClick={(e) => { e.stopPropagation(); onDetachReminder(email.id); }} className="p-1 text-slate-400 hover:text-red-600" title="Remove from routine"><Trash2 className="w-3.5 h-3.5" /></button>
                   </div>
                 );
               })}
@@ -712,26 +872,39 @@ function RoutineCard({
 }
 
 /* ============================================================================
-   Routine form modal
+   Routine form modal — create/edit routine fields only.
+   Tasks & reminders are attached afterwards via the select pickers.
    ============================================================================ */
 
 function RoutineFormModal({
   draft, setDraft, isEditing, saving, onCancel, onSave,
 }: {
-  draft: any; setDraft: (d: any) => void; isEditing: boolean; saving: boolean; onCancel: () => void; onSave: () => void;
+  draft: Partial<Routine>; setDraft: (updater: (prev: Partial<Routine>) => Partial<Routine>) => void;
+  isEditing: boolean; saving: boolean; onCancel: () => void; onSave: () => void;
 }) {
-  const set = (patch: any) => setDraft((prev: any) => ({ ...prev, ...patch }));
-  const toggleWeekday = (day: number) => {
-    const days = draft.weeklyDays || [];
-    set({ weeklyDays: days.includes(day) ? days.filter((d: number) => d !== day) : [...days, day].sort() });
+  const set = (patch: Partial<Routine>) => setDraft((prev) => ({ ...prev, ...patch }));
+  const cfg = draft.repeatConfig || {};
+
+  const handleRepeatTypeChange = (rt: RepeatType) => {
+    let repeatConfig: Routine["repeatConfig"] = null;
+    if (rt === "weekly") repeatConfig = { days: [1, 2, 3, 4, 5] };
+    if (rt === "monthly") repeatConfig = { day: 1 };
+    if (rt === "custom") repeatConfig = { interval: 1, unit: "days" };
+    set({ repeatType: rt, repeatConfig });
   };
+  const toggleWeekday = (day: number) => {
+    const days = cfg.days || [];
+    const nextDays = days.includes(day) ? days.filter(d => d !== day) : [...days, day].sort();
+    set({ repeatConfig: { ...cfg, days: nextDays } });
+  };
+
   const [tagInput, setTagInput] = useState("");
   const addTag = () => {
     const val = tagInput.trim().replace(/^#*/, "#");
     if (val.length > 1 && !(draft.tags || []).includes(val)) set({ tags: [...(draft.tags || []), val] });
     setTagInput("");
   };
-  const removeTag = (t: string) => set({ tags: draft.tags.filter((x: string) => x !== t) });
+  const removeTag = (t: string) => set({ tags: (draft.tags || []).filter(x => x !== t) });
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
@@ -742,29 +915,36 @@ function RoutineFormModal({
           <button onClick={onCancel} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-sm"><X className="w-5 h-5" /></button>
         </div>
 
+        {!isEditing && (
+          <div className="mx-6 mt-4 flex items-start gap-2 px-3 py-2.5 bg-blue-50 border border-blue-100 rounded-sm text-xs text-blue-700">
+            <Link2 className="w-4 h-4 flex-shrink-0 mt-0.5" />
+            <span>You&apos;ll attach existing tasks and reminders to this routine right after creating it.</span>
+          </div>
+        )}
+
         <div className="px-6 py-5 space-y-5">
           <div>
             <label className="text-xs font-semibold text-slate-500">Title</label>
-            <input value={draft.title} onChange={e => set({ title: e.target.value })} placeholder="e.g. Morning Study Block"
+            <input value={draft.title || ""} onChange={e => set({ title: e.target.value })} placeholder="e.g. Morning Study Block"
               className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
           </div>
           <div>
             <label className="text-xs font-semibold text-slate-500">Description</label>
-            <input value={draft.description} onChange={e => set({ description: e.target.value })} placeholder="Optional short description"
+            <input value={draft.description || ""} onChange={e => set({ description: e.target.value })} placeholder="Optional short description"
               className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-semibold text-slate-500">Category</label>
-              <select value={draft.category} onChange={e => set({ category: e.target.value })}
+              <select value={draft.category || "Study"} onChange={e => set({ category: e.target.value })}
                 className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
                 {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
               <label className="text-xs font-semibold text-slate-500">Priority</label>
-              <select value={draft.priority} onChange={e => set({ priority: e.target.value })}
+              <select value={draft.priority || "medium"} onChange={e => set({ priority: e.target.value as RoutinePriority })}
                 className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200 capitalize">
                 {ROUTINE_PRIORITIES.map(p => <option key={p.value} value={p.value} className="capitalize">{p.value}</option>)}
               </select>
@@ -798,7 +978,7 @@ function RoutineFormModal({
             <label className="text-xs font-semibold text-slate-500 block mb-1.5">Repeat</label>
             <div className="flex flex-wrap gap-1.5">
               {REPEAT_TYPES.map(rt => (
-                <button key={rt} onClick={() => set({ repeatType: rt })}
+                <button key={rt} onClick={() => handleRepeatTypeChange(rt)}
                   className={`px-3 py-1.5 text-xs font-medium rounded-full border capitalize transition-colors ${draft.repeatType === rt ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-transparent" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
                   {rt}
                 </button>
@@ -812,7 +992,7 @@ function RoutineFormModal({
               <div className="flex gap-1.5">
                 {DAY_LABELS.map((lbl, idx) => (
                   <button key={idx} onClick={() => toggleWeekday(idx)}
-                    className={`w-9 h-9 rounded-full text-xs font-semibold transition-colors ${(draft.weeklyDays || []).includes(idx) ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white" : "bg-slate-100 text-slate-500"}`}>
+                    className={`w-9 h-9 rounded-full text-xs font-semibold transition-colors ${(cfg.days || []).includes(idx) ? "bg-gradient-to-br from-blue-500 to-indigo-600 text-white" : "bg-slate-100 text-slate-500"}`}>
                     {lbl}
                   </button>
                 ))}
@@ -823,7 +1003,7 @@ function RoutineFormModal({
           {draft.repeatType === "monthly" && (
             <div>
               <label className="text-xs font-semibold text-slate-500">Day of month</label>
-              <input type="number" min={1} max={31} value={draft.monthDay} onChange={e => set({ monthDay: Number(e.target.value) })}
+              <input type="number" min={1} max={31} value={cfg.day ?? 1} onChange={e => set({ repeatConfig: { ...cfg, day: Number(e.target.value) } })}
                 className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
             </div>
           )}
@@ -831,9 +1011,9 @@ function RoutineFormModal({
           {draft.repeatType === "custom" && (
             <div className="flex items-center gap-2">
               <span className="text-sm text-slate-600">Every</span>
-              <input type="number" min={1} value={draft.customInterval} onChange={e => set({ customInterval: Number(e.target.value) })}
+              <input type="number" min={1} value={cfg.interval ?? 1} onChange={e => set({ repeatConfig: { ...cfg, interval: Number(e.target.value) } })}
                 className="w-20 px-3 py-2 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
-              <select value={draft.customUnit} onChange={e => set({ customUnit: e.target.value })}
+              <select value={cfg.unit ?? "days"} onChange={e => set({ repeatConfig: { ...cfg, unit: e.target.value as CustomUnit } })}
                 className="px-3 py-2 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200">
                 <option value="days">Day(s)</option>
                 <option value="weeks">Week(s)</option>
@@ -847,7 +1027,7 @@ function RoutineFormModal({
               <label className="text-xs font-semibold text-slate-500 block mb-1.5">Ends</label>
               <div className="flex flex-wrap gap-1.5">
                 {[["range", "On date"], ["until", "After a date"], ["forever", "Never"]].map(([val, lbl]) => (
-                  <button key={val} onClick={() => set({ dateMode: val })}
+                  <button key={val} onClick={() => set({ dateMode: val as DateMode })}
                     className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${draft.dateMode === val ? "bg-slate-900 text-white border-transparent" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
                     {lbl}
                   </button>
@@ -859,7 +1039,7 @@ function RoutineFormModal({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs font-semibold text-slate-500">Start Date</label>
-              <input type="date" value={draft.startDate} onChange={e => set({ startDate: e.target.value })}
+              <input type="date" value={draft.startDate || todayISO()} onChange={e => set({ startDate: e.target.value })}
                 className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
             </div>
             {draft.repeatType !== "once" && draft.dateMode === "range" && (
@@ -869,30 +1049,23 @@ function RoutineFormModal({
                   className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
               </div>
             )}
-            {draft.repeatType !== "once" && draft.dateMode === "until" && (
-              <div>
-                <label className="text-xs font-semibold text-slate-500">Repeat Until</label>
-                <input type="date" value={draft.repeatUntil || ""} onChange={e => set({ repeatUntil: e.target.value })}
-                  className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
-              </div>
-            )}
           </div>
 
           <div>
             <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-2 cursor-pointer">
-              <input type="checkbox" checked={draft.allDay} onChange={e => set({ allDay: e.target.checked })} className="w-4 h-4 rounded accent-blue-600" />
+              <input type="checkbox" checked={!!draft.allDay} onChange={e => set({ allDay: e.target.checked })} className="w-4 h-4 rounded accent-blue-600" />
               All Day
             </label>
             {!draft.allDay && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs font-semibold text-slate-500">Start Time</label>
-                  <input type="time" value={draft.startTime} onChange={e => set({ startTime: e.target.value })}
+                  <input type="time" value={draft.startTime || "09:00"} onChange={e => set({ startTime: e.target.value })}
                     className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-500">End Time</label>
-                  <input type="time" value={draft.endTime} onChange={e => set({ endTime: e.target.value })}
+                  <input type="time" value={draft.endTime || "10:00"} onChange={e => set({ endTime: e.target.value })}
                     className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
                 </div>
               </div>
@@ -901,7 +1074,7 @@ function RoutineFormModal({
 
           <div>
             <label className="text-xs font-semibold text-slate-500">Location</label>
-            <input value={draft.location} onChange={e => set({ location: e.target.value })} placeholder="e.g. Home, Office, Google Meet"
+            <input value={draft.location || ""} onChange={e => set({ location: e.target.value })} placeholder="e.g. Home, Office, Google Meet"
               className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
           </div>
 
@@ -912,9 +1085,9 @@ function RoutineFormModal({
                 placeholder="Type a tag and press Enter" className="flex-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
               <button onClick={addTag} className="px-3 py-2 text-sm font-medium text-slate-600 bg-slate-100 rounded-sm hover:bg-slate-200">Add</button>
             </div>
-            {draft.tags?.length > 0 && (
+            {(draft.tags?.length || 0) > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
-                {draft.tags.map((t: string) => (
+                {(draft.tags || []).map((t) => (
                   <span key={t} className="flex items-center gap-1 px-2 py-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-md">
                     {t}<button onClick={() => removeTag(t)}><X className="w-3 h-3" /></button>
                   </span>
@@ -925,7 +1098,7 @@ function RoutineFormModal({
 
           <div>
             <label className="text-xs font-semibold text-slate-500">Notes</label>
-            <textarea value={draft.notes} onChange={e => set({ notes: e.target.value })} rows={3} placeholder="Anything you'd like to remember..."
+            <textarea value={draft.notes || ""} onChange={e => set({ notes: e.target.value })} rows={3} placeholder="Anything you'd like to remember..."
               className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none" />
           </div>
         </div>
@@ -943,73 +1116,116 @@ function RoutineFormModal({
 }
 
 /* ============================================================================
-   Task form modal — mirrors task.model.ts fields
+   Select Task modal — GET /api/v1/task/timeframe/{timeframe}, infinite scroll
    ============================================================================ */
 
-function TaskFormModal({
-  draft, setDraft, isEditing, onCancel, onSave,
-}: {
-  draft: Omit<RoutineTask, "id">; setDraft: (d: any) => void; isEditing: boolean; onCancel: () => void; onSave: () => void;
+function SelectTaskModal({ onClose, onSelect, excludeIds }: {
+  onClose: () => void; onSelect: (task: Task) => void; excludeIds: number[];
 }) {
-  const set = (patch: any) => setDraft((prev: any) => ({ ...prev, ...patch }));
+  const [timeframe, setTimeframe] = useState<Timeframe>("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [search, setSearch] = useState("");
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const fetchTasks = useCallback(async (reset: boolean) => {
+    try {
+      setLoading(true);
+      setError("");
+      const targetPage = reset ? 1 : page + 1;
+      const data = await getTasksByTimeframe(timeframe, {
+        limit: PAGE_LIMIT,
+        page: targetPage,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      });
+      setTasks(prev => (reset ? data.tasks : [...prev, ...data.tasks]));
+      setPage(targetPage);
+      setHasMore(data.hasMore ?? data.tasks.length === PAGE_LIMIT);
+    } catch (e: any) {
+      setError(e?.message || "Failed to fetch tasks");
+    } finally {
+      setLoading(false);
+    }
+  }, [timeframe, startDate, endDate, page]);
+
+  useEffect(() => { fetchTasks(true); /* eslint-disable-line react-hooks/exhaustive-deps */ }, [timeframe, startDate, endDate]);
+  useInfiniteScroll(listRef, () => fetchTasks(false), hasMore, loading);
+
+  const visibleTasks = useMemo(() => {
+    return tasks.filter(t => {
+      if (excludeIds.includes(t.id)) return false;
+      if (search && !t.title.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    });
+  }, [tasks, excludeIds, search]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative bg-white w-full sm:max-w-md sm:rounded-sm rounded-t-3xl shadow-2xl max-h-[92vh] overflow-y-auto">
-        <div className="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900">{isEditing ? "Edit Task" : "New Task"}</h2>
-          <button onClick={onCancel} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-sm"><X className="w-5 h-5" /></button>
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white w-full sm:max-w-lg sm:rounded-sm rounded-t-3xl shadow-2xl max-h-[85vh] flex flex-col">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2"><ListChecks className="w-5 h-5 text-blue-600" />Attach a Task</h2>
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-sm"><X className="w-5 h-5" /></button>
         </div>
-        <div className="px-6 py-5 space-y-4">
-          <div>
-            <label className="text-xs font-semibold text-slate-500">Title</label>
-            <input value={draft.title} onChange={e => set({ title: e.target.value })} placeholder="e.g. Solve 2 graph problems"
-              className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
+
+        <div className="px-6 py-3 border-b border-slate-100 space-y-3">
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Filter loaded tasks by title..."
+              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
           </div>
-          <div>
-            <label className="text-xs font-semibold text-slate-500">Description</label>
-            <textarea value={draft.description} onChange={e => set({ description: e.target.value })} rows={2}
-              className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none" />
+          <div className="flex items-center gap-1.5">
+            {(["week", "month", "all"] as Timeframe[]).map(tf => (
+              <button key={tf} onClick={() => setTimeframe(tf)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-full border capitalize transition-colors ${timeframe === tf ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-transparent" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+                {tf === "all" ? "All time" : `This ${tf}`}
+              </button>
+            ))}
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className="text-xs font-semibold text-slate-500">Status</label>
-              <select value={draft.status} onChange={e => set({ status: e.target.value })}
-                className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200 capitalize">
-                {TASK_STATUSES.map(s => <option key={s.value} value={s.value} className="capitalize">{s.value}</option>)}
-              </select>
+              <label className="text-[11px] font-semibold text-slate-500 flex items-center gap-1"><CalendarRange className="w-3 h-3" />From</label>
+              <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="w-full mt-1 px-2 py-1.5 text-xs border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-500">Priority</label>
-              <select value={draft.priority} onChange={e => set({ priority: e.target.value })}
-                className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200 capitalize">
-                {TASK_PRIORITIES.map(p => <option key={p.value} value={p.value} className="capitalize">{p.value}</option>)}
-              </select>
+              <label className="text-[11px] font-semibold text-slate-500 flex items-center gap-1"><CalendarRange className="w-3 h-3" />To</label>
+              <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="w-full mt-1 px-2 py-1.5 text-xs border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-xs font-semibold text-slate-500">Start Time</label>
-              <input type="time" value={draft.time?.[0] || ""} onChange={e => set({ time: [e.target.value, draft.time?.[1] || ""] })}
-                className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-slate-500">End Time</label>
-              <input type="time" value={draft.time?.[1] || ""} onChange={e => set({ time: [draft.time?.[0] || "", e.target.value] })}
-                className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
-            </div>
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-slate-500">Date</label>
-            <input type="date" value={draft.estimatedTime || ""} onChange={e => set({ estimatedTime: e.target.value })}
-              className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
           </div>
         </div>
-        <div className="border-t border-slate-100 px-6 py-4 flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 rounded-sm hover:bg-slate-200 transition-colors">Cancel</button>
-          <button onClick={onSave} className="flex-1 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-sm shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all">
-            {isEditing ? "Save Changes" : "Add Task"}
-          </button>
+
+        <div ref={listRef} className="flex-1 overflow-y-auto px-6 py-3 space-y-1.5">
+          {visibleTasks.length === 0 && !loading && (
+            <p className="text-sm text-slate-400 italic text-center py-6">No tasks found for these filters.</p>
+          )}
+          {visibleTasks.map(task => {
+            const tp = taskPriorityCfg(task.priority);
+            const ts = taskStatusCfg(task.status);
+            return (
+              <button key={task.id} onClick={() => onSelect(task)}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-sm border border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 transition-colors text-left">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-700 truncate">{task.title}</p>
+                  {task.description && <p className="text-xs text-slate-400 truncate">{task.description}</p>}
+                </div>
+                <span className={`flex-shrink-0 px-2 py-0.5 text-[11px] font-medium rounded-md capitalize ${ts.bg} ${ts.text}`}>{task.status}</span>
+                <span className={`flex-shrink-0 px-2 py-0.5 text-[11px] font-medium rounded-md capitalize ${tp.bg} ${tp.text}`}>{task.priority}</span>
+              </button>
+            );
+          })}
+          {loading && (
+            <div className="flex items-center justify-center gap-2 py-4 text-sm text-slate-500">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading tasks…
+            </div>
+          )}
+          {!hasMore && tasks.length > 0 && <p className="text-center text-xs text-slate-400 py-2">No more tasks.</p>}
+          {error && <p className="text-center text-xs text-red-500 py-2">{error}</p>}
         </div>
       </div>
     </div>
@@ -1017,59 +1233,98 @@ function TaskFormModal({
 }
 
 /* ============================================================================
-   Reminder form modal — mirrors reminder.model.ts (Email) fields
+   Select Reminder modal — GET /api/v1/email/getall, infinite scroll
    ============================================================================ */
 
-function ReminderFormModal({
-  draft, setDraft, isEditing, onCancel, onSave,
-}: {
-  draft: Omit<RoutineReminder, "id">; setDraft: (d: any) => void; isEditing: boolean; onCancel: () => void; onSave: () => void;
+function SelectReminderModal({ onClose, onSelect, excludeIds }: {
+  onClose: () => void; onSelect: (email: Email) => void; excludeIds: number[];
 }) {
-  const set = (patch: any) => setDraft((prev: any) => ({ ...prev, ...patch }));
+  const [status, setStatus] = useState<"" | "pending" | "sent">("pending");
+  const [search, setSearch] = useState("");
+  const [emails, setEmails] = useState<Email[]>([]);
+  const [skip, setSkip] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const fetchEmails = useCallback(async (reset: boolean) => {
+    try {
+      setLoading(true);
+      setError("");
+      const currentSkip = reset ? 0 : skip;
+      const data = await getEmails({ limit: PAGE_LIMIT, skip: currentSkip, status: status || undefined });
+      setEmails(prev => (reset ? data.emails : [...prev, ...data.emails]));
+      setSkip(currentSkip + data.emails.length);
+      setHasMore(data.hasMore ?? data.emails.length === PAGE_LIMIT);
+    } catch (e: any) {
+      setError(e?.message || "Failed to fetch reminders");
+    } finally {
+      setLoading(false);
+    }
+  }, [status, skip]);
+
+  useEffect(() => { fetchEmails(true); /* eslint-disable-line react-hooks/exhaustive-deps */ }, [status]);
+  useInfiniteScroll(listRef, () => fetchEmails(false), hasMore, loading);
+
+  const visibleEmails = useMemo(() => {
+    return emails.filter(e => {
+      if (excludeIds.includes(e.id)) return false;
+      if (search && !e.subject.toLowerCase().includes(search.toLowerCase())) return false;
+      return true;
+    });
+  }, [emails, excludeIds, search]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onCancel} />
-      <div className="relative bg-white w-full sm:max-w-md sm:rounded-sm rounded-t-3xl shadow-2xl max-h-[92vh] overflow-y-auto">
-        <div className="border-b border-slate-100 px-6 py-4 flex items-center justify-between">
-          <h2 className="text-lg font-bold text-slate-900">{isEditing ? "Edit Reminder" : "New Reminder"}</h2>
-          <button onClick={onCancel} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-sm"><X className="w-5 h-5" /></button>
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white w-full sm:max-w-lg sm:rounded-sm rounded-t-3xl shadow-2xl max-h-[85vh] flex flex-col">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2"><BellRing className="w-5 h-5 text-blue-600" />Attach a Reminder</h2>
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-sm"><X className="w-5 h-5" /></button>
         </div>
-        <div className="px-6 py-5 space-y-4">
-          <div>
-            <label className="text-xs font-semibold text-slate-500">To (email)</label>
-            <input type="email" value={draft.to} onChange={e => set({ to: e.target.value })} placeholder="you@example.com"
-              className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
+
+        <div className="px-6 py-3 border-b border-slate-100 space-y-3">
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Filter loaded reminders by subject..."
+              className="w-full pl-9 pr-3 py-2 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
           </div>
-          <div>
-            <label className="text-xs font-semibold text-slate-500">Subject</label>
-            <input value={draft.subject} onChange={e => set({ subject: e.target.value })} placeholder="e.g. Exam starting soon"
-              className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
+          <div className="flex items-center gap-1.5">
+            {([["pending", "Pending"], ["sent", "Sent"], ["", "All"]] as [ "" | "pending" | "sent", string][]).map(([val, lbl]) => (
+              <button key={lbl} onClick={() => setStatus(val)}
+                className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${status === val ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white border-transparent" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
+                {lbl}
+              </button>
+            ))}
           </div>
-          <div>
-            <label className="text-xs font-semibold text-slate-500">Body</label>
-            <textarea value={draft.body} onChange={e => set({ body: e.target.value })} rows={3} placeholder="Reminder message..."
-              className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200 resize-none" />
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-slate-500">Schedule Time</label>
-            <input type="datetime-local" value={draft.scheduleTime} onChange={e => set({ scheduleTime: e.target.value })}
-              className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200" />
-          </div>
-          {isEditing && (
-            <div>
-              <label className="text-xs font-semibold text-slate-500">Status</label>
-              <select value={draft.status} onChange={e => set({ status: e.target.value })}
-                className="w-full mt-1 px-3 py-2.5 text-sm border border-slate-200 rounded-sm focus:outline-none focus:ring-2 focus:ring-blue-200 capitalize">
-                {REMINDER_STATUSES.map(s => <option key={s.value} value={s.value} className="capitalize">{s.value}</option>)}
-              </select>
+        </div>
+
+        <div ref={listRef} className="flex-1 overflow-y-auto px-6 py-3 space-y-1.5">
+          {visibleEmails.length === 0 && !loading && (
+            <p className="text-sm text-slate-400 italic text-center py-6">No reminders found for these filters.</p>
+          )}
+          {visibleEmails.map(email => {
+            const rs = reminderStatusCfg(email.status);
+            return (
+              <button key={email.id} onClick={() => onSelect(email)}
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-sm border border-slate-200 hover:border-blue-300 hover:bg-blue-50/50 transition-colors text-left">
+                <Mail className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-slate-700 truncate">{email.subject}</p>
+                  <p className="text-xs text-slate-400 truncate">to {email.to} • {new Date(email.scheduleTime).toLocaleString()}</p>
+                </div>
+                <span className={`flex-shrink-0 px-2 py-0.5 text-[11px] font-medium rounded-md capitalize ${rs.bg} ${rs.text}`}>{email.status}</span>
+              </button>
+            );
+          })}
+          {loading && (
+            <div className="flex items-center justify-center gap-2 py-4 text-sm text-slate-500">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading reminders…
             </div>
           )}
-        </div>
-        <div className="border-t border-slate-100 px-6 py-4 flex gap-3">
-          <button onClick={onCancel} className="flex-1 py-2.5 text-sm font-semibold text-slate-600 bg-slate-100 rounded-sm hover:bg-slate-200 transition-colors">Cancel</button>
-          <button onClick={onSave} className="flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-600 rounded-sm shadow-lg shadow-blue-500/30 hover:shadow-xl transition-all">
-            <Send className="w-4 h-4" />{isEditing ? "Save Changes" : "Schedule Reminder"}
-          </button>
+          {!hasMore && emails.length > 0 && <p className="text-center text-xs text-slate-400 py-2">No more reminders.</p>}
+          {error && <p className="text-center text-xs text-red-500 py-2">{error}</p>}
         </div>
       </div>
     </div>
