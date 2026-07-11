@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Calendar, LayoutDashboard, Clock, Bell, PieChart,
   CheckSquare, Home, Info, Users, Users2,
-  LogOut, Menu, ChevronDown, Sparkles, LogIn, Repeat1
+  LogOut, Menu, ChevronDown, Sparkles, LogIn, Repeat1,
+  CalendarClock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -134,6 +135,7 @@ const ProfessionalNavbar = () => {
     { id: "notifications", label: "Notifications",  icon: Bell        },
     { id: "analytics",     label: "Analytics",      icon: PieChart    },
     { id: "RoutineManager",label: "RoutineManager", icon: Repeat1        },
+    { id: "calendar",      label: "Calendar",       icon: CalendarClock      },
   ];
 
   const handleMobileNav = (id: string) => {

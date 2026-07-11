@@ -8,6 +8,7 @@ import ProfessionalTimesheet from './TimeSheet';
 import NotificationsPage from './notification-page';
 import NotFound from '@/app/not-found';
 import RoutineManager from './RoutineManager';
+import { CalendarView } from './calendar';
 
 
 
@@ -30,6 +31,8 @@ export default async function Page({ params }: { params: Promise<{ path: string 
       return <ProfessionalTimesheet />;
     case "routinemanager":
       return <RoutineManager/> ;
+    case "calendar":
+      return <CalendarView />
     default:
       return <></>;
        <NotFound />;
