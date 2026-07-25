@@ -24,6 +24,7 @@ export interface TaskData {
   priority: TaskPriority;
   createdAt: Date;
   updatedAt: Date;
+  isPartOfRoutine:boolean;
 }
 
 export interface Task {

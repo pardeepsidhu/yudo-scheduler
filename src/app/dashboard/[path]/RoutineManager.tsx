@@ -267,6 +267,7 @@ export async function getTasksByTimeframe(timeframe: Timeframe, params: GetTasks
   const query = new URLSearchParams();
   query.set("limit", String(params.limit ?? PAGE_LIMIT));
   query.set("page", String(params.page ?? 1));
+  query.set("isPartOfRoutine","true")
   if (params.startDate) query.set("startDate", params.startDate);
   if (params.endDate) query.set("endDate", params.endDate);
   const data = await apiRequest(`/task/timeframe/${timeframe}?${query.toString()}`, "GET");
@@ -653,9 +654,7 @@ export default function RoutineManager() {
                 )}
 
                 {routinesLoading && (
-                  <div className="flex items-center justify-center gap-2 py-4 text-sm text-slate-500">
-                    <Loader2 className="w-4 h-4 animate-spin" /> Loading routines…
-                  </div>
+                  <RoutineCardSkeleton/>
                 )}
                 {!routinesHasMore && activeRoutines.length > 0 && (
                   <p className="text-center text-xs text-slate-400 py-2">You&apos;ve reached the end of the list.</p>
@@ -743,9 +742,11 @@ function RoutineCard({
     <div className={`bg-white rounded-sm shadow-sm border transition-all ${expanded ? "border-blue-300 ring-2 ring-blue-100" : "border-slate-200 hover:border-slate-300"}`}>
       <div className="p-5 cursor-pointer" onClick={onToggleExpand}>
         <div className="flex items-start gap-4">
-          <div className={`flex-shrink-0 w-12 h-12 rounded-sm flex items-center justify-center text-xl bg-gradient-to-br ${color.grad} shadow-md`}>
-            <span>{routine.icon}</span>
-          </div>
+          <div
+  className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${color.grad} shadow-[0_6px_18px_rgba(0,0,0,0.12)]`}
+>
+  <span className="text-base leading-none text-white">{routine.icon}</span>
+</div>
           <div className="flex-1 min-w-0">
             <div className="flex items-start justify-between gap-3 mb-1.5">
               <h3 className="font-semibold text-slate-900 truncate">{routine.title}</h3>
@@ -1143,6 +1144,7 @@ function SelectTaskModal({ onClose, onSelect, excludeIds }: {
         page: targetPage,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
+        
       });
       setTasks(prev => (reset ? data.tasks : [...prev, ...data.tasks]));
       setPage(targetPage);
@@ -1327,6 +1329,65 @@ function SelectReminderModal({ onClose, onSelect, excludeIds }: {
           {error && <p className="text-center text-xs text-red-500 py-2">{error}</p>}
         </div>
       </div>
+    </div>
+  );
+}
+
+
+
+function RoutineCardSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      {[...Array(3)].map((_, index) => (
+        <div
+          key={index}
+          className="bg-white rounded-sm shadow-sm border border-slate-200"
+        >
+          {/* Card Header */}
+          <div className="p-5">
+            <div className="flex items-start gap-4">
+              {/* Icon */}
+              <div className="w-12 h-12 rounded-sm bg-slate-200 flex-shrink-0" />
+
+              <div className="flex-1 min-w-0">
+                {/* Title + Priority */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="h-5 w-48 bg-slate-200 rounded" />
+                  <div className="h-6 w-20 bg-slate-200 rounded-lg" />
+                </div>
+
+                {/* Description */}
+                <div className="space-y-2 mb-3">
+                  <div className="h-4 w-full bg-slate-200 rounded" />
+                  <div className="h-4 w-3/4 bg-slate-200 rounded" />
+                </div>
+
+                {/* Info Row */}
+                <div className="flex gap-4 mb-3">
+                  <div className="h-3 w-28 bg-slate-200 rounded" />
+                  <div className="h-3 w-36 bg-slate-200 rounded" />
+                  <div className="h-3 w-24 bg-slate-200 rounded" />
+                </div>
+
+                {/* Tags */}
+                <div className="flex gap-2 mb-4">
+                  <div className="h-6 w-20 rounded-md bg-slate-200" />
+                  <div className="h-6 w-16 rounded-md bg-slate-200" />
+                  <div className="h-6 w-24 rounded-md bg-slate-200" />
+                  <div className="h-6 w-28 rounded-md bg-slate-200" />
+                </div>
+
+                {/* Progress */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-2 bg-slate-200 rounded-full" />
+                  <div className="h-4 w-8 bg-slate-200 rounded" />
+                  <div className="w-4 h-4 bg-slate-200 rounded" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
