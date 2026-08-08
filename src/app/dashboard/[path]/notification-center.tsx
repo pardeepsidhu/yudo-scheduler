@@ -31,7 +31,7 @@ import { fetchNotifications } from '@/app/api/userApi';
 
 // Notification interface
 interface Notification {
-  _id: string;
+  id: string;
   title: string;
   createdAt: string;
   type: 'auth' | 'telegram' | 'yudo' | 'form';
@@ -188,7 +188,7 @@ export const NotificationCenter = () => {
 
   const renderNotificationItem = (notification: Notification) => (
     <motion.div
-      key={notification._id}
+      key={notification.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, height: 0 }}

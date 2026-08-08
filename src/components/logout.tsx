@@ -2,10 +2,10 @@
 'use client'
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
   DialogTitle,
   DialogDescription,
   DialogFooter
@@ -63,19 +63,24 @@ const LogoutConfirmation: React.FC<LogoutConfirmationProps> = ({
               Are you sure you want to logout? Your session data will be cleared.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-end space-x-2 mt-4">
-            <Button
-              variant="outline"
+          <DialogFooter
+            className="flex justify-end space-x-2 mt-4"
+            style={{
+              paddingLeft: "50%",
+            }}
+          >
+            <button
+              className='yudo-btn !py-[0.8em]'
               onClick={() => setOpen(false)}
             >
               Cancel
-            </Button>
-            <Button
-              variant="destructive"
+            </button>
+            <button
+              className='yudo-btn-sec !py-[0.8em]'
               onClick={handleLogout}
             >
               Logout
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

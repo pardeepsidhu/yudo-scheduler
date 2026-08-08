@@ -1,19 +1,46 @@
 'use client'
 import React, { useState, useEffect } from "react";
-import { Calendar, LayoutDashboard, Clock, Bell, Users, ChevronRight, ChevronLeft, LogOut, PieChart, CheckSquare, Menu, Home, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  Calendar, Clock, Bell, Users, PieChart, CheckSquare,
+  Home, Info, LogOut, Menu, ChevronLeft, ChevronRight,
+} from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import LogoutConfirmation from './logout';
+import LogoutConfirmation from "./logout";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 
-// Utility function for class names
-const cn = (...classes: string[]) => {
-  return classes.filter(Boolean).join(" ");
-};
+// ─── helpers ──────────────────────────────────────────────────────────────────
+const cn = (...cls: (string | boolean | undefined)[]) => cls.filter(Boolean).join(" ");
 
-// TypeScript interfaces
+// ─── types ────────────────────────────────────────────────────────────────────
+interface ResponsiveNavProps {
+  userName?: string;
+  userEmail?: string;
+  userImage?: string;
+  onLogout?: () => void;
+  activeItem: string;
+  setActiveItem?: React.Dispatch<React.SetStateAction<string>>;
+}
+
+interface MenuItem { id: string; label: string; icon: React.ElementType }
+
+// ─── Dot-grid (shared with navbar/footer) ────────────────────────────────────
+const DotGrid = () => (
+  <div
+    className="pointer-events-none absolute inset-0 opacity-[.18] z-0"
+    style={{
+      backgroundImage: "radial-gradient(circle,#AAB0FF 1px,transparent 1px)",
+      backgroundSize: "28px 28px",
+    }}
+  />
+);
+
+// ─── Accent lines ─────────────────────────────────────────────────────────────
+const AccentLine = () => (
+  <div className="h-0.5 shrink-0 bg-gradient-to-r from-transparent via-[#3A41E5] to-transparent" />
+);
+
+// ─── Nav item ─────────────────────────────────────────────────────────────────
 interface SidebarItemProps {
   icon: React.ElementType;
   label: string;
@@ -23,376 +50,307 @@ interface SidebarItemProps {
   isMobile?: boolean;
 }
 
-interface ResponsiveNavProps {
-  userName?: string;
-  userEmail?: string;
-  userImage?: string;
-  onLogout?: () => void;
-  activeItem: string;
-  setActiveItem: React.Dispatch<React.SetStateAction<string>>;
-}
-
-interface MenuItem {
-  id: string;
-  label: string;
-  icon: React.ElementType;
-}
-
-const SidebarItem: React.FC<SidebarItemProps> = ({ 
-  icon: Icon, 
-  label, 
-  active = false, 
-  collapsed = false, 
-  onClick,
-  isMobile = false
+const SidebarItem: React.FC<SidebarItemProps> = ({
+  icon: Icon, label, active = false, collapsed = false, onClick, isMobile = false,
 }) => {
+  const base = cn(
+    "flex w-full items-center rounded-[9px] border transition-all duration-150 mb-0.5",
+    collapsed && !isMobile ? "justify-center p-2" : "gap-2.5 px-2.5 py-2",
+    active
+      ? "border-[#3A41E5]/22 bg-[#3A41E5]/10"
+      : "border-transparent bg-transparent hover:border-[#3A41E5]/14 hover:bg-[#3A41E5]/6"
+  );
+
+  const iconWrap = cn(
+    "flex shrink-0 items-center justify-center rounded-[7px] transition-all duration-150",
+    collapsed && !isMobile ? "h-[34px] w-[34px]" : "h-[30px] w-[30px]",
+    active ? "bg-[#3A41E5]" : "bg-transparent"
+  );
+
+  const iconEl = (
+    <div className={iconWrap}>
+      <Icon
+        className={cn("h-4 w-4 transition-colors", active ? "text-white" : "text-[#1F257A]/50")}
+        strokeWidth={active ? 2.5 : 2}
+      />
+    </div>
+  );
+
   if (isMobile) {
     return (
-      <button
-        className={cn(
-          "w-full flex items-center px-4 py-3 mb-1 relative rounded-sm transition-all duration-200 font-medium text-sm",
-          active 
-            ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md" 
-            : "text-slate-700 hover:bg-slate-100 hover:text-blue-600"
-        )}
-        onClick={onClick}
-      >
-        <Icon className="h-5 w-5 mr-3 flex-shrink-0" strokeWidth={active ? 2.5 : 2} />
-        <span>{label}</span>
-        {active && (
-          <div className="absolute right-3 w-1.5 h-1.5 bg-white rounded-full"></div>
-        )}
+      <button className={base} onClick={onClick}>
+        {iconEl}
+        <span className={cn("text-[.8rem] font-semibold transition-colors", active ? "text-[#1F257A] font-bold" : "text-[#1F257A]/65")}>
+          {label}
+        </span>
+        {active && <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-[#3A41E5]" />}
       </button>
     );
   }
 
-  return (
-    <TooltipProvider delayDuration={0}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <button
-            className={cn(
-              "w-full flex items-center transition-all duration-200 font-medium text-sm rounded-sm relative group",
-              collapsed ? "justify-center p-3" : "px-4 py-3",
-              active 
-                ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md" 
-                : "text-slate-700 hover:bg-slate-100 hover:text-blue-600"
-            )}
-            onClick={onClick}
-          >
-            <Icon className={cn("h-5 w-5 flex-shrink-0", !collapsed && "mr-3")} strokeWidth={active ? 2.5 : 2} />
-            {!collapsed && <span className="truncate">{label}</span>}
-            {active && !collapsed && (
-              <div className="absolute right-3 w-1.5 h-1.5 bg-white rounded-full"></div>
-            )}
-            {active && collapsed && (
-              <div className="absolute right-1 w-1 h-1 bg-white rounded-full"></div>
-            )}
-          </button>
-        </TooltipTrigger>
-        {collapsed && <TooltipContent side="right" className="font-medium">{label}</TooltipContent>}
-      </Tooltip>
-    </TooltipProvider>
+  const btn = (
+    <button className={base} onClick={onClick}>
+      {iconEl}
+      {!collapsed && (
+        <>
+          <span className={cn("flex-1 truncate text-[.8rem] font-semibold transition-colors text-start", active ? "text-[#1F257A] font-bold" : "text-[#1F257A]/65")}>
+            {label}
+          </span>
+          {active && <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#3A41E5]" />}
+        </>
+      )}
+    </button>
   );
+
+  if (collapsed) {
+    return (
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>{btn}</TooltipTrigger>
+          <TooltipContent side="right" className="rounded-lg border border-[#3A41E5]/18 bg-white text-[#1F257A] font-semibold text-xs">
+            {label}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+  return btn;
 };
 
-const ResponsiveNav: React.FC<ResponsiveNavProps> = ({ 
-  userName , 
-  userEmail ,
-  userImage ,
-  onLogout,
-  activeItem,
-}) => {
-  // State management
-  const [collapsed, setCollapsed] = useState<boolean>(false);
-  const [isMobile, setIsMobile] = useState<boolean>(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
-  const router = useRouter()
-
-  // Menu items
-  const menuItems: MenuItem[] = [
-    { id: "timesheet", label: "Timesheet", icon: Calendar },
-    { id: "tasks", label: "Tasks", icon: CheckSquare },
-    { id: "reminders", label: "Reminders", icon: Clock },
-    { id: "notifications", label: "Notifications", icon: Bell },
-    { id: "analytics", label: "Analytics", icon: PieChart },
-    { id: "profile", label: "Profile", icon: Users },
-  ];
-
-  // Handle logout success
-  const handleLogoutSuccess = () => {
-    localStorage.clear();
-    if (onLogout) {
-      onLogout();
-    } else {
-      window.location.href = '/login';
-    }
-  };
-
-  // Check for mobile screen size
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    
-    return () => {
-      window.removeEventListener('resize', checkMobile);
-    };
-  }, []);
-
-  // Custom logout button for mobile
-  const MobileLogoutButton = () => (
-    <LogoutConfirmation 
-      onLogoutConfirmed={handleLogoutSuccess}
-      buttonClassName="w-full flex items-center px-4 py-3 rounded-sm text-slate-700 hover:bg-red-50 hover:text-red-600 transition-all font-medium text-sm"
-      buttonContent={
-        <>
-          <LogOut className="h-5 w-5 mr-3 flex-shrink-0" strokeWidth={2} />
-          <span>Logout</span>
-        </>
-      }
-    />
+// ─── Section label ────────────────────────────────────────────────────────────
+const SectionLabel = ({ label, collapsed }: { label: string; collapsed: boolean }) =>
+  collapsed ? null : (
+    <p className="mb-1 px-2 pt-1 text-[9px] font-bold uppercase tracking-[.12em] text-[#3A41E5]/40">
+      {label}
+    </p>
   );
 
-  // Custom logout button for desktop
-  const DesktopLogoutButton = () => (
-    <LogoutConfirmation 
-      onLogoutConfirmed={handleLogoutSuccess}
+const Sep = () => <div className="my-1.5 h-px bg-[#3A41E5]/10" />;
+
+// ─── Main component ───────────────────────────────────────────────────────────
+const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
+  userName = "User", userEmail = "user@example.com", userImage = "",
+  onLogout, activeItem,
+}) => {
+  const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const router = useRouter();
+
+  const menuItems: MenuItem[] = [
+    { id: "timesheet",     label: "Timesheet",     icon: Calendar    },
+    { id: "tasks",         label: "Tasks",          icon: CheckSquare },
+    { id: "reminders",     label: "Reminders",      icon: Clock       },
+    { id: "notifications", label: "Notifications",  icon: Bell        },
+    { id: "analytics",     label: "Analytics",      icon: PieChart    },
+    { id: "profile",       label: "Profile",        icon: Users       },
+  ];
+
+  const handleLogout = () => {
+    localStorage.clear();
+    onLogout ? onLogout() : (window.location.href = "/login");
+  };
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const navigate = (path: string) => {
+    router.push(path);
+    setMobileOpen(false);
+  };
+
+  const initials = userName?.charAt(0).toUpperCase() || "U";
+
+  // ── Shared user card ─────────────────────────────────────────────────────
+  const UserCard = ({ mini }: { mini?: boolean }) =>
+    mini ? (
+      <div className="flex justify-center px-2 py-2.5 border-b border-[#3A41E5]/10">
+        <div className="h-9 w-9 shrink-0 rounded-[8px] bg-[#3A41E5] flex items-center justify-center text-[.8rem] font-bold text-white">
+          {initials}
+        </div>
+      </div>
+    ) : (
+      <div className="flex items-center gap-2.5 border-b border-[#3A41E5]/10 bg-white/40 px-3.5 py-3">
+        <div className="h-9 w-9 shrink-0 rounded-[8px] bg-[#3A41E5] flex items-center justify-center text-[.8rem] font-bold text-white overflow-hidden">
+          {userImage
+            ? <img src={userImage} alt={userName} className="w-full h-full object-cover" />
+            : initials}
+        </div>
+        <div className="min-w-0">
+          <p className="truncate text-[.79rem] font-bold text-[#1F257A]">{userName}</p>
+          <div className="flex items-center gap-1 mt-0.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+            <span className="text-[10px] font-semibold text-green-600">Online</span>
+          </div>
+        </div>
+      </div>
+    );
+
+  // ── Shared logout button ─────────────────────────────────────────────────
+  const LogoutBtn = ({ mini }: { mini?: boolean }) => (
+    <LogoutConfirmation
+      onLogoutConfirmed={handleLogout}
       buttonClassName={cn(
-        "w-full flex items-start transition-all duration-200 font-medium text-sm rounded-sm text-slate-700 hover:bg-red-50 hover:text-red-600",
-        collapsed ? "justify-center p-3" : "px-4 py-3"
+        "flex w-full items-center rounded-[9px] border border-red-100 bg-red-50/60 transition-all hover:border-red-200 hover:bg-red-100",
+        mini ? "justify-center p-2" : "gap-2.5 px-2.5 py-2"
       )}
       buttonContent={
         <>
-          <LogOut className={cn("h-5 w-5 flex-shrink-0", !collapsed && "mr-3")} strokeWidth={2} />
-          {!collapsed && <span className="truncate">Logout</span>}
+          <div className={cn("flex shrink-0 items-center justify-center rounded-[7px] bg-red-50", mini ? "h-[34px] w-[34px]" : "h-[30px] w-[30px]")}>
+            <LogOut className="h-4 w-4 text-red-500" strokeWidth={2} />
+          </div>
+          {!mini && <span className="text-[.8rem] font-semibold text-red-500">Logout</span>}
         </>
       }
-      tooltipContent={collapsed ? "Logout" : undefined}
+      tooltipContent={mini ? "Logout" : undefined}
     />
   );
 
-  // Mobile navbar component
-  const MobileNavbar = () => (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-slate-200 shadow-lg">
-      <div className="flex items-center justify-between px-4 py-3.5">
-        <div className="flex items-center gap-2.5">
-          <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-sm flex items-center justify-center shadow-md">
-            <Calendar className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <h1 className="font-bold text-slate-900 text-base leading-none">YUDO Scheduler</h1>
-            <p className="text-xs text-slate-500 leading-none mt-0.5">Task Management</p>
-          </div>
-        </div>
-        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetTrigger asChild>
-            <button className="p-2 text-slate-700 hover:bg-slate-100 rounded-sm transition-colors">
-              <Menu className="h-6 w-6" strokeWidth={2} />
-            </button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-[300px] p-0 border-slate-200">
-            <div className="flex flex-col h-full bg-white">
-              {/* Header */}
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-6 shadow-lg">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 bg-white/20 backdrop-blur-sm rounded-sm flex items-center justify-center shadow-md">
-                    <Calendar className="h-7 w-7 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="font-bold text-white text-lg leading-none">YUDO Scheduler</h2>
-                    <p className="text-blue-100 text-sm leading-none mt-1">Task Management System</p>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Navigation */}
-              <nav className="flex-1 overflow-y-auto p-4 bg-slate-50/50">
-                <div className="space-y-1">
-                  <SidebarItem
-                    key={"home"}
-                    icon={Home}
-                    label={"Home"}
-                    active={activeItem === "home"}
-                    isMobile={true}
-                    onClick={() => {
-                      router.push("/");
-                      setMobileMenuOpen(false);
-                    }}
-                  />
+  // ── Nav body (shared) ────────────────────────────────────────────────────
+  const NavBody = ({ coll = false, mob = false }: { coll?: boolean; mob?: boolean }) => (
+    <div className="flex-1 overflow-y-auto px-2 py-2">
+      <SectionLabel label="Main" collapsed={coll} />
+      <SidebarItem icon={Home} label="Home" active={activeItem === "home"} collapsed={coll} isMobile={mob} onClick={() => navigate("/")} />
 
-                  <div className="h-px bg-slate-200 my-3"></div>
+      <Sep />
+      <SectionLabel label="Dashboard" collapsed={coll} />
+      {menuItems.map((item) => (
+        <SidebarItem
+          key={item.id}
+          icon={item.icon}
+          label={item.label}
+          active={activeItem === item.id}
+          collapsed={coll}
+          isMobile={mob}
+          onClick={() => navigate(`/dashboard/${item.id}`)}
+        />
+      ))}
 
-                  {menuItems.map((item) => (
-                    <SidebarItem
-                      key={item.id}
-                      icon={item.icon}
-                      label={item.label}
-                      active={activeItem === item.id}
-                      isMobile={true}
-                      onClick={() => {
-                        router.push(`/dashboard/${item.id}`)
-                        setMobileMenuOpen(false);
-                      }}
-                    />
-                  ))}
 
-                  <div className="h-px bg-slate-200 my-3"></div>
-
-                  <SidebarItem
-                    key={"about"}
-                    isMobile={true}
-                    icon={Info}
-                    label={"About"}
-                    active={activeItem === "about"}
-                    onClick={() => {
-                      router.push("/about");
-                      setMobileMenuOpen(false);
-                    }}
-                  />
-                </div>
-              </nav>
-              
-              {/* Logout */}
-              <div className="p-4 w-[fit-content] border-t border-slate-200 bg-white">
-                <MobileLogoutButton />
-              </div>
-            </div>
-          </SheetContent>
-        </Sheet>
-      </div>
     </div>
   );
 
-  // Desktop sidebar component
-  const DesktopSidebar = () => (
-    <div 
-      className={cn(
-        "hidden lg:flex h-screen flex-col transition-all duration-300 ease-in-out border-r border-slate-200 shadow-xl bg-white ",
-        collapsed ? "w-[80px]" : "min-w-[280px]"
-      )}
-    >
-      {/* Logo Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 shadow-lg relative">
-        <div className={cn(
-          "flex items-center transition-all duration-300",
-          collapsed ? "justify-center p-4" : "justify-between px-6 py-5"
-        )}>
-          {!collapsed ? (
-            <>
-            <div className="flex items-center gap-3">
-              <div className="h-11 w-11 bg-white/20 backdrop-blur-sm rounded-sm flex items-center justify-center shadow-lg">
-                <Calendar className="h-6 w-6 text-white" />
+  // ─── Mobile navbar ────────────────────────────────────────────────────────
+  if (isMobile) return (
+    <>
+      <div className="fixed left-0 right-0 top-0 z-50">
+        <AccentLine />
+        <div className="relative overflow-hidden border-b border-[#3A41E5]/20 bg-[#F7F8FF]/95 backdrop-blur-md">
+          <DotGrid />
+          <div className="relative z-10 flex items-center justify-between px-4 py-3">
+            <button onClick={() => router.push("/")} className="flex items-center gap-2.5">
+              <div className="h-9 w-9 shrink-0 rounded-[6px] bg-[#3A41E5] flex items-center justify-center">
+                <Calendar className="h-4 w-4 text-white" strokeWidth={2.5} />
               </div>
               <div>
-                <h2 className="font-bold text-white text-base leading-none">YUDO Scheduler</h2>
-                <p className="text-blue-100 text-xs leading-none mt-1">Task Management</p>
+                <p className="text-[.9rem] font-bold leading-none text-[#1F257A]">YUDO Scheduler</p>
+                <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[.08em] text-[#3A41E5]/60">Task Management</p>
               </div>
-            </div>
-            <button
-            onClick={() => setCollapsed(!collapsed)}
-            className={cn(
-              "text-white hover:bg-white/20 rounded-sm transition-all p-2"
-            )}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            {collapsed ? <ChevronRight size={16} strokeWidth={3} /> : <ChevronLeft size={18} strokeWidth={2.5} />}
-          </button>
-          </>
-          ) : (
-            <>
-            <div className="relative">
-  <div className="h-8 w-8 bg-white/20 backdrop-blur-sm rounded-sm flex items-center justify-center shadow-lg">
-    <Calendar className="h-6 w-6 text-white" />
-  </div>
+            </button>
 
-  <button
-    onClick={() => setCollapsed(!collapsed)}
-    aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-    className={cn(
-      " rounded-sm transition-all p-0",
-      "absolute top-1/2 -translate-y-1/2",         // vertically centered
-      collapsed
-        ? "right-[-28px] h-8 w-8  text-white  flex items-center justify-center rounded-full"
-        : "right-0"                                // normal state
-    )}
-  >
-    {collapsed ? (
-      <ChevronRight size={18} strokeWidth={2.5} />
-    ) : (
-      <ChevronLeft size={18} strokeWidth={2.5} />
-    )}
-  </button>
-</div>
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+              <SheetTrigger asChild>
+                <button className="flex h-9 w-9 items-center justify-center rounded-lg border border-[#3A41E5]/18 bg-white/70 text-[#1F257A]/70 hover:bg-[#3A41E5]/7 hover:text-[#3A41E5] transition-all">
+                  <Menu className="h-5 w-5" />
+                </button>
+              </SheetTrigger>
 
-          </>
-          )}
-          
+              <SheetContent side="left" className="w-[280px] border-[#3A41E5]/20 p-0 bg-[#F7F8FF]">
+                <div className="flex h-full flex-col relative overflow-hidden">
+                  <DotGrid />
+
+                  {/* Mobile sheet header */}
+                  <div className="relative z-10 flex-shrink-0">
+                    <AccentLine />
+                    <div className="flex items-center gap-3 border-b border-[#3A41E5]/12 bg-[#3A41E5] px-4 py-4">
+                      <div className="h-9 w-9 shrink-0 rounded-[6px] bg-white/20 flex items-center justify-center">
+                        <Calendar className="h-5 w-5 text-white" strokeWidth={2.5} />
+                      </div>
+                      <div>
+                        <p className="font-bold text-white leading-none text-[.9rem]">YUDO Scheduler</p>
+                        <p className="mt-0.5 text-[10px] text-white/70">Task Management System</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="relative z-10 flex-shrink-0"><UserCard /></div>
+                  <div className="relative z-10 flex-1 overflow-hidden flex flex-col">
+                    <NavBody mob />
+                  </div>
+                  <div className="relative z-10 flex-shrink-0 border-t border-[#3A41E5]/10 p-2">
+                    <LogoutBtn />
+                  </div>
+                  <div className="relative z-10 flex-shrink-0"><AccentLine /></div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
+      <div className="h-[58px]" />
+    </>
+  );
 
-      {/* Navigation Menu */}
-      <div className="flex-1 overflow-y-auto bg-gradient-to-b from-slate-50 to-white">
-        <nav className={cn("space-y-1 transition-all duration-300", collapsed ? "p-3" : "p-4")}>
-          <SidebarItem
-            key={"home"}
-            icon={Home}
-            label={"Home"}
-            active={activeItem === "home"}
-            collapsed={collapsed}
-            onClick={() => router.push("/")}
-          />
+  // ─── Desktop sidebar ──────────────────────────────────────────────────────
+  return (
+    <div
+      className={cn(
+        "relative hidden h-screen shrink-0 flex-col overflow-hidden border-r border-[#3A41E5]/20 bg-[#F7F8FF] transition-all duration-300 lg:flex",
+        collapsed ? "w-[72px]" : "w-[264px]"
+      )}
+    >
+      <DotGrid />
 
-          <div className={cn("bg-slate-200 my-3 transition-all", collapsed ? "h-px" : "h-px")}></div>
+      {/* Top accent */}
+      <AccentLine />
 
-          {menuItems.map((item) => (
-            <SidebarItem
-              key={item.id}
-              icon={item.icon}
-              label={item.label}
-              active={activeItem === item.id}
-              collapsed={collapsed}
-              onClick={() => router.push(`/dashboard/${item.id}`)}
-            />
-          ))}
+      {/* Header */}
+      <div className={collapsed?"relative z-10 flex shrink-0 items-center border-b border-[#3A41E5]/12 bg-white/50 px-3 py-3.5 justify-center":"relative z-10 flex shrink-0 items-center border-b border-[#3A41E5]/12 bg-white/50 px-3 py-3.5"}>
+       {!collapsed && ( <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[7px] bg-[#3A41E5]">
+          <Calendar className="h-4 w-4 text-white" strokeWidth={2.5} />
+        </div>)}
 
-          <div className={cn("bg-slate-200 my-3 transition-all", collapsed ? "h-px" : "h-px")}></div>
+        {!collapsed && (
+          <div className="ml-2.5 min-w-0 flex-1 overflow-hidden">
+            <p className="truncate text-[.88rem] font-bold leading-none text-[#1F257A]">YUDO Scheduler</p>
+            <p className="mt-0.5 text-[9px] font-bold uppercase tracking-[.1em] text-[#3A41E5]/60">Task Management</p>
+          </div>
+        )}
 
-          <SidebarItem
-            key={"about"}
-            icon={Info}
-            label={"About"}
-            active={activeItem === "about"}
-            collapsed={collapsed}
-            onClick={() => router.push("/about")}
-          />
-        </nav>
+        <button
+          onClick={() => setCollapsed((v) => !v)}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          className={cn(
+            "flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] border border-[#3A41E5]/20 bg-[#3A41E5]/6 text-[#3A41E5] transition-all hover:border-[#3A41E5]/35 hover:bg-[#3A41E5]/12",
+            collapsed ? "ml-0 mt-2 self-start" : "ml-2"
+          )}
+        >
+          {collapsed
+            ? <ChevronRight className="h-3.5 w-3.5" strokeWidth={2.5} />
+            : <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2.5} />}
+        </button>
       </div>
 
-      {/* Logout Button */}
-      <div className={cn("border-t border-slate-200 bg-white w-[fit-content] flex justify-start shadow-inner transition-all duration-300", collapsed ? "p-3" : "p-4")}>
+      
+      {/* Nav */}
+      <div className="relative z-10 flex-1 overflow-hidden flex flex-col">
+        <NavBody coll={collapsed} />
+      </div>
+
+      {/* Logout */}
+      <div className="relative z-10 shrink-0 border-t border-[#3A41E5]/10 p-2">
         <TooltipProvider delayDuration={0}>
-          <DesktopLogoutButton />
+          <LogoutBtn mini={collapsed} />
         </TooltipProvider>
       </div>
 
-      {/* Bottom Accent */}
-      <div className="h-1 bg-gradient-to-r from-blue-600 to-indigo-600"></div>
+      {/* Bottom accent */}
+      <AccentLine />
     </div>
-  );
-
-  return (
-    <>
-     
-      {isMobile ? <MobileNavbar /> : <DesktopSidebar />}
-      
-      {/* Spacer for content - IMPORTANT for layout */}
-       {/* <div className={cn("hidden lg:block transition-all duration-300", collapsed ? "w-[80px]" : "w-[280px]")}></div> */}
-     
-    </>
   );
 };
 

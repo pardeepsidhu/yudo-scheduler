@@ -80,7 +80,7 @@ export default function TaskDashboard() {
   const confirmDelete = async () => {
     setWaiting(true);
     try {
-      let result:any = await deleteTask(deleteTaskData._id);
+      let result:any = await deleteTask(deleteTaskData?.id);
       if (result.error) {
         setError(result.error || "some error accured while deleting");
       }
@@ -201,7 +201,7 @@ export default function TaskDashboard() {
       <div className="max-w-7xl mx-auto ">
         {/* Header */}
         <div className="bg-white shadow-sm overflow-hidden border border-slate-200 mb-1 sm:mb-4">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 sm:p-4">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-4 sm:p-[7px]">
             <div className="flex flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-sm flex items-center justify-center">
@@ -374,7 +374,7 @@ export default function TaskDashboard() {
           ) : filteredTasks.length > 0 ? (
             filteredTasks.map((task) => (
               <Card
-                key={task._id}
+                key={task.id}
                 onClick={() => handleViewTask(task)}
                 className="md:shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer bg-white md:border border-slate-200 hover:border-blue-400 rounded-sm overflow-hidden group m-1 gap-1 py-4"
               >
@@ -486,7 +486,7 @@ export default function TaskDashboard() {
         )}
 
         <CreateTaskDialog open={isCreateDialogOpen} loadTasks={loadTasks} onOpenChange={setIsCreateDialogOpen} />
-        <TaskDialog taskId={selectedTask?._id} loadTasks={loadTasks}  open={isTaskDialogOpen} onOpenChange={setIsTaskDialogOpen} />
+        <TaskDialog taskId={selectedTask?.id} loadTasks={loadTasks}  open={isTaskDialogOpen} onOpenChange={setIsTaskDialogOpen} />
 
         {/* Delete Dialog */}
         <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>

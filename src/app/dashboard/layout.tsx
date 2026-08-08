@@ -22,8 +22,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         const result = await fetchUser();
         // await fetchNotifications();
 
-        if (result.error) router.push("/login");
-        else setUser(result);
+        // if (result.error) router.push("/login");
+        // else setUser(result);
       } catch (err: any) {
         toast.error(err.message);
       } finally {
@@ -49,6 +49,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
+    <>
+  <div className="h-16 flex md:hidden"/>
     <div className="flex h-screen overflow-hidden">
       <Sidebar
         activeItem={activeItem}
@@ -62,5 +64,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {children}
       </div>
     </div>
+      </>
   );
 }

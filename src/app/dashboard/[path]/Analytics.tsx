@@ -13,7 +13,7 @@ interface TimeEntry {
 }
 
 interface Task {
-  _id: string;
+  id: string;
   title: string;
   description?: string;
   status: 'pending' | 'to do' | 'in progress' | 'done';
@@ -312,7 +312,7 @@ const TimesheetAnalytics = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white shadow-lg rounded-sm overflow-hidden border border-slate-200 mb-2 ">
-          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-4 ">
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4  py-4  sm:p-2 ">
             <div className="flex flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-sm flex items-center justify-center">

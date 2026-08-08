@@ -17,7 +17,7 @@ const getAuthToken = () => {
   };
 
 
-  export async function fetchUser(): Promise {
+  export async function fetchUser() {
     const token = getAuthToken();
     if (!token) {
       return {error:"some error accured !"};
@@ -137,7 +137,7 @@ interface NotificationsResponse {
  * Interface for notification object
  */
 interface Notification {
-  _id: string;
+  id: string;
   title: string;
   createdAt: string;
   type: 'form' | 'auth' | 'telegram' | 'yudo';
@@ -206,7 +206,7 @@ export const sendOtp = async (email, password, setMessage, setReceivedOtp, setOt
       setReceivedOtp(data.otp);
       setOtpSent(true);
       setOtpTimer(60); // 60 second timer
-      setMessage.succes("OTP sent to your email");
+      setMessage.success("OTP sent to your email");
     } else {
       setMessage.error(data.error || "Failed to send OTP");
     }
@@ -248,7 +248,7 @@ export const verifyOtp = async (email, otp, password, setMessage, navigate, setW
 
 
 
-export const handleResetPassword =async(setWaiting,password,setMessage,navigate)=>{
+export const handleResetPassword =async(setWaiting,password,setMessage,navigate,resetId)=>{
     try {
       setWaiting(true);
       // Replace with your actual API call
@@ -259,6 +259,7 @@ export const handleResetPassword =async(setWaiting,password,setMessage,navigate)
       });
       
       const data = await response.json();
+      console.log("my name is data",data)
       if (response.ok) {
         setMessage.success("password changed login please")
         navigate("/login");
@@ -266,7 +267,8 @@ export const handleResetPassword =async(setWaiting,password,setMessage,navigate)
         setMessage.error(data.error || "Authentication failed");
       }
     } catch (error) {
-      setMessage.error("An error occurred during resent password");
+      console.log("errro",error)
+      setMessage.error("An error occurred during reset password");
     } finally {
       setWaiting(false);
     }

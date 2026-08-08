@@ -1,211 +1,235 @@
 import React from 'react';
-import { Github, Twitter, Linkedin, Instagram, Facebook, Youtube, Mail, Globe, Phone, MapPin, Code, GraduationCap, ArrowRight, Heart } from 'lucide-react';
+import {
+  Github, Linkedin, Instagram,
+  Code, GraduationCap, Heart, Calendar,
+  Phone, Mail, MapPin, Bell, Clock,
+  Shield, Sparkles, Zap, Users,
+  CheckSquare, Star, Lock,
+} from 'lucide-react';
+
+const STATS = [
+  { icon: Users,       num: '999+',   label: 'Active users'      },
+  { icon: CheckSquare, num: '50K+',   label: 'Tasks completed'   },
+  { icon: Bell,        num: '200K+',  label: 'Alerts delivered'  },
+  { icon: Star,        num: '4.9/5',  label: 'User rating'       },
+];
+
+const FEATURES = [
+  { icon: Bell,     title: 'Smart alerts',   desc: 'Email & Telegram notifications on your schedule' },
+  { icon: Clock,    title: 'Time tracking',  desc: 'Monitor productivity & hit every milestone'      },
+  { icon: Shield,   title: 'Secure access',  desc: 'Two-factor auth keeps your data safe'            },
+  { icon: Sparkles, title: 'AI scheduling',  desc: 'Smart suggestions to optimise your day'          },
+];
+
+const Dot = () => (
+  <span className="inline-block w-1 h-1 rounded-full bg-[#3A41E5]/30" />
+);
+
+const ColTitle = ({ children }: { children: React.ReactNode }) => (
+  <div className="flex items-center gap-2 mb-4">
+    <span className="text-[10px] font-bold uppercase tracking-[.12em] text-[#3A41E5]">{children}</span>
+    <span className="flex-1 h-px bg-[#3A41E5]/15" />
+  </div>
+);
+
+const FLink = ({
+  icon: Icon, text, href,
+}: { icon?: React.ElementType; text: string; href: string }) => (
+  <a
+    href={href}
+    className="flex items-center gap-2 py-[5px] text-[#1F257A]/60 text-[.79rem] hover:text-[#3A41E5] hover:pl-[5px] transition-all duration-150"
+  >
+    {Icon && <Icon className="h-3.5 w-3.5 shrink-0 text-[#3A41E5]/40" />}
+    <span>{text}</span>
+  </a>
+);
+
+const SocialBtn = ({ href, label, icon: Icon }: { href: string; label: string; icon: React.ElementType }) => (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label={label}
+    className="flex h-9 w-9 items-center justify-center rounded-[9px] border border-[#3A41E5]/20 bg-white/70 text-[#3A41E5] hover:bg-[#3A41E5] hover:text-white hover:border-[#3A41E5] hover:-translate-y-0.5 transition-all duration-150"
+  >
+    <Icon className="h-4 w-4" />
+  </a>
+);
+
+const StatusDot = ({ color, label }: { color: string; label: string }) => (
+  <div className="flex items-center gap-2 py-[5px]">
+    <span className={`w-[7px] h-[7px] rounded-full shrink-0 ${color}`} />
+    <span className="text-[.79rem] text-[#1F257A]/60">{label}</span>
+  </div>
+);
+
+const Badge = ({ icon: Icon, text }: { icon: React.ElementType; text: string }) => (
+  <span className="inline-flex items-center gap-1.5 rounded-full border border-[#3A41E5]/16 bg-[#3A41E5]/8 px-3 py-1 text-[11px] font-semibold text-[#1F257A]">
+    <Icon className="h-3 w-3 text-[#3A41E5]" />
+    {text}
+  </span>
+);
 
 export const Footer = () => {
-  const currentYear = new Date().getFullYear();
-  
-  const socialLinks = [
-    { 
-      icon: <Github size={20} />, 
-      href: "https://github.com/pardeepsidhu", 
-      label: "GitHub",
-      color: "hover:bg-gray-700"
-    },
-    { 
-      icon: <Linkedin size={20} />, 
-      href: "https://www.linkedin.com/in/pardeep-singh-85848a2b1", 
-      label: "LinkedIn",
-      color: "hover:bg-blue-600"
-    },
-    { 
-      icon: <Instagram size={20} />, 
-      href: "https://www.instagram.com/es6_boy?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==", 
-      label: "Instagram",
-      color: "hover:bg-gradient-to-br hover:from-purple-600 hover:to-pink-600"
-    },
-  ];
-
-  const footerSections = [
-    {
-      title: "Developer",
-      items: [
-        { icon: <Code size={16} />, text: "Pardeep Singh", href: "void(0)" },
-        { icon: <GraduationCap size={16} />, text: "B.C.A", href: "void(0)" },
-        { icon: <Phone size={16} />, text: "+91 8284012817", href: "tel:+918284012817" },
-        { icon: <Mail size={16} />, text: "sidhupardeep618@yahoo.com", href: "mailto:sidhupardeep618@yahoo.com" },
-      ]
-    },
-    {
-      title: "About",
-      items: [
-        { text: "Overview", href: "/about/#overview" },
-        { text: "Notifications", href: "/about/#notifications" },
-        { text: "Time-Management", href: "/about/#time-management" },
-        { text: "Customer", href: "/about/#customer" },
-      ]
-    },
-    {
-      title: "Services",
-      items: [
-        { text: "Reminders", href: "void(0)" },
-        { text: "Task Management", href: "void(0)" },
-        { text: "Analytics", href: "void(0)" },
-        { text: "Time Sheet", href: "void(0)" },
-      ]
-    },
-    {
-      title: "Contact",
-      items: [
-        { icon: <MapPin size={16} />, text: "Fazilka, Punjab, 152132", href: "void(0)" },
-        { icon: <Phone size={16} />, text: "+91 8284012817", href: "tel:+918284012817" },
-        { icon: <Mail size={16} />, text: "yudo.scheduler@gmail.com", href: "mailto:yudo.scheduler@gmail.com" },
-      ]
-    }
-  ];
+  const year = new Date().getFullYear();
 
   return (
-    <footer className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-gray-200 overflow-hidden">
-      {/* Animated Background Pattern */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-        }}></div>
+    <footer className="relative overflow-hidden bg-[#F7F8FF] border border-[#3A41E5]/22">
+      {/* Dot grid */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[.22]"
+        style={{ backgroundImage: 'radial-gradient(circle,#AAB0FF 1px,transparent 1px)', backgroundSize: '28px 28px' }}
+      />
+
+      {/* Top accent */}
+      <div className="h-0.5 bg-gradient-to-r from-transparent via-[#3A41E5] to-transparent" />
+
+      {/* Stats strip */}
+      <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 border-b border-[#3A41E5]/12">
+        {STATS.map(({ icon: Icon, num, label }, i) => (
+          <div
+            key={label}
+            className={`flex items-center gap-3 px-6 py-4 ${i < 3 ? 'border-r border-[#3A41E5]/10' : ''}`}
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border border-[#3A41E5]/15 bg-[#3A41E5]/7">
+              <Icon className="h-4 w-4 text-[#3A41E5]" />
+            </div>
+            <div>
+              <div className="text-base font-bold text-[#1F257A] leading-none">{num}</div>
+              <div className="text-[11px] text-[#1F257A]/50 mt-0.5">{label}</div>
+            </div>
+          </div>
+        ))}
       </div>
 
-      {/* Gradient Overlay */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+      {/* Main grid */}
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-[1.45fr_1fr_1fr_1fr] border-b border-[#3A41E5]/10">
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        {/* Top Section - Brand & Social */}
-        <div className="flex flex-col md:flex-row justify-between items-center mb-12 pb-10 border-b border-slate-700/50">
-          {/* Brand Section */}
-          <div className="mb-8 md:mb-0">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3">
-              <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Yudo Scheduler
-              </span>
-            </h2>
-            <p className="text-slate-400 text-sm md:text-base max-w-md">
-              Empowering productivity through intelligent time management and seamless scheduling solutions.
-            </p>
+        {/* Brand column */}
+        <div className="px-6 py-8 md:border-r border-[#3A41E5]/10">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[6px] bg-[#3A41E5]">
+              <Calendar className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <div className="text-[1.05rem] font-bold text-[#1F257A] tracking-tight leading-none">YUDO Scheduler</div>
+              <div className="text-[10px] font-semibold tracking-[.1em] uppercase text-[#3A41E5]/70 mt-0.5">Smart · Fast · Reliable</div>
+            </div>
           </div>
 
-          {/* Social Links */}
-          <div className="flex flex-col items-center md:items-end">
-            <p className="text-slate-400 text-sm mb-4">Connect with us</p>
-            <div className="flex gap-3">
-              {socialLinks.map((link) => (
-                <a
-                  key={link.label}
-                  href={link.href}
-                  aria-label={link.label}
-                  className={`group relative w-11 h-11 rounded-lg bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 flex items-center justify-center text-slate-400 transition-all duration-300 hover:text-white hover:border-transparent hover:scale-110 hover:shadow-lg ${link.color}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {link.icon}
-                  <span className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-slate-700 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap">
-                    {link.label}
-                  </span>
-                </a>
+          <p className="text-[.8rem] leading-relaxed text-[#1F257A]/60 max-w-[230px] mb-4">
+            Empowering productivity through intelligent time management and seamless scheduling solutions.
+          </p>
+
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="flex">
+              {[16860528, 20110627, 59442788, 89768406].map((id, i) => (
+                <img
+                  key={i}
+                  src={`https://avatars.githubusercontent.com/u/${id}`}
+                  alt=""
+                  className="h-7 w-7 rounded-full border-2 border-[#F7F8FF] object-cover -ml-2 first:ml-0"
+                />
               ))}
             </div>
+            <span className="text-[11px] text-[#1F257A]/55">
+              <strong className="text-[#1F257A] font-semibold">999+</strong> organizing their life
+            </span>
+          </div>
+
+          <ColTitle>Follow us</ColTitle>
+          <div className="flex gap-2">
+            <SocialBtn href="https://github.com/pardeepsidhu" label="GitHub" icon={Github} />
+            <SocialBtn href="https://www.linkedin.com/in/pardeep-singh-85848a2b1" label="LinkedIn" icon={Linkedin} />
+            <SocialBtn href="https://www.instagram.com/es6_boy" label="Instagram" icon={Instagram} />
           </div>
         </div>
 
-        {/* Main Links Section */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {footerSections.map((section, idx) => (
-            <div key={idx} className="space-y-4">
-              <h3 className="text-white font-semibold text-lg mb-6 relative inline-block">
-                {section.title}
-                <span className="absolute -bottom-2 left-0 w-12 h-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></span>
-              </h3>
-              <ul className="space-y-3">
-                {section.items.map((item, itemIdx) => (
-                  <li key={itemIdx} className="group">
-                    <a
-                      href={item.href}
-                      className="flex items-center text-slate-400 hover:text-indigo-400 transition-all duration-300 group-hover:translate-x-1"
-                    >
-                      {item.icon && (
-                        <span className="mr-3 text-indigo-400/70 group-hover:text-indigo-400 transition-colors">
-                          {item.icon}
-                        </span>
-                      )}
-                      <span className="text-sm">{item.text}</span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
+        {/* Developer + About */}
+        <div className="px-6 py-8 md:border-r border-[#3A41E5]/8">
+          <ColTitle>Developer</ColTitle>
+          <FLink icon={Code}         text="Pardeep Singh"              href="#" />
+          <FLink icon={GraduationCap} text="B.C.A."                   href="#" />
+          <FLink icon={Phone}        text="+91 82840 12817"            href="tel:+918284012817" />
+          <FLink icon={Mail}         text="sidhupardeep618@yahoo.com"  href="mailto:sidhupardeep618@yahoo.com" />
+
+          <div className="mt-5">
+            <ColTitle>About</ColTitle>
+            <FLink text="Overview"        href="/about/#overview" />
+            <FLink text="Notifications"   href="/about/#notifications" />
+            <FLink text="Time management" href="/about/#time-management" />
+            <FLink text="Customer"        href="/about/#customer" />
+          </div>
+        </div>
+
+        {/* Services */}
+        <div className="px-6 py-8 md:border-r border-[#3A41E5]/8">
+          <ColTitle>Services</ColTitle>
+          <FLink icon={Bell}        text="Reminders"          href="#" />
+          <FLink icon={CheckSquare} text="Task management"    href="#" />
+          <FLink icon={Zap}         text="Analytics"          href="#" />
+          <FLink icon={Clock}       text="Time sheet"         href="#" />
+          <FLink icon={Zap}         text="Telegram alerts"    href="#" />
+          <FLink icon={Mail}        text="Email notifications" href="#" />
+        </div>
+
+        {/* Contact + Status */}
+        <div className="px-6 py-8">
+          <ColTitle>Contact</ColTitle>
+          <FLink icon={MapPin} text="Fazilka, Punjab, 152132"       href="#" />
+          <FLink icon={Phone}  text="+91 82840 12817"               href="tel:+918284012817" />
+          <FLink icon={Mail}   text="yudo.scheduler@gmail.com"      href="mailto:yudo.scheduler@gmail.com" />
+
+          <div className="mt-5">
+            <ColTitle>Status</ColTitle>
+            <StatusDot color="bg-green-500"  label="All systems operational" />
+            <StatusDot color="bg-[#3A41E5]" label="99.9% uptime this month" />
+          </div>
+        </div>
+      </div>
+
+      {/* Feature cards */}
+      <div className="relative z-10 border-b border-[#3A41E5]/10 px-6 py-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {FEATURES.map(({ icon: Icon, title, desc }) => (
+            <div
+              key={title}
+              className="flex flex-col gap-2 rounded-xl border border-[#3A41E5]/13 bg-white/60 p-3.5"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] bg-[#3A41E5]/8 border border-[#3A41E5]/12">
+                  <Icon className="h-4 w-4 text-[#3A41E5]" />
+                </div>
+                <span className="text-[.77rem] font-semibold text-[#1F257A]">{title}</span>
+              </div>
+              <p className="text-[.71rem] text-[#1F257A]/50 leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>
-
-        {/* Newsletter Section */}
-        {/* <div className="mb-12 p-8 rounded-2xl bg-gradient-to-br from-indigo-500/10 via-purple-500/10 to-pink-500/10 border border-indigo-500/20 backdrop-blur-sm">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="text-center md:text-left">
-              <h3 className="text-xl font-bold text-white mb-2">Stay Updated</h3>
-              <p className="text-slate-400 text-sm">Get the latest updates on features and productivity tips.</p>
-            </div>
-            <div className="flex w-full md:w-auto gap-2">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="flex-1 md:w-64 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-              />
-              <button className="px-6 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 flex items-center gap-2 hover:shadow-lg hover:scale-105">
-                Subscribe
-                <ArrowRight size={16} />
-              </button>
-            </div>
-          </div>
-        </div> */}
-
-        {/* Bottom Section - Copyright & Legal */}
-      <div className="pt-8 border-t border-slate-700/50">
-  <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left px-4 sm:px-6">
-    
-    {/* Left Section */}
-    <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-2 text-slate-400 text-sm sm:text-base leading-relaxed">
-      <p>© {currentYear} <span className="font-semibold text-white">Yudo Scheduler</span>. All rights reserved.</p>
-      
-      <span className="hidden sm:inline">•</span>
-      
-      <span className="flex items-center gap-1">
-        Made with <Heart size={14} className="text-red-500 fill-red-500 animate-pulse" /> in India
-      </span>
-    </div>
-    
-    {/* Right Section */}
-    <div className="flex flex-wrap justify-center md:justify-end gap-4 sm:gap-6 text-sm sm:text-base">
-      <a
-        href="#privacy"
-        className="text-slate-400 hover:text-indigo-400 transition-colors duration-300"
-      >
-        Privacy Policy
-      </a>
-      <a
-        href="#terms"
-        className="text-slate-400 hover:text-indigo-400 transition-colors duration-300"
-      >
-        Terms of Service
-      </a>
-      <a
-        href="#cookies"
-        className="text-slate-400 hover:text-indigo-400 transition-colors duration-300"
-      >
-        Cookies
-      </a>
-    </div>
-  </div>
-</div>
-
       </div>
 
-      {/* Bottom Gradient Line */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+      {/* Bottom bar */}
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 px-6 py-4">
+        <div className="flex flex-wrap items-center gap-2.5 text-[.74rem] text-[#1F257A]/50">
+          <span>© {year} <strong className="font-semibold text-[#1F257A]">Yudo Scheduler</strong>. All rights reserved.</span>
+          <Dot />
+          <span className="flex items-center gap-1">Made with <Heart className="h-3 w-3 fill-red-500 text-red-500" /> in India</span>
+          <Dot />
+          <Badge icon={Lock} text="SOC 2 compliant" />
+          <Badge icon={Shield} text="GDPR ready" />
+        </div>
+        <div className="flex gap-5">
+          {['Privacy Policy', 'Terms of Service', 'Cookies'].map((l) => (
+            <a key={l} href={`#${l.toLowerCase().replace(/\s/g, '-')}`}
+              className="text-[.74rem] text-[#1F257A]/45 hover:text-[#3A41E5] transition-colors">
+              {l}
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* Bottom accent */}
+      <div className="h-px bg-gradient-to-r from-transparent via-[#3A41E5] to-transparent" />
     </footer>
   );
 };
