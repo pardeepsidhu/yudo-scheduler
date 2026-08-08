@@ -14,7 +14,8 @@ import {
   Info,
   Trash2,
   Loader2,
-  Loader
+  Loader,
+  Repeat1
 } from 'lucide-react';
 
 import {
@@ -387,16 +388,17 @@ export default function TaskDashboard() {
                       <div className="p-1.5 rounded-sm bg-blue-50 group-hover:bg-blue-100 transition-all">
                         <Info size={14} className="text-blue-600" />
                       </div>
-                      <div
+                     {task.isPartOfRoutine && <div
                         className="p-1.5 rounded-sm bg-red-50 hover:bg-red-100 transition-all"
                         onClick={(e) => {
                           e.stopPropagation();
                           setDeleteTaskData(task);
                           setDeleteDialogOpen(true);
+
                         }}
                       >
                         <Trash2 size={14} className="text-red-600" />
-                      </div>
+                      </div>}
                     </div>
                   </div>
 
@@ -437,6 +439,14 @@ export default function TaskDashboard() {
                       <div className="flex items-center gap-1 text-xs text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-sm">
                         <AlertCircle size={12} />
                         {task.time.length} entries
+                      </div>
+                    )}
+
+
+                     {task.isPartOfRoutine && (
+                      <div className="flex items-center gap-1 text-xs text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-sm">
+                        <Repeat1 size={12} />
+                        Routine
                       </div>
                     )}
                   </div>

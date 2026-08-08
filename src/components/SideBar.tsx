@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import {
   Calendar, Clock, Bell, Users, PieChart, CheckSquare,
   Home, Info, LogOut, Menu, ChevronLeft, ChevronRight,
+  Repeat1,
+  CalendarClock
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -138,12 +140,15 @@ const ResponsiveNav: React.FC<ResponsiveNavProps> = ({
   const router = useRouter();
 
   const menuItems: MenuItem[] = [
-    { id: "timesheet",     label: "Timesheet",     icon: Calendar    },
+    { id: "timesheet",     label: "Timesheet",      icon: Calendar    },
     { id: "tasks",         label: "Tasks",          icon: CheckSquare },
     { id: "reminders",     label: "Reminders",      icon: Clock       },
     { id: "notifications", label: "Notifications",  icon: Bell        },
     { id: "analytics",     label: "Analytics",      icon: PieChart    },
     { id: "profile",       label: "Profile",        icon: Users       },
+    { id: "RoutineManager",label: "RoutineManager", icon: Repeat1        },
+    { id: "calendar",      label: "Calendar",       icon: CalendarClock      },
+    
   ];
 
   const handleLogout = () => {

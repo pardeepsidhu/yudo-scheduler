@@ -6,6 +6,9 @@ import Analytics from './Analytics';
 import UserProfileComponent from './Profile';
 import ProfessionalTimesheet from './TimeSheet';
 import NotificationsPage from './notification-page';
+import NotFound from '@/app/not-found';
+import RoutineManager from './RoutineManager';
+import { CalendarView } from './calendar';
 
 
 
@@ -26,8 +29,13 @@ export default async function Page({ params }: { params: Promise<{ path: string 
       return <NotificationsPage />;
     case "timesheet":
       return <ProfessionalTimesheet />;
+    case "routinemanager":
+      return <RoutineManager/> ;
+    case "calendar":
+      return <CalendarView />
     default:
-      return <div>404 Not Found</div>;
+      return <></>;
+       <NotFound />;
   }
 }
 

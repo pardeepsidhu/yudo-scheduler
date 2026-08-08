@@ -3,7 +3,8 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Calendar, LayoutDashboard, Clock, Bell, PieChart,
   CheckSquare, Home, Info, Users, Users2,
-  LogOut, Menu, ChevronDown, Sparkles, LogIn,
+  LogOut, Menu, ChevronDown, Sparkles, LogIn, Repeat1,
+  CalendarClock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -28,6 +29,8 @@ const DASHBOARD_ITEMS = [
   { title: "Notifications", href: "/dashboard/notifications", icon: Bell,        desc: "Track important updates and alerts in real-time"    },
   { title: "Analytics",     href: "/dashboard/analytics",     icon: PieChart,    desc: "Gain insight with visual productivity analytics"    },
   { title: "Timesheet",     href: "/dashboard/timesheet",     icon: Calendar,    desc: "Track hours worked and generate accurate reports"   },
+  { title: "Routine Manager", href: "/dashboard/RoutineManager",icon: Repeat1, desc: "Plan, organize, and manage your daily, weekly, and recurring routines" },
+  { title: "Calendar",      href: "/dashboard/calendar",       icon: CalendarClock  ,desc: "View reminders and tasks in daily, weekly, and monthly calendar views"    },
 ];
 
 // ─── Dot-grid background (matches login/footer) ──────────────────────────────
@@ -132,6 +135,9 @@ const ProfessionalNavbar = () => {
     { id: "reminders",     label: "Reminders",      icon: Clock       },
     { id: "notifications", label: "Notifications",  icon: Bell        },
     { id: "analytics",     label: "Analytics",      icon: PieChart    },
+    { id: "RoutineManager",label: "RoutineManager", icon: Repeat1        },
+    { id: "calendar",      label: "Calendar",       icon: CalendarClock      },
+    
   ];
 
   const handleMobileNav = (id: string) => {
