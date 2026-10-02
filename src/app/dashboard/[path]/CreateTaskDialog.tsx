@@ -87,8 +87,12 @@ export function CreateTaskDialog({
       priority: taskToEdit?.priority || 'normal',
       estimatedHours: 0,
       estimatedMinutes: 0,
+      isPartOfRoutine: taskToEdit?.isPartOfRoutine || false,
     },
   });
+
+  // A routine prototype is a template, so it takes no duration.
+  const isRoutineTemplate = form.watch('isPartOfRoutine');
 
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
@@ -102,8 +106,9 @@ export function CreateTaskDialog({
         isPartOfRoutine:data?.isPartOfRoutine
       };
       
-      // Only add estimatedTime if hours or minutes are not 0
-      if (data.estimatedHours > 0 || data.estimatedMinutes > 0) {
+      // Only add estimatedTime if hours or minutes are not 0.
+      // Routine prototypes never carry a duration.
+      if (!data.isPartOfRoutine && (data.estimatedHours > 0 || data.estimatedMinutes > 0)) {
         const estimated = new Date(0); // Epoch
         estimated.setUTCHours(data.estimatedHours);
         estimated.setUTCMinutes(data.estimatedMinutes);
@@ -366,7 +371,8 @@ export function CreateTaskDialog({
             </div>
           </div>
 
-          {/* Time Estimation Section */}
+          {/* Time Estimation Section — hidden for routine prototypes */}
+          {!isRoutineTemplate && (
           <div className="border border-slate-200 p-5 rounded-sm bg-slate-50/60">
             <div className="flex items-center gap-3 mb-4">
               <div className="p-2 bg-blue-50 rounded-sm">
@@ -467,6 +473,19 @@ export function CreateTaskDialog({
               </p>
             </div>
           </div>
+          )}
+
+          {isRoutineTemplate && (
+            <div className="p-3 bg-purple-50 border-l-4 border-purple-500 rounded-sm">
+              <p className="text-xs text-purple-900 flex items-start gap-2.5 leading-relaxed">
+                <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0 text-purple-600" />
+                <span>
+                  This is a routine prototype. It has no duration or time slots of
+                  its own &mdash; the routine it belongs to decides when it happens.
+                </span>
+              </p>
+            </div>
+          )}
 
           <FormField
             control={form.control}
@@ -475,10 +494,11 @@ export function CreateTaskDialog({
               <FormItem className="flex flex-row items-center justify-between rounded-sm border border-slate-200 p-4">
                 <div className="space-y-1">
                   <FormLabel className="text-sm font-semibold text-slate-900">
-                    Part of Routine
+                    Is for Routine
                   </FormLabel>
                   <FormDescription className="text-xs text-slate-500">
-                    Mark this task if it is part of a routine.
+                    Save this as a prototype for routines. It takes no estimated
+                    time and appears under the Templates tab, not in your task list.
                   </FormDescription>
                 </div>
 

@@ -24,9 +24,10 @@ export const getAllReminders = async (token, page, pageSize, status = 'all') => 
     }
     let t = JSON.parse(token)
 
-    // Add status filter if not 'all'
-    if (status === 'pending' || status === 'sent') {
-      endpoint += `&status=${status}`;
+    // Add status filter if not 'all'. 'templates' asks the backend for
+    // routine prototypes instead of real reminders.
+    if (status === 'pending' || status === 'sent' || status === 'templates') {
+      endpoint += `${endpoint.includes('?') ? '&' : '?'}status=${status}`;
     }
 
     const response = await fetch(endpoint, {
@@ -69,7 +70,9 @@ export const scheduleEmail = async (emailDetails, token, setAIPrompt) => {
       body: JSON.stringify({
         subject: emailDetails.subject,
         body: emailDetails.message,
-        scheduleTime: emailDetails.scheduledTime
+        // A routine prototype carries no send time.
+        scheduleTime: emailDetails.isPartOfRoutine ? null : emailDetails.scheduledTime,
+        isPartOfRoutine: emailDetails.isPartOfRoutine === true
       }),
     });
 

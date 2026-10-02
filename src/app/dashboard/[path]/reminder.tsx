@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Label } from "@/components/ui/label"
+import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
 import {
   Bell,
@@ -40,6 +41,7 @@ import {
   Sparkles,
   FileText,
   CalendarDays,
+  Repeat,
 } from "lucide-react"
 import { format } from "date-fns"
 import { generateAIContent } from "../../api/reminderService"
@@ -51,8 +53,9 @@ interface Reminder {
   to: string;
   subject: string;
   body: string;
-  scheduleTime: string; // ISO 8601 format
+  scheduleTime: string | null; // ISO 8601 format; null for routine templates
   jobId: string;
+  isPartOfRoutine?: boolean;
   createdAt: string;    // ISO 8601 format
   updatedAt: string;    // ISO 8601 format
   // sent ?:boolean;
@@ -67,7 +70,7 @@ export default function RemindersComponent() {
   const [hasMore, setHasMore] = useState(true)
   const [page, setPage] = useState(1)
   const [pageSize] = useState(10)
-  const [activeTab, setActiveTab] = useState<"all" | "pending" | "sent">("all")
+  const [activeTab, setActiveTab] = useState<"all" | "pending" | "sent" | "templates">("all")
   const [aiPrompt, setAiPrompt] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -82,6 +85,7 @@ export default function RemindersComponent() {
   const [newReminder, setNewReminder] = useState({
     subject: "",
     message: "",
+    isPartOfRoutine: false,
     scheduledTime: new Date(Date.now() + 86400000).toISOString().slice(0, 16) // Default to tomorrow
   })
   const [waiting, setWaiting] = useState(false)
@@ -162,11 +166,12 @@ export default function RemindersComponent() {
       if (result.error) {
         showMessage(result.error, "error")
       } else {
-        showMessage("Reminder scheduled successfully!", "success")
+        showMessage(newReminder.isPartOfRoutine ? "Routine reminder template saved!" : "Reminder scheduled successfully!", "success")
         setCreateDialogOpen(false)
         setNewReminder({
           subject: "",
           message: "",
+          isPartOfRoutine: false,
           scheduledTime: new Date(Date.now() + 86400000).toISOString().slice(0, 16)
         })
         fetchReminders(true)
@@ -232,8 +237,18 @@ export default function RemindersComponent() {
   }
 
   // Helper for formatting dates
-  const formatDateTime = (dateString: string) => {
+  const formatDateTime = (dateString: string | null | undefined) => {
+    // Routine templates have no schedule time.
+    if (!dateString) {
+      return { date: "No date", time: "Template" }
+    }
+
     const date = new Date(dateString)
+
+    if (Number.isNaN(date.getTime())) {
+      return { date: "No date", time: "Template" }
+    }
+
     return {
       date: format(date, "MMM d, yyyy"),
       time: format(date, "h:mm a")
@@ -242,7 +257,7 @@ export default function RemindersComponent() {
 
   // Handle tab change
   const handleTabChange = (value: string) => {
-    setActiveTab(value as "all" | "pending" | "sent")
+    setActiveTab(value as "all" | "pending" | "sent" | "templates")
   }
 
   const handleRefresh = () => {
@@ -330,7 +345,7 @@ export default function RemindersComponent() {
 
           <div className="w-full">
             <Tabs defaultValue="all" className="w-full rounded-sm" onValueChange={handleTabChange}>
-              <TabsList className="grid w-full grid-cols-3 bg-gray-50 p-1 rounded-sm h-[content] border border-gray-200">
+              <TabsList className="grid w-full grid-cols-4 bg-gray-50 p-1 rounded-sm h-[content] border border-gray-200">
                 <TabsTrigger
                   value="all"
                   className="flex items-center justify-center py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-indigo-600 rounded-sm transition-all"
@@ -351,6 +366,13 @@ export default function RemindersComponent() {
                 >
                   <MailCheck className="mr-2 h-4 w-4" />
                   Sent
+                </TabsTrigger>
+                <TabsTrigger
+                  value="templates"
+                  className="flex items-center justify-center py-2 data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-purple-600 rounded-sm transition-all"
+                >
+                  <Repeat className="mr-2 h-4 w-4" />
+                  Templates
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -394,12 +416,21 @@ export default function RemindersComponent() {
                       >
                         <div className="flex justify-between items-start">
                           <h3 className="font-semibold text-gray-900 line-clamp-1">{reminder.subject}</h3>
-                          <Badge
-                            variant={isPending ? "outline" : "default"}
-                            className={`ml-2 shrink-0 ${isPending ? 'border-amber-300 text-amber-700 bg-amber-50' : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0'}`}
-                          >
-                            {isPending ? "Pending" : "Sent"}
-                          </Badge>
+                          {reminder.isPartOfRoutine ? (
+                            <Badge
+                              variant="outline"
+                              className="ml-2 shrink-0 border-purple-300 text-purple-700 bg-purple-50"
+                            >
+                              Template
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant={isPending ? "outline" : "default"}
+                              className={`ml-2 shrink-0 ${isPending ? 'border-amber-300 text-amber-700 bg-amber-50' : 'bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0'}`}
+                            >
+                              {isPending ? "Pending" : "Sent"}
+                            </Badge>
+                          )}
                         </div>
 
                         <div className="mt-1 flex items-center gap-2 text-sm text-gray-600 flex-wrap">
@@ -451,9 +482,11 @@ export default function RemindersComponent() {
               </div>
               <h3 className="mt-4 text-lg font-semibold text-gray-900">No reminders found</h3>
               <p className="mt-2 text-sm text-gray-600">
-                {activeTab !== "all"
-                  ? `You don't have any ${activeTab === "pending" ? "pending" : "sent"} reminders.`
-                  : "Create a new reminder to get started."}
+                {activeTab === "templates"
+                  ? "You don't have any routine templates yet."
+                  : activeTab !== "all"
+                    ? `You don't have any ${activeTab === "pending" ? "pending" : "sent"} reminders.`
+                    : "Create a new reminder to get started."}
               </p>
               {activeTab !== "all" && (
                 <Button
@@ -635,20 +668,42 @@ export default function RemindersComponent() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="scheduledTime" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-                  <CalendarDays className="w-4 h-4 text-blue-600" />
-                  Schedule Date and Time
-                </Label>
-                <Input
-                  id="scheduledTime"
-                  type="datetime-local"
-                  value={newReminder.scheduledTime}
-                  onChange={(e) => setNewReminder({ ...newReminder, scheduledTime: e.target.value })}
-                  className="border border-gray-300 rounded-sm focus:outline-none focus:ring-0 focus:border-gray-300"
-                  required
+              <div className="flex items-start justify-between gap-4 rounded-sm border border-gray-300 p-3">
+                <div className="space-y-1">
+                  <Label htmlFor="isPartOfRoutine" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <Repeat className="w-4 h-4 text-purple-600" />
+                    Is for Routine
+                  </Label>
+                  <p className="text-xs text-gray-500">
+                    Save this as a prototype for routines. It takes no schedule
+                    time, is never sent on its own, and appears under Templates.
+                  </p>
+                </div>
+                <Checkbox
+                  id="isPartOfRoutine"
+                  checked={newReminder.isPartOfRoutine}
+                  onCheckedChange={(checked) =>
+                    setNewReminder({ ...newReminder, isPartOfRoutine: checked === true })
+                  }
                 />
               </div>
+
+              {!newReminder.isPartOfRoutine && (
+                <div className="space-y-2">
+                  <Label htmlFor="scheduledTime" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
+                    <CalendarDays className="w-4 h-4 text-blue-600" />
+                    Schedule Date and Time
+                  </Label>
+                  <Input
+                    id="scheduledTime"
+                    type="datetime-local"
+                    value={newReminder.scheduledTime}
+                    onChange={(e) => setNewReminder({ ...newReminder, scheduledTime: e.target.value })}
+                    className="border border-gray-300 rounded-sm focus:outline-none focus:ring-0 focus:border-gray-300"
+                    required
+                  />
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="message" className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -679,8 +734,8 @@ export default function RemindersComponent() {
             </Button>
             <Button
               onClick={handleCreateReminderSubmit}
-              disabled={waiting || !newReminder.subject || !newReminder.message || !newReminder.scheduledTime}
-              className={`px-4 py-2 rounded-sm flex items-center gap-2 shadow-md ${waiting || !newReminder.subject || !newReminder.message || !newReminder.scheduledTime ? 'bg-gray-200 text-gray-500' : 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:opacity-90'}`}
+              disabled={waiting || !newReminder.subject || !newReminder.message || (!newReminder.isPartOfRoutine && !newReminder.scheduledTime)}
+              className={`px-4 py-2 rounded-sm flex items-center gap-2 shadow-md ${waiting || !newReminder.subject || !newReminder.message || (!newReminder.isPartOfRoutine && !newReminder.scheduledTime) ? 'bg-gray-200 text-gray-500' : 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white hover:opacity-90'}`}
             >
               {waiting ? (
                 <>

@@ -102,9 +102,11 @@ export default function TaskDashboard() {
     setPage(0);
 
     try {
-      let options: { limit: number; skip: number; priority?: TaskPriority } = {
+      let options: { limit: number; skip: number; priority?: TaskPriority; isPartOfRoutine?: boolean } = {
         limit: LIMIT,
         skip: 0,
+        // Templates tab shows prototypes; every other tab shows real tasks.
+        isPartOfRoutine: tab === 'templates',
       };
 
       if (filter !== 'all') {
@@ -128,9 +130,10 @@ export default function TaskDashboard() {
 
     setLoading(true);
     try {
-      let options: { limit: number; skip: number; priority?: TaskPriority } = {
+      let options: { limit: number; skip: number; priority?: TaskPriority; isPartOfRoutine?: boolean } = {
         limit: LIMIT,
         skip: page * LIMIT,
+        isPartOfRoutine: tab === 'templates',
       };
 
       if (filter !== 'all') {
@@ -165,7 +168,10 @@ export default function TaskDashboard() {
       task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       task.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesTab = tab === 'all' || task.status === tab;
+    // The Templates tab is served by the backend filter, so status tabs
+    // must not also be applied to it.
+    const matchesTab =
+      tab === 'templates' || tab === 'all' || task.status === tab;
 
     return matchesSearch && matchesTab;
   });
@@ -339,6 +345,16 @@ export default function TaskDashboard() {
         "
               >
                 Done
+              </TabsTrigger>
+
+              <TabsTrigger
+                value="templates"
+                className="
+          px-3 py-2 sm:px-4 text-xs sm:text-sm font-medium rounded-sm transition-all
+          data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-md
+        "
+              >
+                Templates
               </TabsTrigger>
             </TabsList>
           </Tabs>

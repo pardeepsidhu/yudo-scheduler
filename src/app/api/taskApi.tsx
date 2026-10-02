@@ -66,6 +66,10 @@ export async function fetchTasks(options?: {
   limit?: number;
   skip?: number;
   priority?: 'high' | 'normal' | 'low';
+  // true  -> routine prototypes only
+  // false -> real tasks only
+  // omitted -> everything, as before
+  isPartOfRoutine?: boolean;
 }): Promise<TasksResponse> {
   const token = getAuthToken();
   if (!token) {
@@ -77,7 +81,10 @@ export async function fetchTasks(options?: {
   if (options?.limit) queryParams.append('limit', options.limit.toString());
   if (options?.skip) queryParams.append('skip', options.skip.toString());
   if (options?.priority) queryParams.append('priority', options.priority);
-  
+  if (options?.isPartOfRoutine !== undefined) {
+    queryParams.append('isPartOfRoutine', String(options.isPartOfRoutine));
+  }
+
   const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
   
   const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1/task${queryString}`, {
